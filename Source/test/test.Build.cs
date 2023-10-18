@@ -13,7 +13,8 @@ public class test : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[] { });
 
         PublicIncludePaths.AddRange(new string[] {
-            "test/Public/Player"
+            "test/Public/Player",
+            "test/Public/Components"
         });
 
         // Uncomment if you are using Slate UI

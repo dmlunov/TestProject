@@ -4,7 +4,8 @@
 #include "Player/TestBaseCharacter.h"
 #include "Player/TestPlayerController.h"
 
-ATestGameModeBase::ATestGameModeBase(){
+ATestGameModeBase::ATestGameModeBase()
+{
     DefaultPawnClass = ATestBaseCharacter::StaticClass();
     PlayerControllerClass = ATestPlayerController::StaticClass();
 };
