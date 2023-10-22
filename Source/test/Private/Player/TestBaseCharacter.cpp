@@ -5,6 +5,9 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TestCharacterMovementComponent.h"
+#include "Components/HelthComponent.h"
+#include "Components/TextRenderComponent.h"
+
 
 // Sets default values
 ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
@@ -19,18 +22,28 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
+
+    HelthComponent = CreateDefaultSubobject<UHelthComponent>("HelthComponent");
+    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent"); 
+    HealthTextComponent->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void ATestBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
+    check(HelthComponent);
+    check(HealthTextComponent);
 }
 
 // Called every frame
 void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    const auto Health = HelthComponent->GetHealth();
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+
 }
 
 // Called to bind functionality to input
@@ -50,11 +63,13 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ATestBaseCharacter::MoveForward(float Amount)
 {
     IsMovingForward = Amount > 0.0f;
+    if (Amount == 0.0f) return;
     AddMovementInput(GetActorForwardVector(), Amount);
 };
 
 void ATestBaseCharacter::MoveRight(float Amount)
 {
+    if (Amount == 0.0f) return;
     AddMovementInput(GetActorRightVector(), Amount);
 };
 
@@ -71,4 +86,16 @@ void ATestBaseCharacter::OnStopRunning()
 bool ATestBaseCharacter::IsRunning() const
 {
     return WantsToRun && IsMovingForward && !GetVelocity().IsZero();
+};
+
+float ATestBaseCharacter::GetMovementDerection() const
+{
+    if (GetVelocity().IsZero()) return 0.0f;
+
+    const auto VelocityNormal = GetVelocity().GetSafeNormal();
+    const auto AngelBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
+    const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+    const auto Degrees = FMath::RadiansToDegrees(AngelBetween);
+
+    return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 };

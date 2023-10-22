@@ -8,8 +8,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-
-
+class UHelthComponent;
+class UTextRenderComponent;
 
     UCLASS()
 class TEST_API ATestBaseCharacter : public ACharacter
@@ -30,6 +30,11 @@ protected:
     UPROPERTY (VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UHelthComponent* HelthComponent;
+
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* HealthTextComponent;
 
 public:
     // Called every frame
@@ -41,9 +46,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+     UFUNCTION(BlueprintCallable, Category = "Movement")
+     float GetMovementDerection() const;
+
 private:
     bool WantsToRun = false;
     bool IsMovingForward = false;
+
 
     void MoveForward(float Amount);
     void MoveRight(float Amount);
