@@ -26,5 +26,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USkeletalMeshComponent* WeaponMesh; 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+    FName SocketName = "MuzzleFlashSocket";
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+    float TraceMaxDistance = 3000.0f;
+
+	void MakeShot();
 
 };
