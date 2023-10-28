@@ -1,13 +1,17 @@
 // Test Game,  All Rights Reserved.
 
 #include "Player/TestBaseCharacter.h"
+#include "Components/TestWeaponComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TestCharacterMovementComponent.h"
 #include "Components/HelthComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "GameFramework/Controller.h"
 
+
+DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
 // Sets default values
 ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
@@ -19,13 +23,18 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
+    SpringArmComponent->SocketOffset = FVector(-90.0f, -100.0f, 80.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
 
+    WeaponComponent = CreateDefaultSubobject <UTestWeaponComponent> ("WeaponComponent");
+
     HelthComponent = CreateDefaultSubobject<UHelthComponent>("HelthComponent");
-    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent"); 
+    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
+    HealthTextComponent->SetOwnerNoSee(true);
+    //
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +43,11 @@ void ATestBaseCharacter::BeginPlay()
     Super::BeginPlay();
     check(HelthComponent);
     check(HealthTextComponent);
+    check(GetCharacterMovement());
+
+    OnHealthChanged(HelthComponent->GetHealth());
+    HelthComponent->OnDeath.AddUObject(this, &ATestBaseCharacter::OnDeath);
+    HelthComponent->OnHealthChanged.AddUObject(this, &ATestBaseCharacter::OnHealthChanged);
 }
 
 // Called every frame
@@ -41,15 +55,15 @@ void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    const auto Health = HelthComponent->GetHealth();
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-
+    // TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
 // Called to bind functionality to input
 void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(PlayerInputComponent);
+    check(WeaponComponent);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ATestBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ATestBaseCharacter::MoveRight);
@@ -58,6 +72,7 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATestBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATestBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ATestBaseCharacter::OnStopRunning);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Fire);
 }
 
 void ATestBaseCharacter::MoveForward(float Amount)
@@ -72,7 +87,6 @@ void ATestBaseCharacter::MoveRight(float Amount)
     if (Amount == 0.0f) return;
     AddMovementInput(GetActorRightVector(), Amount);
 };
-
 
 void ATestBaseCharacter::OnStartRunning()
 {
@@ -99,3 +113,22 @@ float ATestBaseCharacter::GetMovementDerection() const
 
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 };
+
+void ATestBaseCharacter::OnDeath()
+{
+
+    UE_LOG(BaseCharacterLog, Display, TEXT("Player is death, Name: %s"), *GetName());
+
+    PlayAnimMontage(DeathAnimMontage);
+    GetCharacterMovement()->DisableMovement();
+    SetLifeSpan(5.0f);
+    if (Controller)
+    {
+        Controller->ChangeState(NAME_Spectating);
+    }
+}
+
+void ATestBaseCharacter::OnHealthChanged(float Health)
+{
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}

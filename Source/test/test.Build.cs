@@ -14,7 +14,10 @@ public class test : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] {
             "test/Public/Player",
-            "test/Public/Components"
+            "test/Public/Components",
+            "test/Public/Dev",
+            "test/Public/Weapon",
+            "test/Public/UI",
         });
 
         // Uncomment if you are using Slate UI

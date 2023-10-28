@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "TestGameModeBase.generated.h"
 
+
 /**
  * 
  */
@@ -15,5 +16,6 @@ class TEST_API ATestGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 public:
     ATestGameModeBase();
+
 
 };

@@ -3,9 +3,11 @@
 #include "TestGameModeBase.h"
 #include "Player/TestBaseCharacter.h"
 #include "Player/TestPlayerController.h"
+#include "UI/TestGameHUD.h"
 
-ATestGameModeBase::ATestGameModeBase()
+ ATestGameModeBase::ATestGameModeBase()
 {
     DefaultPawnClass = ATestBaseCharacter::StaticClass();
     PlayerControllerClass = ATestPlayerController::StaticClass();
+    HUDClass = ATestGameHUD::StaticClass();
 };
