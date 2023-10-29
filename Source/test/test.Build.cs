@@ -18,6 +18,7 @@ public class test : ModuleRules
             "test/Public/Dev",
             "test/Public/Weapon",
             "test/Public/UI",
+             "test/Public/Animation"
         });
 
         // Uncomment if you are using Slate UI

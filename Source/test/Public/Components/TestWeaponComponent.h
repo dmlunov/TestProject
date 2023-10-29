@@ -8,7 +8,6 @@
 
 class ATestBaseWeapon;
 
-
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class TEST_API UTestWeaponComponent : public UActorComponent
 {
@@ -18,25 +17,53 @@ public:
     UTestWeaponComponent();
 
     UFUNCTION()
-     void Fire();
+    void StartFire();
+
+    UFUNCTION()
+    void StopFire();
+
+    void NextWeapon();
 
 protected:
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayPeason) override;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    TSubclassOf<ATestBaseWeapon> WeaponClass;
+    TArray<TSubclassOf<ATestBaseWeapon>> WeaponClasses;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    FName WeaponAttachPointName = "WeaponSocket"; 
+    FName WeaponEquipSoketName = "WeaponSocket";
 
-    
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    FName WeaponArmorySoketName = "ArmorySocket";
 
-
+     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    UAnimMontage* EquipMontage;
 
 private:
     UPROPERTY()
     ATestBaseWeapon* CurrentWeapon = nullptr;
 
+    UPROPERTY()
+    TArray<ATestBaseWeapon*> Weapons;
 
-    void SpawnWeapon();
+    bool EquipAnimInProgress = false;
+
+
+    int32 CurrentWeaponIndex;
+
+    void SpawnWeapons();
+
+
+    void AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName);
+    void EquipWeapon(int32 WeaponIndex);
+
+    void PlayAnimMontage(UAnimMontage* Animation);
+    void InitAnimation();
+    void OnEquipFinished(USkeletalMeshComponent* MeshComp);
+
+    bool CanFire() const ;
+    bool CanEquip() const;
+
+
 };

@@ -8,6 +8,7 @@
 #include "Components/TestCharacterMovementComponent.h"
 #include "Components/HelthComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Controller.h"
 
 
@@ -72,7 +73,10 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATestBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATestBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ATestBaseCharacter::OnStopRunning);
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Fire);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &UTestWeaponComponent::StopFire);
+    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UTestWeaponComponent::NextWeapon);
+
 }
 
 void ATestBaseCharacter::MoveForward(float Amount)
@@ -117,7 +121,7 @@ float ATestBaseCharacter::GetMovementDerection() const
 void ATestBaseCharacter::OnDeath()
 {
 
-    UE_LOG(BaseCharacterLog, Display, TEXT("Player is death, Name: %s"), *GetName());
+   // UE_LOG(BaseCharacterLog, Display, TEXT("Player is death, Name: %s"), *GetName());
 
     PlayAnimMontage(DeathAnimMontage);
     GetCharacterMovement()->DisableMovement();
@@ -126,6 +130,10 @@ void ATestBaseCharacter::OnDeath()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+    WeaponComponent->StopFire();
 }
 
 void ATestBaseCharacter::OnHealthChanged(float Health)
