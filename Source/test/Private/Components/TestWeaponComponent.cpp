@@ -4,6 +4,7 @@
 #include "Weapon/TestBaseWeapon.h"
 #include "GameFramework/Character.h"
 #include "Animation/TestEquipFinishedAnimNotify.h"
+#include "Animation/TestReloadFinishAnimNotify.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -41,9 +42,9 @@ void UTestWeaponComponent::SpawnWeapons()
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character || !GetWorld()) return;
 
-    for (auto WeaponClass : WeaponClasses)
+    for (auto OneWeaponData : WeaponData)
     {
-        auto Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(WeaponClass);
+        auto Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
         if (!Weapon) continue;
         Weapon->SetOwner(Character);
         Weapons.Add(Weapon);
@@ -62,6 +63,11 @@ void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneCo
 
 void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
 {
+    if (WeaponIndex < 0 || WeaponIndex >= Weapons.Num())
+    {
+        UE_LOG(TestWeaponComponentLog, Display, TEXT("invalid waepon index"));
+        return;
+    }
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character) return;
 
@@ -70,7 +76,13 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
         CurrentWeapon->StopFire();
         AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
     }
+
     CurrentWeapon = Weapons[WeaponIndex];
+    // CurrentReloadAnimMontage = WeaponData[WeaponIndex].ReloadAnimMontage;
+    const auto CurrentWeaponData =
+        WeaponData.FindByPredicate([&](const FWeaponData& Data) { return Data.WeaponClass == CurrentWeapon->GetClass(); });
+
+    CurrentReloadAnimMontage = CurrentWeaponData ? CurrentWeaponData->ReloadAnimMontage : nullptr;
     AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipSoketName);
     EquipAnimInProgress = true;
     PlayAnimMontage(EquipMontage);
@@ -106,19 +118,20 @@ void UTestWeaponComponent::PlayAnimMontage(UAnimMontage* Animation)
 
 void UTestWeaponComponent::InitAnimation()
 {
-    if (!EquipMontage) return;
-
-    const auto NotifyEvents = EquipMontage->Notifies;
-    for (auto NotifyEvent : NotifyEvents)
+    auto EquipFinishedNotify = FindNotifyByClass<UTestEquipFinishedAnimNotify>(EquipMontage);
+    if (EquipFinishedNotify)
     {
-        auto EquipFinishedNotify = Cast<UTestEquipFinishedAnimNotify>(NotifyEvent.Notify);
-        if (EquipFinishedNotify)
-        {
-            EquipFinishedNotify->OnNotified.AddUObject(this, &UTestWeaponComponent::OnEquipFinished);
-            break;
-        }
+        EquipFinishedNotify->OnNotified.AddUObject(this, &UTestWeaponComponent::OnEquipFinished);
+    }
+
+    for (auto OneWeaponData : WeaponData)
+    {
+        auto ReloadFinishAnimMontage = FindNotifyByClass<UTestReloadFinishAnimNotify>(OneWeaponData.ReloadAnimMontage);
+        if (!ReloadFinishAnimMontage) continue;
+        ReloadFinishAnimMontage->OnNotified.AddUObject(this, &UTestWeaponComponent::OnReloadFinished);
     }
 }
+
 void UTestWeaponComponent::OnEquipFinished(USkeletalMeshComponent* MeshComp)
 {
     ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -126,11 +139,30 @@ void UTestWeaponComponent::OnEquipFinished(USkeletalMeshComponent* MeshComp)
     EquipAnimInProgress = false;
 }
 
-bool UTestWeaponComponent::CanFire() const 
+void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
 {
-    return CurrentWeapon && !EquipAnimInProgress;
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+    if (!Character || Character->GetMesh() != MeshComp) return;
+    ReloadAnimInProgress = false;
 }
-bool UTestWeaponComponent::CanEquip() const 
+
+bool UTestWeaponComponent::CanFire() const
 {
-    return !EquipAnimInProgress;
+    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress;
+}
+bool UTestWeaponComponent::CanEquip() const
+{
+    return !EquipAnimInProgress && !ReloadAnimInProgress;
+}
+
+bool UTestWeaponComponent::CanReload() const
+{
+    return !EquipAnimInProgress && !ReloadAnimInProgress;
+}
+
+void UTestWeaponComponent::Reload()
+{
+    if (!CanReload()) return;
+    ReloadAnimInProgress = true;
+    PlayAnimMontage(CurrentReloadAnimMontage);
 }

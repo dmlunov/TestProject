@@ -13,6 +13,8 @@ void ATestLauncherWeapon::StartFire()
 
 void ATestLauncherWeapon::MakeShot()
 {
+    if (!GetWorld() || IsAmmoEmpty()) return;
+
     FVector TraceStart;
     FVector TraceEnd;
     if (!GetTraceData(TraceStart, TraceEnd)) return;
@@ -37,5 +39,5 @@ void ATestLauncherWeapon::MakeShot()
     }
 
     //UGameplayStatics::FinishSpawningActor(Projectile, SpawnTransform);
-
+    DecreaseAmmo();
  }

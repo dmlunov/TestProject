@@ -22,19 +22,16 @@ ATestBaseWeapon::ATestBaseWeapon()
 void ATestBaseWeapon::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(WeaponMesh);
+    CurrentAmmo = DefaultAmmo;
 }
 
-void ATestBaseWeapon::StartFire()
-{
-}
+void ATestBaseWeapon::StartFire() {}
 
-void ATestBaseWeapon::StopFire()
-{
-}
+void ATestBaseWeapon::StopFire() {}
 
-void ATestBaseWeapon::MakeShot()
-{
-}
+void ATestBaseWeapon::MakeShot() {}
 
 APlayerController* ATestBaseWeapon::GetPlayerController() const
 {
@@ -53,7 +50,6 @@ bool ATestBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRo
     Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
     return true;
 }
-
 
 FVector ATestBaseWeapon::GetMuzzleWorldLocation() const
 {
@@ -75,7 +71,7 @@ bool ATestBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
     return true;
 }
 
-void ATestBaseWeapon::MakeHit (FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
+void ATestBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
 {
     if (!GetWorld()) return;
     // игнарируем пересечения LineTrace с собственным персанажем
@@ -84,3 +80,40 @@ void ATestBaseWeapon::MakeHit (FHitResult& HitResult, const FVector& TraceStart,
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
 
+void ATestBaseWeapon::DecreaseAmmo()
+{
+    CurrentAmmo.Bullets--;
+    LogAmmo();
+
+    if (IsClipEmpty() && !IsAmmoEmpty())
+    {
+        ChangeClip();
+    }
+}
+
+bool ATestBaseWeapon::IsAmmoEmpty() const
+{
+    return !CurrentAmmo.Infinite && CurrentAmmo.Clips == 0 && IsClipEmpty();
+}
+
+bool ATestBaseWeapon::IsClipEmpty() const
+{
+    return CurrentAmmo.Bullets == 0;
+}
+void ATestBaseWeapon::ChangeClip()
+{
+    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+    if (!CurrentAmmo.Infinite)
+    {
+        CurrentAmmo.Clips--;
+        UE_LOG(BaseWeaponLog, Display, TEXT("--- Change Clip ---"));
+
+    }
+
+}
+void ATestBaseWeapon::LogAmmo()
+{
+    FString AmmoInfo = "Ammo" + FString::FromInt(CurrentAmmo.Bullets) + " / ";
+    AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
+    UE_LOG(BaseWeaponLog, Display, TEXT("%s"), *AmmoInfo);
+}

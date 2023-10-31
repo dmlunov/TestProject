@@ -20,25 +20,38 @@ void ATestRifelWeapon::StopFire()
 
 void ATestRifelWeapon::MakeShot()
 {
-    if (!GetWorld()) return;
-
+    if (!GetWorld() || IsAmmoEmpty())
+    {
+        StopFire();
+        return;
+    }
     FVector TraceStart;
     FVector TraceEnd;
-    if (!GetTraceData(TraceStart, TraceEnd)) return;
-
+    if (!GetTraceData(TraceStart, TraceEnd))
+    {
+        StopFire();
+        return;
+    }
     FHitResult HitResult;
     MakeHit(HitResult, TraceStart, TraceEnd);
 
     if (HitResult.bBlockingHit)
     {
         MakeDamage(HitResult);
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::White, false, 0.1f, 0, 0.5f);
+       
 
         AActor* HitActor = HitResult.GetActor();
         if (HitActor && HitActor->FindComponentByClass<UHelthComponent>())
+        {
+
+            DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 0.1f, 0, 0.5f);
             DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 2.0f, 12, FColor::Red, false, 0.5f);
+        }
         else
+        {
+            DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::White, false, 0.1f, 0, 0.5f);
             DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 2.0f, 12, FColor::White, false, 0.5f);
+        }
 
         // UE_LOG(BaseWeaponLog, Display, TEXT("Bone: %s"), *HitResult.BoneName.ToString())
         //  TakeDamage(0.1f, FDamageEvent{}, Controller, this);
@@ -47,6 +60,7 @@ void ATestRifelWeapon::MakeShot()
     {
         DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::White, false, 0.1f, 0, 0.5f);
     }
+    DecreaseAmmo();
 }
 
 bool ATestRifelWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
