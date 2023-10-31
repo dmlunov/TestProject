@@ -24,6 +24,8 @@ void ATestBaseWeapon::BeginPlay()
     Super::BeginPlay();
 
     check(WeaponMesh);
+    checkf(DefaultAmmo.Bullets > 0, TEXT("Bullets count coulds`n be less or equal zero"));
+    checkf(DefaultAmmo.Clips > 0, TEXT("Clips count coulds`n be less or equal zero"));
     CurrentAmmo = DefaultAmmo;
 }
 
@@ -82,12 +84,20 @@ void ATestBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, 
 
 void ATestBaseWeapon::DecreaseAmmo()
 {
+    if (CurrentAmmo.Bullets == 0)
+    {
+        UE_LOG(BaseWeaponLog, Display, TEXT("Clip is empty"));
+        return;
+    }
+
     CurrentAmmo.Bullets--;
     LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
-        ChangeClip();
+        // ChangeClip();
+        StopFire();
+        OnClipEmpty.Broadcast();
     }
 }
 
@@ -100,17 +110,28 @@ bool ATestBaseWeapon::IsClipEmpty() const
 {
     return CurrentAmmo.Bullets == 0;
 }
+
 void ATestBaseWeapon::ChangeClip()
 {
-    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+
     if (!CurrentAmmo.Infinite)
     {
+        if (CurrentAmmo.Clips == 0)
+        {
+            UE_LOG(BaseWeaponLog, Display, TEXT("No more clips"));
+            return;
+        }
         CurrentAmmo.Clips--;
-        UE_LOG(BaseWeaponLog, Display, TEXT("--- Change Clip ---"));
-
     }
-
+    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+    UE_LOG(BaseWeaponLog, Display, TEXT("--- Change Clip ---"));
 }
+
+bool ATestBaseWeapon::CanReload() const
+{
+    return CurrentAmmo.Bullets < DefaultAmmo.Bullets && CurrentAmmo.Clips > 0;
+}
+
 void ATestBaseWeapon::LogAmmo()
 {
     FString AmmoInfo = "Ammo" + FString::FromInt(CurrentAmmo.Bullets) + " / ";

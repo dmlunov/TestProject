@@ -4,24 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProjectCoreTypes.h"
 #include "TestBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
 
-USTRUCT(BlueprintType)
-struct FAmmoData
-{
-    GENERATED_USTRUCT_BODY()
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    int32 Bullets;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (EditCondition = "!Infinite"))
-    int32 Clips;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    bool Infinite;
-};
 
 UCLASS()
 class TEST_API ATestBaseWeapon : public AActor
@@ -32,8 +22,12 @@ public:
     // Sets default values for this actor's properties
     ATestBaseWeapon();
 
+    FOnClipEmptyStgnature OnClipEmpty;
+
     virtual void StartFire();
     virtual void StopFire();
+    void ChangeClip();
+    bool CanReload() const;
 
 protected:
     // Called when the game starts or when spawned
@@ -65,7 +59,7 @@ protected:
     void DecreaseAmmo();
     bool IsAmmoEmpty() const;
     bool IsClipEmpty() const;
-    void ChangeClip();
+    
     void LogAmmo();
 
 private:

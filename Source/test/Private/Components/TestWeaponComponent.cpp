@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Animation/TestEquipFinishedAnimNotify.h"
 #include "Animation/TestReloadFinishAnimNotify.h"
+#include "Animation/AnimUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -46,6 +47,9 @@ void UTestWeaponComponent::SpawnWeapons()
     {
         auto Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
         if (!Weapon) continue;
+
+        Weapon->OnClipEmpty.AddUObject(this, &UTestWeaponComponent::OnEmptyClip);
+
         Weapon->SetOwner(Character);
         Weapons.Add(Weapon);
 
@@ -118,16 +122,25 @@ void UTestWeaponComponent::PlayAnimMontage(UAnimMontage* Animation)
 
 void UTestWeaponComponent::InitAnimation()
 {
-    auto EquipFinishedNotify = FindNotifyByClass<UTestEquipFinishedAnimNotify>(EquipMontage);
+    auto EquipFinishedNotify = AnimUtils::FindNotifyByClass<UTestEquipFinishedAnimNotify>(EquipMontage);
     if (EquipFinishedNotify)
     {
         EquipFinishedNotify->OnNotified.AddUObject(this, &UTestWeaponComponent::OnEquipFinished);
     }
+    else
+    {
+        UE_LOG(TestWeaponComponentLog, Error, TEXT("Equip Animation notify is forgotten to set"));
+        checkNoEntry();
+    }
 
     for (auto OneWeaponData : WeaponData)
     {
-        auto ReloadFinishAnimMontage = FindNotifyByClass<UTestReloadFinishAnimNotify>(OneWeaponData.ReloadAnimMontage);
-        if (!ReloadFinishAnimMontage) continue;
+        auto ReloadFinishAnimMontage = AnimUtils::FindNotifyByClass<UTestReloadFinishAnimNotify>(OneWeaponData.ReloadAnimMontage);
+        if (!ReloadFinishAnimMontage)
+        {
+            UE_LOG(TestWeaponComponentLog, Error, TEXT("Reload Animation notify is forgotten to set"));
+            checkNoEntry();
+        }
         ReloadFinishAnimMontage->OnNotified.AddUObject(this, &UTestWeaponComponent::OnReloadFinished);
     }
 }
@@ -157,12 +170,27 @@ bool UTestWeaponComponent::CanEquip() const
 
 bool UTestWeaponComponent::CanReload() const
 {
-    return !EquipAnimInProgress && !ReloadAnimInProgress;
+    return CurrentWeapon             //
+           && !EquipAnimInProgress   //
+           && !ReloadAnimInProgress  //
+           && CurrentWeapon->CanReload();
 }
 
 void UTestWeaponComponent::Reload()
 {
-    if (!CanReload()) return;
+    ChangeClip();
+}
+
+void UTestWeaponComponent::OnEmptyClip()
+{
+    ChangeClip();
+}
+
+void UTestWeaponComponent::ChangeClip()
+{
     ReloadAnimInProgress = true;
+    ReloadAnimInProgress = true;
+    CurrentWeapon->StopFire();
+    CurrentWeapon->ChangeClip();
     PlayAnimMontage(CurrentReloadAnimMontage);
 }

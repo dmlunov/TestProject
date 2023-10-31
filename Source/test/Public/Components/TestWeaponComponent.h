@@ -4,22 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ProjectCoreTypes.h"
 #include "TestWeaponComponent.generated.h"
+
 
 class ATestBaseWeapon;
 
 
-USTRUCT(BlueprintType)
-struct FWeaponData
-{
-    GENERATED_USTRUCT_BODY()
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    TSubclassOf<ATestBaseWeapon> WeaponClass;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-    UAnimMontage* ReloadAnimMontage;
-};
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -81,21 +73,8 @@ private:
     bool CanEquip() const;
     bool CanReload() const;
 
+    void OnEmptyClip();
+    void ChangeClip();
 
-    template<typename T>
-    T* FindNotifyByClass(UAnimSequenceBase* Animation)
-    {
-        if (!Animation) return nullptr;
-
-        const auto NotifyEvents = Animation->Notifies;
-        for (auto NotifyEvent : NotifyEvents)
-        {
-            auto AnimNotify = Cast<T>(NotifyEvent.Notify);
-            if (AnimNotify)
-            {
-                return AnimNotify;
-            }
-        }
-        return nullptr;
-    };
+   
 };

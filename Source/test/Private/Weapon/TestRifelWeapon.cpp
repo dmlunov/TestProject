@@ -9,8 +9,9 @@
 
 void ATestRifelWeapon::StartFire()
 {
-    MakeShot();
+   
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ATestRifelWeapon::MakeShot, TimerBetwenShots, true);
+    MakeShot();
 }
 
 void ATestRifelWeapon::StopFire()
