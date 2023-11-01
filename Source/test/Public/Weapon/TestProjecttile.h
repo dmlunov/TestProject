@@ -36,6 +36,8 @@ protected:
     bool DoFullDamage = false;
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     float LifeProgectile = 5.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    float HitImpulse = 750.0f;
 
 public:
     void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; };

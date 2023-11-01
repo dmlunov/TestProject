@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
+DEFINE_LOG_CATEGORY_STATIC(ProjectTileLog, All, All);
+
 ATestProjecttile::ATestProjecttile()
 {
 
@@ -36,15 +38,60 @@ void ATestProjecttile::BeginPlay()
     SetLifeSpan(LifeProgectile);
 }
 
-void ATestProjecttile::OnProjecttileHit(
-    UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ATestProjecttile::OnProjecttileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
     if (!GetWorld()) return;
     MovementComponent->StopMovementImmediately();
 
-    UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, GetActorLocation(), DamageRadius, UDamageType::StaticClass(),
-        {GetOwner()},this , GetController(), DoFullDamage);
-    DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 24, FColor::Red, false, 0.5f);
+    FVector CenterHitLocation = GetActorLocation();
+
+    TArray<FHitResult> HitResults;
+    TArray<FVector> ImpulseDirections;
+    TArray<AActor*> ActorsToIgnore{GetOwner()};
+
+    UGameplayStatics::ApplyRadialDamage(GetWorld(), DamageAmount, CenterHitLocation, DamageRadius, UDamageType::StaticClass(), {GetOwner()},this, GetController(), DoFullDamage);
+    
+    FCollisionQueryParams CollisionParams;
+    CollisionParams.AddIgnoredActors(ActorsToIgnore);
+
+    // Найти все AActor, попавшие в сферу
+    GetWorld()->SweepMultiByChannel(                //
+        HitResults,                                 //
+        CenterHitLocation,                          //
+        CenterHitLocation,                          //
+        FQuat::Identity,                            //
+        ECollisionChannel::ECC_Pawn,                // 
+        FCollisionShape::MakeSphere(DamageRadius),  //
+        CollisionParams);
+    FString ActorsHit;
+ 
+    if (OtherActor && OtherComp == OtherActor->GetRootComponent())
+    {
+        FVector ImpulseDirection = ShotDirection * HitImpulse;
+        OtherComp->AddImpulse(ImpulseDirection, NAME_None, true);
+        
+    }
+    
+    for (const FHitResult& hitactor : HitResults)
+    {
+        AActor* Actor = hitactor.GetActor();
+        if (Actor)
+        {
+            //ActorsHit += " / " + Actor->GetName();
+           
+            UPrimitiveComponent* ActorComponent = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
+            if (ActorComponent && ActorComponent->IsSimulatingPhysics())
+            {
+                FVector DirectionVector = ActorComponent->GetCenterOfMass() - CenterHitLocation;
+                FVector HitVector = DirectionVector.GetSafeNormal() * (DamageRadius - DirectionVector.Length()) * HitImpulse/100.0f;
+                ActorComponent->AddImpulse(HitVector, NAME_None, true);
+                //UE_LOG(ProjectTileLog, Display, TEXT("Projectile Hit Name = %s"), *Actor->GetName());
+            }
+            
+        }
+    }
+
+    DrawDebugSphere(GetWorld(), CenterHitLocation, DamageRadius, 24, FColor::Red, false, 0.5f);
 
     Destroy();
 }
