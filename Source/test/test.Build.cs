@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+using System;
 using UnrealBuildTool;
 
 public class test : ModuleRules
@@ -18,7 +19,8 @@ public class test : ModuleRules
             "test/Public/Dev",
             "test/Public/Weapon",
             "test/Public/UI",
-             "test/Public/Animation"
+             "test/Public/Animation",
+             "test/Public/Environment"
         });
 
         // Uncomment if you are using Slate UI

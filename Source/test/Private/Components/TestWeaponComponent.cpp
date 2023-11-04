@@ -6,6 +6,7 @@
 #include "Animation/TestEquipFinishedAnimNotify.h"
 #include "Animation/TestReloadFinishAnimNotify.h"
 #include "Animation/AnimUtils.h"
+#include "Weapon/TestShotgunWeapon.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -53,7 +54,10 @@ void UTestWeaponComponent::SpawnWeapons()
         Weapon->SetOwner(Character);
         Weapons.Add(Weapon);
 
-        AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketName);
+         if (Weapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(Weapon))
+            AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
+        else
+            AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketName);
     }
 }
 
@@ -75,19 +79,40 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character) return;
 
+    int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, Weapons.Num() - 1, 0);
+    int32 NextIndex = ClampIndex(WeaponIndex, 1, Weapons.Num() - 1, 0);
+
+    // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
+    // NextIndex);
+
     if (CurrentWeapon)
     {
         CurrentWeapon->StopFire();
-        AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
+        if (CurrentWeapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(CurrentWeapon))
+            AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
+        else
+            AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
+        CurrentWeapon->SetActorHiddenInGame(false);
     }
 
     CurrentWeapon = Weapons[WeaponIndex];
+    CurrentWeapon->SetActorHiddenInGame(false);
+    ATestBaseWeapon* LastWeapon = Weapons[NextIndex];
+    LastWeapon->SetActorHiddenInGame(true);
     // CurrentReloadAnimMontage = WeaponData[WeaponIndex].ReloadAnimMontage;
     const auto CurrentWeaponData =
         WeaponData.FindByPredicate([&](const FWeaponData& Data) { return Data.WeaponClass == CurrentWeapon->GetClass(); });
 
     CurrentReloadAnimMontage = CurrentWeaponData ? CurrentWeaponData->ReloadAnimMontage : nullptr;
-    AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipSoketName);
+
+    if (CurrentWeapon->IsA<ATestShotgunWeapon>())  // (Cast<ATestShotgunWeapon>(CurrentWeapon))
+    {
+        AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipShotGunSoketName);
+    }
+    else
+    {
+        AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipSoketName);
+    }
     EquipAnimInProgress = true;
     PlayAnimMontage(EquipMontage);
 }
@@ -193,4 +218,17 @@ void UTestWeaponComponent::ChangeClip()
     CurrentWeapon->StopFire();
     CurrentWeapon->ChangeClip();
     PlayAnimMontage(CurrentReloadAnimMontage);
+}
+
+int32 UTestWeaponComponent::ClampIndex(int32 value, int32 valueStep, int32 max, int32 min)
+{
+    value += valueStep;
+    int32 out;
+    if (value > max)
+        out = value % (max + 1);
+    else if (value < min)
+        out = (value + 1) % (max + 1) + max;
+    else
+        out = value;
+    return out;
 }

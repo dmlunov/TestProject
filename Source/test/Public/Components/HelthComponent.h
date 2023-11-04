@@ -23,11 +23,13 @@ public:
     bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
     float GetHealth() const { return Health; }
+    float GetMaxHealth() const { return MaxHealth; }
+    void SetAutoHeal(bool AHeal) { AutoHeal = AHeal; };
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "1000.0"))
     float MaxHealth = 100.0f;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heal")
     bool AutoHeal = true;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal", meta = (EditCondition = "AutoHeal"))

@@ -40,6 +40,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     FName WeaponArmorySoketName = "ArmorySocket";
 
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    FName WeaponEquipShotGunSoketName = "WeaponSocketToShotGun";
+
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    FName WeaponArmorySoketToShotGunName = "ArmorySocketToShotGun";
+
      UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     UAnimMontage* EquipMontage;
 
@@ -58,11 +64,12 @@ private:
     bool ReloadAnimInProgress = false;
 
     int32 CurrentWeaponIndex = 0;
+    int32 LastWeaponIndex = 1;
 
     void InitAnimation();
     void SpawnWeapons();
     void AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName);
-    void EquipWeapon(int32 WeaponIndex);
+    void EquipWeapon(int32 WeaponIndex); 
 
     void PlayAnimMontage(UAnimMontage* Animation);
    
@@ -75,6 +82,9 @@ private:
 
     void OnEmptyClip();
     void ChangeClip();
+
+    int32 ClampIndex(int32 value,int32 valueStep, int32 max, int32 min);
+
 
    
 };
