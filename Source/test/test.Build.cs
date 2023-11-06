@@ -20,7 +20,8 @@ public class test : ModuleRules
             "test/Public/Weapon",
             "test/Public/UI",
              "test/Public/Animation",
-             "test/Public/Environment"
+             "test/Public/Environment",
+             "test/Public/Items"
         });
 
         // Uncomment if you are using Slate UI

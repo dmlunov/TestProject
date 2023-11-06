@@ -57,7 +57,7 @@ void ATestTargetActor::OnHealthChanged(float Health)
     {
         //DynMaterial->SetVectorParameterValue("HealthColor", Color);  // FLinearColor::Black3
         DynMaterial->SetScalarParameterValue(FName("HealthColor"), (MaxHealth-Health) / MaxHealth);
-        UE_LOG(TestTagetActorLog, Display, TEXT("Helth Color=%f"), (MaxHealth - Health) / MaxHealth);
+       // UE_LOG(TestTagetActorLog, Display, TEXT("Helth Color=%f"), (MaxHealth - Health) / MaxHealth);
     }
 
 }

@@ -10,7 +10,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Controller.h"
-
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
@@ -35,7 +35,9 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
     HealthTextComponent->SetOwnerNoSee(true);
-    //
+
+    InteractionCheckFrequency = 0.1;
+    InteractionCheckDistance = 225.0f;
 }
 
 // Called when the game starts or when spawned
@@ -56,7 +58,125 @@ void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
+    {
+        PerformInteractionCheck();
+    }
     // TakeDamage(0.1f, FDamageEvent{}, Controller, this);
+}
+
+void ATestBaseCharacter::PerformInteractionCheck()
+{
+    //
+    InteractionData.LasaerInteractionCheckTime = GetWorld()->GetTimeSeconds();
+
+    FVector TraceStart{GetPawnViewLocation()};
+    FVector TraceEnd{TraceStart + (GetViewRotation().Vector() * InteractionCheckDistance)};
+
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+    FHitResult TraceHit;
+
+    double LookDirection{FVector::DotProduct(GetActorForwardVector(), GetViewRotation().Vector())};
+
+    if (LookDirection > 0)
+    {
+
+        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+
+        if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+        {
+            if (!TraceHit.GetActor()) return;
+            if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UTestBaseInterface::StaticClass()))
+            {
+                const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+                if (TraceHit.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
+                {
+                    FoundInteracteble(TraceHit.GetActor());
+                    return;
+                }
+                if (TraceHit.GetActor() == InteractionData.CurrentInteractable) return;
+            }
+        }
+    }
+    NoInteractableFound();
+}
+
+void ATestBaseCharacter::FoundInteracteble(AActor* NewInteractable)
+{
+    if (IsInteracting())
+    {
+        EndInteract();
+    }
+    if (InteractionData.CurrentInteractable)
+    {
+        TargetInteractable = InteractionData.CurrentInteractable;
+        TargetInteractable->EndFocus();
+    }
+    InteractionData.CurrentInteractable = NewInteractable;
+    TargetInteractable = NewInteractable;
+
+    TargetInteractable->BeginFocus();
+}
+void ATestBaseCharacter::NoInteractableFound()
+{
+    if (IsInteracting())
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+    }
+    if (InteractionData.CurrentInteractable)
+    {
+        if (IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->EndFocus();
+        }
+        //
+
+        InteractionData.CurrentInteractable = nullptr;
+        TargetInteractable = nullptr;
+    }
+}
+void ATestBaseCharacter::BeginInteract()
+{
+    PerformInteractionCheck();
+    if (InteractionData.CurrentInteractable)
+    {
+        if (IsValid(TargetInteractable.GetObject()))
+        {
+            TargetInteractable->BeginInteract();
+            if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+            {
+                Interact();
+            }
+            else
+            {
+                GetWorldTimerManager().SetTimer(                               //
+                    TimerHandle_Interaction,                                   //
+                    this,                                                      //
+                    &ATestBaseCharacter::Interact,                             //
+                    TargetInteractable->InteractableData.InteractionDuration,  //
+                    false);
+            }
+        }
+    }
+    //
+}
+void ATestBaseCharacter::EndInteract()
+{
+
+    GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+    if (IsValid(TargetInteractable.GetObject()))
+    {
+        TargetInteractable->EndInteract();
+    }
+}
+void ATestBaseCharacter::Interact()
+{
+    GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+    if (IsValid(TargetInteractable.GetObject()))
+    {
+        TargetInteractable->Interact();
+    }
 }
 
 // Called to bind functionality to input
@@ -73,10 +193,13 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATestBaseCharacter::Jump);
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATestBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ATestBaseCharacter::OnStopRunning);
-     PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::StartFire);
     PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &UTestWeaponComponent::StopFire);
     PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UTestWeaponComponent::NextWeapon);
     PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Reload);
+
+     PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATestBaseCharacter::BeginInteract);
+    PlayerInputComponent->BindAction("Interact", IE_Released, this, &ATestBaseCharacter::EndInteract);
 
 }
 
@@ -122,7 +245,7 @@ float ATestBaseCharacter::GetMovementDerection() const
 void ATestBaseCharacter::OnDeath()
 {
 
-   // UE_LOG(BaseCharacterLog, Display, TEXT("Player is death, Name: %s"), *GetName());
+    // UE_LOG(BaseCharacterLog, Display, TEXT("Player is death, Name: %s"), *GetName());
 
     PlayAnimMontage(DeathAnimMontage);
     GetCharacterMovement()->DisableMovement();
