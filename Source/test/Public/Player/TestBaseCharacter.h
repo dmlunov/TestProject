@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Interface/TestBaseInterface.h"
+//#include "Interface/TestBaseInterface.h"
 #include "TestBaseCharacter.generated.h"
 
 class USpringArmComponent;
@@ -12,9 +12,10 @@ class UCameraComponent;
 class UHelthComponent;
 class UTextRenderComponent;
 class UTestWeaponComponent;
+class UTestItemComponent;
 
 
-USTRUCT()
+/* USTRUCT()
 struct FInteractionData
 {
     GENERATED_USTRUCT_BODY()
@@ -26,9 +27,7 @@ struct FInteractionData
     UPROPERTY()
     float LasaerInteractionCheckTime;
 
-
-
-};
+};*/
 
 UCLASS()
 class TEST_API ATestBaseCharacter : public ACharacter
@@ -52,7 +51,7 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Character | Animation_1")
     UAnimMontage* DeathAnimMontage;
 
-    FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
+   // FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
 
 protected:
     // Called when the game starts or when spawned
@@ -73,6 +72,11 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTestWeaponComponent* WeaponComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTestItemComponent* ItemComponent;
+
+/*
+    // interact
     UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
     TScriptInterface<ITestBaseInterface> TargetInteractable;
 
@@ -85,7 +89,6 @@ protected:
 
     FInteractionData InteractionData;
 
-
     void PerformInteractionCheck();
     void FoundInteracteble(AActor* NewInteractable);
     void NoInteractableFound();
@@ -93,8 +96,8 @@ protected:
     void EndInteract();
     void Interact();
 
-
-
+    //
+*/
 private:
     bool WantsToRun = false;
     bool IsMovingForward = false;

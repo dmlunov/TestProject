@@ -9,6 +9,7 @@
 #include "Components/HelthComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TestItemComponent.h"
 #include "GameFramework/Controller.h"
 #include "DrawDebugHelpers.h"
 
@@ -36,8 +37,11 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent->SetupAttachment(GetRootComponent());
     HealthTextComponent->SetOwnerNoSee(true);
 
-    InteractionCheckFrequency = 0.1;
-    InteractionCheckDistance = 225.0f;
+    ItemComponent = CreateDefaultSubobject<UTestItemComponent>("ItemComponent");
+
+
+   // InteractionCheckFrequency = 0.1;
+   // InteractionCheckDistance = 225.0f;
 }
 
 // Called when the game starts or when spawned
@@ -58,13 +62,15 @@ void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
+   /* if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
     {
         PerformInteractionCheck();
-    }
+    }*/
     // TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
+
+/*
 void ATestBaseCharacter::PerformInteractionCheck()
 {
     //
@@ -177,7 +183,7 @@ void ATestBaseCharacter::Interact()
     {
         TargetInteractable->Interact();
     }
-}
+}*/
 
 // Called to bind functionality to input
 void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -198,8 +204,8 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UTestWeaponComponent::NextWeapon);
     PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Reload);
 
-     PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATestBaseCharacter::BeginInteract);
-    PlayerInputComponent->BindAction("Interact", IE_Released, this, &ATestBaseCharacter::EndInteract);
+     PlayerInputComponent->BindAction("Interact", IE_Pressed, ItemComponent, &UTestItemComponent::BeginInteract);
+    PlayerInputComponent->BindAction("Interact", IE_Released, ItemComponent, &UTestItemComponent::EndInteract);
 
 }
 
