@@ -7,6 +7,9 @@
 #include "Interface/TestBaseInterface.h"
 #include "TestItemComponent.generated.h"
 
+class ATestGameHUD;
+
+
 USTRUCT()
 struct FInteractionData
 {
@@ -42,6 +45,10 @@ public:
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
+
+        UPROPERTY()
+    ATestGameHUD* TestGameHUD;
+
 
     UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
     TScriptInterface<ITestBaseInterface> TargetInteractable;

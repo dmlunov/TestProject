@@ -14,7 +14,7 @@ UItemBase* UItemBase::CreateItemCopy() const
 
     ItemCopy->ID = this->ID;
     ItemCopy->Quantity = this->Quantity;
-    ItemCopy->Type = this->Type;
+    ItemCopy->ItemType = this->ItemType;
     ItemCopy->Statistics = this->Statistics;
     ItemCopy->TextData = this->TextData;
     ItemCopy->NumericData = this->NumericData;

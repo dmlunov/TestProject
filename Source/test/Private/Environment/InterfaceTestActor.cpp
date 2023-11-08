@@ -1,6 +1,8 @@
 // Test Game,  All Rights Reserved.
 
 #include "Environment/InterfaceTestActor.h"
+#include "Interface/TestBaseInterface.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(TestIntrfeceActorLog, All, All);
 // Sets default values
@@ -11,12 +13,15 @@ AInterfaceTestActor::AInterfaceTestActor()
 
     Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
     SetRootComponent(Mesh);
+    Mesh->SetSimulatePhysics(true);
 }
 
 // Called when the game starts or when spawned
 void AInterfaceTestActor::BeginPlay()
 {
     Super::BeginPlay();
+
+    InteractableData = InstanceInteractableData;
 }
 
 // Called every frame
@@ -47,7 +52,7 @@ void AInterfaceTestActor::EndInteract()
 {
     UE_LOG(TestIntrfeceActorLog, Display, TEXT("Intrfece calling *EndInteract* on test actor"));
 }
-void AInterfaceTestActor::Interact()
+void AInterfaceTestActor::Interact(ATestBaseCharacter* BaseCharacter)
 {
     UE_LOG(TestIntrfeceActorLog, Display, TEXT("Intrfece calling *Interact* on test actor"));
 }

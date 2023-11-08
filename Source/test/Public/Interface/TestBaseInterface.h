@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "TestBaseInterface.generated.h"
 
+class ATestBaseCharacter;
+
 UENUM()
 enum class EInteractType : uint8
 {
@@ -26,9 +28,7 @@ struct FInteractableData
           Action(FText::GetEmpty()),            //
           Quantity(0),                          //
           InteractionDuration(0.0f)
-    {
-
-          };
+    {};
 
     UPROPERTY(EditInstanceOnly)
     EInteractType InteractType;
@@ -66,7 +66,7 @@ public:
     virtual void EndFocus();
     virtual void BeginInteract();
     virtual void EndInteract();
-    virtual void Interact();
+    virtual void Interact(ATestBaseCharacter* BaseCharacter);
 
     FInteractableData InteractableData;
 };

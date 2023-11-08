@@ -13,6 +13,7 @@
 #include "GameFramework/Controller.h"
 #include "DrawDebugHelpers.h"
 
+
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
 // Sets default values
@@ -39,9 +40,6 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
 
     ItemComponent = CreateDefaultSubobject<UTestItemComponent>("ItemComponent");
 
-
-   // InteractionCheckFrequency = 0.1;
-   // InteractionCheckDistance = 225.0f;
 }
 
 // Called when the game starts or when spawned
@@ -55,6 +53,8 @@ void ATestBaseCharacter::BeginPlay()
     OnHealthChanged(HelthComponent->GetHealth());
     HelthComponent->OnDeath.AddUObject(this, &ATestBaseCharacter::OnDeath);
     HelthComponent->OnHealthChanged.AddUObject(this, &ATestBaseCharacter::OnHealthChanged);
+
+
 }
 
 // Called every frame
@@ -62,128 +62,8 @@ void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-   /* if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
-    {
-        PerformInteractionCheck();
-    }*/
-    // TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
-
-/*
-void ATestBaseCharacter::PerformInteractionCheck()
-{
-    //
-    InteractionData.LasaerInteractionCheckTime = GetWorld()->GetTimeSeconds();
-
-    FVector TraceStart{GetPawnViewLocation()};
-    FVector TraceEnd{TraceStart + (GetViewRotation().Vector() * InteractionCheckDistance)};
-
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this);
-    FHitResult TraceHit;
-
-    double LookDirection{FVector::DotProduct(GetActorForwardVector(), GetViewRotation().Vector())};
-
-    if (LookDirection > 0)
-    {
-
-        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
-
-        if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
-        {
-            if (!TraceHit.GetActor()) return;
-            if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UTestBaseInterface::StaticClass()))
-            {
-                const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
-                if (TraceHit.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
-                {
-                    FoundInteracteble(TraceHit.GetActor());
-                    return;
-                }
-                if (TraceHit.GetActor() == InteractionData.CurrentInteractable) return;
-            }
-        }
-    }
-    NoInteractableFound();
-}
-
-void ATestBaseCharacter::FoundInteracteble(AActor* NewInteractable)
-{
-    if (IsInteracting())
-    {
-        EndInteract();
-    }
-    if (InteractionData.CurrentInteractable)
-    {
-        TargetInteractable = InteractionData.CurrentInteractable;
-        TargetInteractable->EndFocus();
-    }
-    InteractionData.CurrentInteractable = NewInteractable;
-    TargetInteractable = NewInteractable;
-
-    TargetInteractable->BeginFocus();
-}
-void ATestBaseCharacter::NoInteractableFound()
-{
-    if (IsInteracting())
-    {
-        GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
-    }
-    if (InteractionData.CurrentInteractable)
-    {
-        if (IsValid(TargetInteractable.GetObject()))
-        {
-            TargetInteractable->EndFocus();
-        }
-        //
-
-        InteractionData.CurrentInteractable = nullptr;
-        TargetInteractable = nullptr;
-    }
-}
-void ATestBaseCharacter::BeginInteract()
-{
-    PerformInteractionCheck();
-    if (InteractionData.CurrentInteractable)
-    {
-        if (IsValid(TargetInteractable.GetObject()))
-        {
-            TargetInteractable->BeginInteract();
-            if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
-            {
-                Interact();
-            }
-            else
-            {
-                GetWorldTimerManager().SetTimer(                               //
-                    TimerHandle_Interaction,                                   //
-                    this,                                                      //
-                    &ATestBaseCharacter::Interact,                             //
-                    TargetInteractable->InteractableData.InteractionDuration,  //
-                    false);
-            }
-        }
-    }
-    //
-}
-void ATestBaseCharacter::EndInteract()
-{
-
-    GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
-    if (IsValid(TargetInteractable.GetObject()))
-    {
-        TargetInteractable->EndInteract();
-    }
-}
-void ATestBaseCharacter::Interact()
-{
-    GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
-    if (IsValid(TargetInteractable.GetObject()))
-    {
-        TargetInteractable->Interact();
-    }
-}*/
 
 // Called to bind functionality to input
 void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

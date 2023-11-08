@@ -1,50 +1,45 @@
 // Test Game,  All Rights Reserved.
 
-
 #include "Components/TestItemComponent.h"
 #include "Player/TestBaseCharacter.h"
 #include "DrawDebugHelpers.h"
-
+#include "UI/TestGameHUD.h"
 
 // Sets default values for this component's properties
 UTestItemComponent::UTestItemComponent()
 {
 
-	PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bCanEverTick = true;
 
-	InteractionCheckFrequency = 0.1;
+    InteractionCheckFrequency = 0.1;
     InteractionCheckDistance = 225.0f;
-
 }
-
 
 // Called when the game starts
 void UTestItemComponent::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
+    TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
-
 
 // Called every frame
 void UTestItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	 if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
+    if (GetWorld()->TimeSince(InteractionData.LasaerInteractionCheckTime) > InteractionCheckFrequency)
     {
         PerformInteractionCheck();
     }
 }
-
-
 
 void UTestItemComponent::PerformInteractionCheck()
 {
     //
     ATestBaseCharacter* Character = Cast<ATestBaseCharacter>(GetOwner());
 
-    FVector  PawnViewLocation = Character->GetPawnViewLocation();
+    FVector PawnViewLocation = Character->GetPawnViewLocation();
     FRotator PawnViewRotation = Character->GetViewRotation();
     FVector PawnForwardVector = Character->GetActorForwardVector();
 
@@ -69,8 +64,8 @@ void UTestItemComponent::PerformInteractionCheck()
             if (!TraceHit.GetActor()) return;
             if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UTestBaseInterface::StaticClass()))
             {
-                const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
-                if (TraceHit.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
+                // const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+                if (TraceHit.GetActor() != InteractionData.CurrentInteractable)  // && Distance <= InteractionCheckDistance)
                 {
                     FoundInteracteble(TraceHit.GetActor());
                     return;
@@ -96,6 +91,11 @@ void UTestItemComponent::FoundInteracteble(AActor* NewInteractable)
     InteractionData.CurrentInteractable = NewInteractable;
     TargetInteractable = NewInteractable;
 
+
+    // update interaction widget
+    TestGameHUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+
+
     TargetInteractable->BeginFocus();
 }
 void UTestItemComponent::NoInteractableFound()
@@ -112,7 +112,8 @@ void UTestItemComponent::NoInteractableFound()
         {
             TargetInteractable->EndFocus();
         }
-        //
+
+        TestGameHUD->HideInteractionWidget();
 
         InteractionData.CurrentInteractable = nullptr;
         TargetInteractable = nullptr;
@@ -159,10 +160,11 @@ void UTestItemComponent::Interact()
 {
 
     UWorld* World = GetOwner()->GetWorld();
+    ATestBaseCharacter* BaseCharacter = Cast<ATestBaseCharacter>(GetOwner());
 
     World->GetTimerManager().ClearTimer(TimerHandle_Interaction);
     if (IsValid(TargetInteractable.GetObject()))
     {
-        TargetInteractable->Interact();
+        TargetInteractable->Interact(BaseCharacter);
     }
 }

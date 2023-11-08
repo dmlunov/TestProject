@@ -20,25 +20,25 @@ public:
     //  UPROPERTY()
     // UInventoryComponent* InventoryComponent;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data", meta = (UIMin = 1, UIMax = 100))
+    UPROPERTY(VisibleAnywhere, Category = "Item")//, meta = (UIMin = 1, UIMax = 100))
     int32 Quantity;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
+    UPROPERTY(VisibleAnywhere, Category = "Item")
     FName ID;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
-    EItenType Type;
+    UPROPERTY(VisibleAnywhere, Category = "Item")
+    EItemType ItemType;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
+    UPROPERTY(VisibleAnywhere, Category = "Item")
     FItemStatistics Statistics;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
+    UPROPERTY(VisibleAnywhere, Category = "Item")
     FItemTextData TextData;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
+    UPROPERTY(VisibleAnywhere, Category = "Item")
     FItemNumericData NumericData;
 
-    UPROPERTY(EditAnywhere, Category = "Item Data")
+    UPROPERTY(VisibleAnywhere, Category = "Item")
     FItemAssetData AssetData;
 
     // FUNCTION
@@ -63,5 +63,5 @@ public:
 
 protected:
     // перегружаем оператор == для сравнения объектов инвентаря по ID
-    bool operator==(const FName& OtherID) const { return ID == OtherID; };
+    bool operator==(const FName& OtherID) const { return this->ID == OtherID; };
 };

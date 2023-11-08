@@ -7,6 +7,10 @@
 #include "Interface/TestBaseInterface.h"
 #include "InterfaceTestActor.generated.h"
 
+class ATestBaseCharacter;
+struct FInteractableData;
+
+
 UCLASS()
 class TEST_API AInterfaceTestActor : public AActor, public ITestBaseInterface
 {
@@ -20,6 +24,9 @@ protected:
     UPROPERTY(EditAnyWhere, Category = "Test Actor")
     UStaticMeshComponent* Mesh;
 
+    UPROPERTY(EditInstanceOnly, Category = "Test Actor")
+    FInteractableData InstanceInteractableData; 
+
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
 
@@ -27,7 +34,7 @@ protected:
     virtual void EndFocus() override;
     virtual void BeginInteract() override;
     virtual void EndInteract() override;
-    virtual void Interact() override;
+    virtual void Interact(ATestBaseCharacter* BaseCharacter) override;
 
   
 };

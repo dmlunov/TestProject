@@ -44,7 +44,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
 
 // Item Data
 UENUM()
-enum class EItenType : uint8
+enum class EItemType : uint8
 {
     Armor UMETA(DisplayName = "Armor"),
     Weapon UMETA(DisplayName = "Weapon"),
@@ -110,7 +110,7 @@ USTRUCT() struct FItemData : public FTableRowBase
     FName ID;
 
     UPROPERTY(EditAnywhere, Category = "Item Data")
-    EItenType ItenType;
+    EItemType ItemType;
 
     UPROPERTY(EditAnywhere, Category = "Item Data")
     FItemStatistics ItemStatistics;
