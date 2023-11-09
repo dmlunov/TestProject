@@ -5,7 +5,7 @@
 #include "ProjectCoreTypes.generated.h"
 
 // weapon
-DECLARE_MULTICAST_DELEGATE(FOnClipEmptyStgnature);
+DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
 
 USTRUCT(BlueprintType)
 struct FAmmoData
@@ -63,6 +63,8 @@ struct FItemStatistics
     float DamageValue;
     UPROPERTY(EditAnywhere)
     float SellValue;
+    UPROPERTY(EditAnywhere)
+    float HealthValue;
 };
 
 USTRUCT()

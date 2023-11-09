@@ -22,7 +22,7 @@ public:
     // Sets default values for this actor's properties
     ATestBaseWeapon();
 
-    FOnClipEmptyStgnature OnClipEmpty;
+    FOnClipEmptySignature OnClipEmpty;
 
     virtual void StartFire();
     virtual void StopFire();
