@@ -40,36 +40,51 @@ UItemBase* UTestInventoryComponent::FindNextPatialStack(UItemBase* ItemIn) const
     if (const TArray<TObjectPtr<UItemBase>>::ElementType* Result = InventoryContents.FindByPredicate(
         [&ItemIn](const UItemBase* InventoryItem) { return InventoryItem->ID == ItemIn->ID && !InventoryItem->IsFullItemStack(); }))
     {
-        return *Result;
+        return *Result; 
     }
     return nullptr;
 }
 
-int32 UTestInventoryComponent::CalculateWeightAddAmount(UItemBase*, int32 RequestedAddAmount)
+int32 UTestInventoryComponent::CalculateWeightAddAmount(UItemBase* ItemIn, int32 RequestedAddAmount)
 {
-    //
-    return 0;
+    const int32 WeightMaxAddAmount = FMath::FloorToInt((GetWeightCapacity() - InventoryTotalWeight) / ItemIn->GetItemSingleWeight());
+    if (WeightMaxAddAmount >= RequestedAddAmount)
+    {
+        return RequestedAddAmount;
+    }
+    return WeightMaxAddAmount;
+
 }
-int32 UTestInventoryComponent::CalculateNumberForFullStack(UItemBase* ExistingItem, int32 InitialRequestedAddAmount)
+int32 UTestInventoryComponent::CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount)
 {
-    //
-    return 0;
+    const int32 AddAmountToMakeFullStack = StackableItem->NumericData.MaxStackSize - StackableItem->Quantity;
+
+    return FMath::Min(InitialRequestedAddAmount, AddAmountToMakeFullStack);
 }
 
-void UTestInventoryComponent::RemoveSingleInstanceOfItem(UItemBase* ItemIn)
+void UTestInventoryComponent::RemoveSingleInstanceOfItem(UItemBase* ItemToRemove)
 {
-    //
+    InventoryContents.RemoveSingle(ItemToRemove);
+
+    OnInventoryUpdate.Broadcast();
 }
 
 int32 UTestInventoryComponent::RemoveAmountOfItem(UItemBase* ItemIn, int32 DesiredAmountToRemove)
 {
-    //
-    return 0;
+    const int32 ActualAmouuntToRemove = FMath::Min(DesiredAmountToRemove, ItemIn->Quantity);
+    ItemIn->SetQuantity(ItemIn->Quantity - ActualAmouuntToRemove);
+    InventoryTotalWeight -= ActualAmouuntToRemove * ItemIn->GetItemSingleWeight();
+    OnInventoryUpdate.Broadcast();
+    return ActualAmouuntToRemove;
 }
 
 void UTestInventoryComponent::SplitExistingStack(UItemBase* ItemIn, const int32 AmountToSplit)
 {
-    //
+    if (!(InventoryContents.Num() + 1 > InventorySloatCapacity))
+    {
+        RemoveAmountOfItem(ItemIn, AmountToSplit);
+        AddNewItem(ItemIn, AmountToSplit);
+    }
 }
 
 FItemAddResult UTestInventoryComponent::HandleNonStackableItems(UItemBase*, int32 RequestedAddAmount)

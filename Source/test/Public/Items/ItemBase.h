@@ -7,7 +7,7 @@
 #include "ItemBase.generated.h"
 
 class ATestBaseCharacter;
-// class UInventoryComponent;
+class UTestInventoryComponent;
 
 UCLASS()
 class TEST_API UItemBase : public UObject
@@ -17,8 +17,8 @@ class TEST_API UItemBase : public UObject
 public:
     // PROPERTY
 
-    //  UPROPERTY()
-    // UInventoryComponent* InventoryComponent;
+      UPROPERTY()
+    UTestInventoryComponent* OwningInventoryComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Item")//, meta = (UIMin = 1, UIMax = 100))
     int32 Quantity;

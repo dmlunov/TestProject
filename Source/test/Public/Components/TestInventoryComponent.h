@@ -88,7 +88,7 @@ public:
     UItemBase* FindNextPatialStack(UItemBase* ItemIn) const;
 
     UFUNCTION(Category = "Inventory")
-    void RemoveSingleInstanceOfItem(UItemBase* ItemIn);
+    void RemoveSingleInstanceOfItem(UItemBase* ItemToRemove);
     UFUNCTION(Category = "Inventory")
     int32 RemoveAmountOfItem(UItemBase* ItemIn, int32 DesiredAmountToRemove);
     UFUNCTION(Category = "Inventory")
@@ -120,10 +120,10 @@ protected:
     TArray<TObjectPtr<UItemBase>> InventoryContents;
 
 
-    FItemAddResult HandleNonStackableItems(UItemBase*, int32 RequestedAddAmount);
-    int32 HandleStackableItems(UItemBase*, int32 RequestedAddAmount);
-    int32 CalculateWeightAddAmount(UItemBase*, int32 RequestedAddAmount);
-    int32 CalculateNumberForFullStack(UItemBase* ExistingItem, int32 InitialRequestedAddAmount);
+    FItemAddResult HandleNonStackableItems(UItemBase* ItenIn, int32 RequestedAddAmount);
+    int32 HandleStackableItems(UItemBase* ItenIn, int32 RequestedAddAmount);
+    int32 CalculateWeightAddAmount(UItemBase* ItenIn, int32 RequestedAddAmount);
+    int32 CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount);
 
     void AddNewItem(UItemBase* Item, const int32 AmountToAdd);
 
