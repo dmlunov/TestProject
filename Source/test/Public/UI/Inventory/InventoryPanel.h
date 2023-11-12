@@ -6,12 +6,39 @@
 #include "Blueprint/UserWidget.h"
 #include "InventoryPanel.generated.h"
 
-/**
- * 
- */
+class UWrapBox;
+class UTextBlock;
+class ATestBaseCharacter;
+class UInventoryItemSlot;
+class UTestInventoryComponent;
+
+
 UCLASS()
 class TEST_API UInventoryPanel : public UUserWidget
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+public:
+
+    UFUNCTION()
+    void RefreshInventory();
+
+    UPROPERTY(meta = (BindWidget))
+    UWrapBox* InventoryPanel;
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* WeightInfo;
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* CapacityInfo;
+    UPROPERTY()
+    ATestBaseCharacter* BaseCharacter;
+    UPROPERTY()
+    UTestInventoryComponent* InventoryReference;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Inventory Slot")
+    TSubclassOf<UInventoryItemSlot> InventorySlotClass;
+
+    protected:
+    void SetInfoText() const;
+
+    virtual void NativeOnInitialized() override;
+    virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 };

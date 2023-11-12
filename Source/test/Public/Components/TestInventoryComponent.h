@@ -109,18 +109,18 @@ public:
     FORCEINLINE void SetWeightCapacity(const float NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+    UPROPERTY(VisibleAnywhere, Category = "Inventory")
     float InventoryTotalWeight;
-    UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+    UPROPERTY(EditAnywhere, Category = "Inventory")
     float InventoryWeightCapacity;
-    UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+    UPROPERTY(EditAnywhere, Category = "Inventory")
     int32 InventorySloatCapacity;
 
     UPROPERTY(VisibleAnywhere, Category = "Inventory")
     TArray<TObjectPtr<UItemBase>> InventoryContents;
 
 
-    FItemAddResult HandleNonStackableItems(UItemBase* ItenIn, int32 RequestedAddAmount);
+    FItemAddResult HandleNonStackableItems(UItemBase* ItenIn);
     int32 HandleStackableItems(UItemBase* ItenIn, int32 RequestedAddAmount);
     int32 CalculateWeightAddAmount(UItemBase* ItenIn, int32 RequestedAddAmount);
     int32 CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount);

@@ -4,6 +4,11 @@
 #include "Items/ItemBase.h"
 #include "ProjectCoreTypes.h"
 #include "CoreMinimal.h"
+#include "Player/TestBaseCharacter.h"
+#include "Components/TestItemComponent.h"
+#include "Components/TestInventoryComponent.h"
+
+DEFINE_LOG_CATEGORY_STATIC(TestPicupActorLog, All, All);
 
 ATestPicupActor::ATestPicupActor()
 {
@@ -37,6 +42,7 @@ void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
         ItemReference->AssetData = ItemData->ItemAssetData;
 
         InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
+        UE_LOG(TestPicupActorLog, Display, TEXT("Ouantity %s = %i"), *ItemReference->TextData.Name.ToString(), InQuantity);
 
         PickupMesh->SetStaticMesh(ItemData->ItemAssetData.StaticMesh);
         UpdateInteractableData();
@@ -90,7 +96,32 @@ void ATestPicupActor::TakePickup(const ATestBaseCharacter* TekerCharacter)
     {
         if (ItemReference)
         {
-            // if (UTestItemComponent* PlayerInventory = Taker->GetInventory())
+            if (UTestInventoryComponent* PlayerInventory = TekerCharacter->GetInventory())
+            {
+                const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
+
+                switch (AddResult.OperationResult)
+                {
+                    case EItemAssResult::IAR_NoItemAdded:
+                        break;
+                    case EItemAssResult::IAR_PatialAmountItemAdded: 
+                        UpdateInteractableData();
+                        TekerCharacter->GetItem()->UpdateInteractionWidget();
+                        break;
+                    case EItemAssResult::IAR_AllItemAdded:
+                        Destroy();
+                        break;
+                }
+                UE_LOG(TestPicupActorLog, Display, TEXT("%s"), *AddResult.ResultMessage.ToString());
+            }
+            else
+            {
+                UE_LOG(TestPicupActorLog, Display, TEXT("Player Inventory component is null!"));
+            }
+        }
+        else
+        {
+            UE_LOG(TestPicupActorLog, Display, TEXT("Pickup internal item reference was somehow null!"));
         }
     }
 }

@@ -4,7 +4,7 @@
 #include "Player/TestBaseCharacter.h"
 #include "Components/TestInventoryComponent.h"
 
-UItemBase::UItemBase()
+UItemBase::UItemBase() : bIsCopy(false), bIsPickup(false)
 {
     //
 }
@@ -20,6 +20,7 @@ UItemBase* UItemBase::CreateItemCopy() const
     ItemCopy->TextData = this->TextData;
     ItemCopy->NumericData = this->NumericData;
     ItemCopy->AssetData = this->AssetData;
+    ItemCopy->bIsCopy = true;
 
     return ItemCopy;
 }
@@ -42,4 +43,10 @@ void UItemBase::SetQuantity(const int32 NewQuantity)
 void UItemBase::Use(ATestBaseCharacter* Character)
 {
     //
+}
+
+void UItemBase::ResetItemFlags()
+{
+    bIsCopy = false;
+    bIsPickup=false;
 }

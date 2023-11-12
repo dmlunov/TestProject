@@ -35,6 +35,7 @@ public:
 
     FORCEINLINE bool IsInteracting() const { return GetOwner()->GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_Interaction); }
 
+
     void PerformInteractionCheck();
     void FoundInteracteble(AActor* NewInteractable);
     void NoInteractableFound();
@@ -42,11 +43,14 @@ public:
     void EndInteract();
     void Interact();
 
+    void UpdateInteractionWidget() const;
+
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
 
-        UPROPERTY()
+    UPROPERTY()
     ATestGameHUD* TestGameHUD;
 
 

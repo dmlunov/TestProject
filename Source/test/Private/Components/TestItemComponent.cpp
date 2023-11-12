@@ -168,3 +168,12 @@ void UTestItemComponent::Interact()
         TargetInteractable->Interact(BaseCharacter);
     }
 }
+
+
+void UTestItemComponent::UpdateInteractionWidget() const
+{
+    if (IsValid(TargetInteractable.GetObject()))
+    {
+        TestGameHUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+    }
+}

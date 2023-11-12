@@ -12,7 +12,8 @@
 #include "Components/TestItemComponent.h"
 #include "GameFramework/Controller.h"
 #include "DrawDebugHelpers.h"
-
+#include "Components/TestInventoryComponent.h"
+#include "UI/TestGameHUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
@@ -39,7 +40,9 @@ ATestBaseCharacter::ATestBaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent->SetOwnerNoSee(true);
 
     ItemComponent = CreateDefaultSubobject<UTestItemComponent>("ItemComponent");
-
+    InventoryComponent = CreateDefaultSubobject<UTestInventoryComponent>("InventoryComponent");
+    InventoryComponent->SetSlotsCapacity(20);
+    InventoryComponent->SetWeightCapacity(50.0f);
 }
 
 // Called when the game starts or when spawned
@@ -50,20 +53,18 @@ void ATestBaseCharacter::BeginPlay()
     check(HealthTextComponent);
     check(GetCharacterMovement());
 
+    TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
     OnHealthChanged(HelthComponent->GetHealth());
     HelthComponent->OnDeath.AddUObject(this, &ATestBaseCharacter::OnDeath);
     HelthComponent->OnHealthChanged.AddUObject(this, &ATestBaseCharacter::OnHealthChanged);
-
-
 }
 
 // Called every frame
 void ATestBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
 }
-
 
 // Called to bind functionality to input
 void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -84,9 +85,9 @@ void ATestBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
     PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UTestWeaponComponent::NextWeapon);
     PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Reload);
 
-     PlayerInputComponent->BindAction("Interact", IE_Pressed, ItemComponent, &UTestItemComponent::BeginInteract);
+    PlayerInputComponent->BindAction("Interact", IE_Pressed, ItemComponent, &UTestItemComponent::BeginInteract);
     PlayerInputComponent->BindAction("Interact", IE_Released, ItemComponent, &UTestItemComponent::EndInteract);
-
+    PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &ATestBaseCharacter::ToggleMenu);
 }
 
 void ATestBaseCharacter::MoveForward(float Amount)
@@ -149,4 +150,9 @@ void ATestBaseCharacter::OnDeath()
 void ATestBaseCharacter::OnHealthChanged(float Health)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+void ATestBaseCharacter::ToggleMenu()
+{
+    TestGameHUD->ToggleMenu();
 }
