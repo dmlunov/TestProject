@@ -21,7 +21,8 @@ UItemBase* UItemBase::CreateItemCopy() const
     ItemCopy->NumericData = this->NumericData;
     ItemCopy->AssetData = this->AssetData;
     ItemCopy->bIsCopy = true;
-
+    ItemCopy->Transform = this->Transform;
+    ItemCopy->ItemPhysicalMass = this->ItemPhysicalMass;
     return ItemCopy;
 }
 

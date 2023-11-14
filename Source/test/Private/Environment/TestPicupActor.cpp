@@ -25,13 +25,17 @@ void ATestPicupActor::BeginPlay()
 
     InitializePickup(UItemBase::StaticClass(), ItemQuantity);
     // Interact(ATestBaseCharacter * BaseCharacter);
+
+    UE_LOG(TestPicupActorLog, Display, TEXT("PicapActor Create"));
 }
 
 void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
     if (ItemDataTable && !DesiredItemID.IsNone())
     {
-        const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
+        FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
+
+        // UE_LOG(TestPicupActorLog, Display, TEXT("Transform Scale = %s"), *ItemData.GetScale3D().ToString());
 
         ItemReference = NewObject<UItemBase>(this, BaseClass);
 
@@ -40,13 +44,32 @@ void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
         ItemReference->NumericData = ItemData->ItemNumericData;
         ItemReference->TextData = ItemData->ItemTextData;
         ItemReference->AssetData = ItemData->ItemAssetData;
-
+        ItemReference->Transform = PickupMesh->GetComponentTransform();
+        ItemReference->ItemPhysicalMass = PickupMesh->GetMass();
+ 
+       // ItemData->Transform = PickupMesh->GetComponentTransform();
         InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
-        UE_LOG(TestPicupActorLog, Display, TEXT("Ouantity %s = %i"), *ItemReference->TextData.Name.ToString(), InQuantity);
+        // UE_LOG(TestPicupActorLog, Display, TEXT("Ouantity %s = %i"), *ItemReference->TextData.Name.ToString(), InQuantity);
 
         PickupMesh->SetStaticMesh(ItemData->ItemAssetData.StaticMesh);
+
+        //ItemData->IsCanChangeTrancform = true;
+        //ItemReference->IsCanChangeTrancform = true;
+
         UpdateInteractableData();
     }
+    /* if (ItemDataTable && DesiredItemID.IsNone())
+    {
+        FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
+
+        if (ItemData->IsCanChangeTrancform)
+        {
+            PickupMesh->SetRelativeTransform(ItemData->Transform);
+            UE_LOG(TestPicupActorLog, Display, TEXT("Transform Scale =  %s"), *ItemData->Transform.GetScale3D().ToString());
+        }
+    }
+    UE_LOG(TestPicupActorLog, Display, TEXT("ItemDataTable =  %s"), ItemDataTable ? TEXT("true") : TEXT("false"));
+    UE_LOG(TestPicupActorLog, Display, TEXT("DesiredItemID is %s"), DesiredItemID.IsNone() ? TEXT("true") : TEXT("false"));*/
 }
 
 void ATestPicupActor::UpdateInteractableData()
@@ -102,15 +125,12 @@ void ATestPicupActor::TakePickup(const ATestBaseCharacter* TekerCharacter)
 
                 switch (AddResult.OperationResult)
                 {
-                    case EItemAssResult::IAR_NoItemAdded:
-                        break;
-                    case EItemAssResult::IAR_PatialAmountItemAdded: 
+                    case EItemAssResult::IAR_NoItemAdded: break;
+                    case EItemAssResult::IAR_PatialAmountItemAdded:
                         UpdateInteractableData();
                         TekerCharacter->GetItem()->UpdateInteractionWidget();
                         break;
-                    case EItemAssResult::IAR_AllItemAdded:
-                        Destroy();
-                        break;
+                    case EItemAssResult::IAR_AllItemAdded: Destroy(); break;
                 }
                 UE_LOG(TestPicupActorLog, Display, TEXT("%s"), *AddResult.ResultMessage.ToString());
             }
@@ -130,19 +150,18 @@ void ATestPicupActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 {
     Super::PostEditChangeProperty(PropertyChangedEvent);
 
-   // const FName ChangedPropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetName() : NAME_None;
+    // const FName ChangedPropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetName() : NAME_None;
     const FName ChangedPropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 
     if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(ATestPicupActor, DesiredItemID))
     {
         if (ItemDataTable)
         {
-            
+
             if (const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString()))
             {
                 PickupMesh->SetStaticMesh(ItemData->ItemAssetData.StaticMesh);
             }
-
         }
     }
 }

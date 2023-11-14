@@ -3,6 +3,10 @@
 #include "Components/TestInventoryComponent.h"
 #include "Items/ItemBase.h"
 
+
+DEFINE_LOG_CATEGORY_STATIC(InventoryComponentLog, All, All);
+
+
 UTestInventoryComponent::UTestInventoryComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
@@ -159,11 +163,15 @@ void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAd
         // проверка элемента не является ли он копией
         NewItem = Item;
         NewItem->ResetItemFlags();
+        UE_LOG(InventoryComponentLog, Display, TEXT("Item %s , %s"), *NewItem->TextData.Name.ToString(),
+            *NewItem->Transform.GetScale3D().ToString());
     }
     else
     {
         // используется когда разделяем стопку элементов или  забираем из другого инвентаря
         NewItem = Item->CreateItemCopy();
+        UE_LOG(InventoryComponentLog, Display, TEXT("NewItem %s , Item %s"), *NewItem->Transform.GetScale3D().ToString(),
+            *Item->Transform.GetScale3D().ToString());
     }
     NewItem->OwningInventoryComponent = this;
     NewItem->SetQuantity(AmountToAdd);

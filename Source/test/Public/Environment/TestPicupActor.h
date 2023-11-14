@@ -9,7 +9,7 @@
 
 class UItemBase;
 class ATestBaseCharacter;
-
+//struct FItemData;
 
 UCLASS()
 class TEST_API ATestPicupActor : public AActor, public ITestBaseInterface
@@ -25,18 +25,19 @@ public:
 
     FORCEINLINE UItemBase* GetItemData() { return ItemReference; };
 
-
-
     void UpdateInteractableData();
     void TakePickup(const ATestBaseCharacter* TekerCharacter);
 
-protected:
+    FORCEINLINE UStaticMeshComponent* GetPickupMesh() const { return PickupMesh; };
 
+protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup | Components")
     UStaticMeshComponent* PickupMesh;
 
     UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")
     UDataTable* ItemDataTable;
+
+
 
     UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")
     FName DesiredItemID;
@@ -60,5 +61,4 @@ protected:
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-
 };

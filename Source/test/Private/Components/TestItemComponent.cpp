@@ -7,11 +7,9 @@
 #include "Items/ItemBase.h"
 #include "Components/TestInventoryComponent.h"
 #include "Environment/TestPicupActor.h"
-
-
+#include "Player/TestPlayerController.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestItemComponentLog, All, All);
-
 
 // Sets default values for this component's properties
 UTestItemComponent::UTestItemComponent()
@@ -29,7 +27,7 @@ void UTestItemComponent::BeginPlay()
     Super::BeginPlay();
 
     TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-     Character = Cast<ATestBaseCharacter>(GetOwner());
+    Character = Cast<ATestBaseCharacter>(GetOwner());
 }
 
 // Called every frame
@@ -45,16 +43,30 @@ void UTestItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UTestItemComponent::PerformInteractionCheck()
 {
-    //
 
-    FVector PawnViewLocation = Character->GetPawnViewLocation();
-    FRotator PawnViewRotation = Character->GetViewRotation();
-    FVector PawnForwardVector = Character->GetActorForwardVector();
+    /*
+        // 1 вариант выбора цели
+        FVector PawnViewLocation = Character->GetPawnViewLocation();
+        FRotator PawnViewRotation = Character->GetViewRotation();
+        FVector PawnForwardVector = Character->GetActorForwardVector();
+        */
+
+    // 2 вариант выбора цели
+    FVector PawnViewLocation;
+    FRotator PawnViewRotation;
+    const auto Pleyer = Cast<ACharacter>(GetOwner());
+    if (!Pleyer) return;
+    const auto Controller = Pleyer->GetController<ATestPlayerController>();
+    if (!Controller) return;
+    Controller->GetPlayerViewPoint(PawnViewLocation, PawnViewRotation);
+    const FVector PawnForwardVector = PawnViewRotation.Vector();
+
+     //PawnViewLocation = Character->GetPawnViewLocation();
 
     InteractionData.LasaerInteractionCheckTime = GetWorld()->GetTimeSeconds();
 
     FVector TraceStart{PawnViewLocation};
-    FVector TraceEnd{TraceStart + (PawnViewRotation.Vector() * InteractionCheckDistance)};
+    FVector TraceEnd{TraceStart + (PawnViewRotation.Vector() * InteractionCheckDistance*2.5f)};
 
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(Character);
@@ -65,7 +77,7 @@ void UTestItemComponent::PerformInteractionCheck()
     if (LookDirection > 0)
     {
 
-        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+        //DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
 
         if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
         {
@@ -166,7 +178,7 @@ void UTestItemComponent::Interact()
 {
 
     UWorld* World = GetOwner()->GetWorld();
-    //ATestBaseCharacter* BaseCharacter = Cast<ATestBaseCharacter>(GetOwner());
+    // ATestBaseCharacter* BaseCharacter = Cast<ATestBaseCharacter>(GetOwner());
 
     World->GetTimerManager().ClearTimer(TimerHandle_Interaction);
     if (IsValid(TargetInteractable.GetObject()))
@@ -189,22 +201,33 @@ void UTestItemComponent::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 
     if (PlayerInventory->FindMatchingItem(ItemToDrop))
     {
+
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = Character;
         SpawnParams.bNoFail = true;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+        // FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
+
+        const FRotator SpawnRotation{Character->GetActorRotation()};
+        const FVector SpawnLocation{
+            Character->GetActorLocation() + (Character->GetActorForwardVector() * 100.0f) + FVector(0.0f, 0.0f, 50.0f)};
+        // const FTransform Transform {ItemToDrop->Transform};
+        const FTransform ItemTransform{ItemToDrop->Transform};
+        // UE_LOG(TestItemComponentLog, Display, TEXT("Transform Scale = %s"), *ItemTransform.GetScale3D().ToString());
+
+        const FTransform SpawnTransform(SpawnRotation, SpawnLocation, ItemTransform.GetScale3D());
+
         ItemToDrop->AssetData.StaticMesh;
-        const FVector SpawnLocation{Character->GetActorLocation() + (Character->GetActorForwardVector() * 50.0f)};
-        const FTransform SpawnTransform(Character->GetActorRotation(), SpawnLocation);
         const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
 
-        ATestPicupActor* Pickup = GetWorld()->SpawnActor<ATestPicupActor>(ATestPicupActor::StaticClass(), SpawnTransform, SpawnParams); 
+        ATestPicupActor* Pickup = GetWorld()->SpawnActor<ATestPicupActor>(ATestPicupActor::StaticClass(), SpawnTransform, SpawnParams);
         Pickup->InitializeDrop(ItemToDrop, RemovedQuantity);
+        const float Massa{ItemToDrop->ItemPhysicalMass};
+        Pickup->GetPickupMesh()->SetMassOverrideInKg(NAME_None, Massa);
     }
     else
     {
         UE_LOG(TestItemComponentLog, Display, TEXT("Item to drop was somehow null!"));
     }
-
 }

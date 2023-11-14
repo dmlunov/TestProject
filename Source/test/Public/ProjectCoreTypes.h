@@ -125,4 +125,10 @@ USTRUCT() struct FItemData : public FTableRowBase
 
     UPROPERTY(EditAnywhere, Category = "Item Data")
     FItemAssetData ItemAssetData;
+
+    //UPROPERTY(EditAnywhere, Category = "Item Data")
+    //FTransform Transform;
+    //UPROPERTY(EditAnywhere, Category = "Item Data")
+    //bool IsCanChangeTrancform{false};
+
 };

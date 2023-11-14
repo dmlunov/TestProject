@@ -17,10 +17,10 @@ class TEST_API UItemBase : public UObject
 public:
     // PROPERTY
 
-      UPROPERTY()
+    UPROPERTY()
     UTestInventoryComponent* OwningInventoryComponent;
 
-    UPROPERTY(VisibleAnywhere, Category = "Item")//, meta = (UIMin = 1, UIMax = 100))
+    UPROPERTY(VisibleAnywhere, Category = "Item")  //, meta = (UIMin = 1, UIMax = 100))
     int32 Quantity;
 
     UPROPERTY(VisibleAnywhere, Category = "Item")
@@ -40,6 +40,14 @@ public:
 
     UPROPERTY(VisibleAnywhere, Category = "Item")
     FItemAssetData AssetData;
+
+    UPROPERTY(VisibleAnywhere, Category = "Item")
+    FTransform Transform;
+
+    UPROPERTY(VisibleAnywhere, Category = "Item")
+    float ItemPhysicalMass; 
+   // bool IsCanChangeTrancform{false};
+
 
     bool bIsCopy;
     bool bIsPickup;
