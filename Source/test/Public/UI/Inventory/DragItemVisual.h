@@ -10,15 +10,13 @@ class UBorder;
 class UImage;
 class UTextBlock;
 
-
-
 UCLASS()
 class TEST_API UDragItemVisual : public UUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-protected:
-	    UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
+public:
+    UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
     UBorder* ItemBorder;
 
     UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
@@ -26,5 +24,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
     UTextBlock* ItemQuantity;
-	
+
+protected:
 };

@@ -6,12 +6,22 @@
 #include "Blueprint/DragDropOperation.h"
 #include "ItemDragDropOperation.generated.h"
 
-/**
- * 
- */
+class UItemBase;
+class UTestInventoryComponent;
+
+
+
+
 UCLASS()
 class TEST_API UItemDragDropOperation : public UDragDropOperation
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	UPROPERTY()
+    UItemBase* SourceItem;
+
+	UPROPERTY()
+    UTestInventoryComponent* SourceInventory;
 };

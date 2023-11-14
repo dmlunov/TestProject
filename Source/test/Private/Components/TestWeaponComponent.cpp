@@ -7,6 +7,8 @@
 #include "Animation/TestReloadFinishAnimNotify.h"
 #include "Animation/AnimUtils.h"
 #include "Weapon/TestShotgunWeapon.h"
+#include "UI/TestGameHUD.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -24,6 +26,8 @@ void UTestWeaponComponent::BeginPlay()
     InitAnimation();
     SpawnWeapons();
     EquipWeapon(CurrentWeaponIndex);
+    TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
 }
 
 void UTestWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayPeason)
@@ -186,7 +190,7 @@ void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
 
 bool UTestWeaponComponent::CanFire() const
 {
-    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress;
+    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
 }
 bool UTestWeaponComponent::CanEquip() const
 {

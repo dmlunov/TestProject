@@ -9,7 +9,7 @@
 
 
 class ATestBaseWeapon;
-
+class ATestGameHUD;
 
 
 
@@ -62,6 +62,9 @@ private:
     bool EquipAnimInProgress = false;
 
     bool ReloadAnimInProgress = false;
+
+    UPROPERTY()
+    ATestGameHUD* TestGameHUD;
 
     int32 CurrentWeaponIndex = 0;
     int32 LastWeaponIndex = 1;

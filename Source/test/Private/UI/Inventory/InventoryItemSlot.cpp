@@ -4,6 +4,7 @@
 #include "UI/Inventory/DragItemVisual.h"
 #include "UI/Inventory/InventoryTooltip.h"
 #include "Items/ItemBase.h"
+#include "UI/Inventory/ItemDragDropOperation.h"
 
 //engine
 #include "Components/TextBlock.h"
@@ -31,7 +32,7 @@ void UInventoryItemSlot::NativeConstruct()
     if (ItemReference)
     {
         ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
-        if (ItemReference->NumericData.bIsStackble)
+        if (ItemReference->NumericData.bIsStackble && ItemReference->Quantity >1)
         {
             ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
         }
@@ -46,8 +47,14 @@ FReply UInventoryItemSlot::NativeOnMouseButtonDown(  //
     const FGeometry& InGeometry,                     //
     const FPointerEvent& InMouseEvent)
 {
-    return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-    //
+    FReply Reply =  Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+    if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+    {
+        return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+    }
+
+    // submenu on right click will hapen here
+    return Reply.Unhandled();
 }
 
 void UInventoryItemSlot::NativeOnDragDetected(  //
@@ -56,6 +63,23 @@ void UInventoryItemSlot::NativeOnDragDetected(  //
     UDragDropOperation*& OutOperation)
 {
     Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+    if (DragItemVisualClass)
+    {
+        const TObjectPtr<UDragItemVisual> DragVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
+        DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
+        DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
+        DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
+
+        UItemDragDropOperation* DragItemOperation = NewObject<UItemDragDropOperation>();
+        DragItemOperation->SourceItem = ItemReference;
+        DragItemOperation->SourceInventory = ItemReference->OwningInventoryComponent;
+        DragItemOperation->DefaultDragVisual = DragVisual;
+        DragItemOperation->Pivot = EDragPivot::TopLeft;
+        OutOperation = DragItemOperation;
+
+    }
+
     //
 }
 

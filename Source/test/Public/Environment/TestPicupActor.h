@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleAnyWhere, Category = "Pickup | Components")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup | Components")
     UStaticMeshComponent* PickupMesh;
 
     UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")

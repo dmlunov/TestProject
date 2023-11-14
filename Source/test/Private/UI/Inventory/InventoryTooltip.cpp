@@ -18,7 +18,12 @@ void UInventoryTooltip ::NativeConstruct()
     {
         case EItemType::Armor: break;
         case EItemType::Weapon: break;
-        case EItemType::Food: break;
+        case EItemType::Food:
+            ItemType->SetText(FText::FromString("Food"));
+            DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+            ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
+            SellValue->SetVisibility(ESlateVisibility::Collapsed);
+            break;
         case EItemType::Consumable: 
             ItemType->SetText(FText::FromString("Consumable"));
             DamageValue->SetVisibility(ESlateVisibility::Collapsed);
@@ -33,10 +38,15 @@ void UInventoryTooltip ::NativeConstruct()
     UsageText->SetText(ItemBeingHovered->TextData.UsageText);
     ItemDescription->SetText(ItemBeingHovered->TextData.Description);
     SellValue->SetText(FText::AsNumber(ItemBeingHovered->Statistics.SellValue));
-    StackWeight->SetText(FText::AsNumber(ItemBeingHovered->GetItemStackWeight()));
+    
+
+    // const FString WeightInfo = FText::Format(NSLOCTEXT("InventoryTooltip", "WeightInfo", "Вес: {0}"), ItemBeingHovered->GetItemStackWeight()).ToString();
+   const FString WeightInfo = {"" + FString::SanitizeFloat(ItemBeingHovered->GetItemStackWeight())};
+    StackWeight->SetText(FText::FromString(WeightInfo));
     if (ItemBeingHovered->NumericData.bIsStackble)
-    {
-            MaxStackSize->SetText(FText::AsNumber(ItemBeingHovered->NumericData.MaxStackSize));
+    { //Макс.вместимость
+            const FString StackInfo = {"" + FString::FromInt(ItemBeingHovered->NumericData.MaxStackSize)};
+            MaxStackSize->SetText(FText::FromString(StackInfo));
     }
     else
     {

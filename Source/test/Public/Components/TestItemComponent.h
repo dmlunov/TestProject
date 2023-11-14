@@ -8,7 +8,8 @@
 #include "TestItemComponent.generated.h"
 
 class ATestGameHUD;
-
+class UItemBase;
+class ATestBaseCharacter;
 
 USTRUCT()
 struct FInteractionData
@@ -45,6 +46,7 @@ public:
 
     void UpdateInteractionWidget() const;
 
+    void DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop); 
 
 protected:
     // Called when the game starts
@@ -65,4 +67,5 @@ protected:
 
     FInteractionData InteractionData;
 
+     ATestBaseCharacter* Character;
 };

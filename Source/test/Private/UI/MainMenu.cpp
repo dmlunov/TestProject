@@ -3,6 +3,9 @@
 
 #include "UI/MainMenu.h"
 #include "Player/TestBaseCharacter.h"
+#include "UI/Inventory/ItemDragDropOperation.h"
+#include "Components/TestItemComponent.h"
+#include "Items/ItemBase.h"
 
 
 void UMainMenu::NativeOnInitialized()
@@ -20,7 +23,15 @@ void UMainMenu::NativeConstruct()
 
 bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-    return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+    //return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
     // cast operation to item drag drop, ensure player is valid, call drop item on player
+    const UItemDragDropOperation* ItemDragDrop = Cast<UItemDragDropOperation>(InOperation);
+
+    if (BaseCharacter && ItemDragDrop->SourceItem)
+    {
+        BaseCharacter->GetItem()->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
+        return true;
+    }
+    return false;
 }

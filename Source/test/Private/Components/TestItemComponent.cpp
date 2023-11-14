@@ -4,6 +4,14 @@
 #include "Player/TestBaseCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "UI/TestGameHUD.h"
+#include "Items/ItemBase.h"
+#include "Components/TestInventoryComponent.h"
+#include "Environment/TestPicupActor.h"
+
+
+
+DEFINE_LOG_CATEGORY_STATIC(TestItemComponentLog, All, All);
+
 
 // Sets default values for this component's properties
 UTestItemComponent::UTestItemComponent()
@@ -21,6 +29,7 @@ void UTestItemComponent::BeginPlay()
     Super::BeginPlay();
 
     TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+     Character = Cast<ATestBaseCharacter>(GetOwner());
 }
 
 // Called every frame
@@ -37,7 +46,6 @@ void UTestItemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 void UTestItemComponent::PerformInteractionCheck()
 {
     //
-    ATestBaseCharacter* Character = Cast<ATestBaseCharacter>(GetOwner());
 
     FVector PawnViewLocation = Character->GetPawnViewLocation();
     FRotator PawnViewRotation = Character->GetViewRotation();
@@ -91,10 +99,8 @@ void UTestItemComponent::FoundInteracteble(AActor* NewInteractable)
     InteractionData.CurrentInteractable = NewInteractable;
     TargetInteractable = NewInteractable;
 
-
     // update interaction widget
     TestGameHUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
-
 
     TargetInteractable->BeginFocus();
 }
@@ -160,15 +166,14 @@ void UTestItemComponent::Interact()
 {
 
     UWorld* World = GetOwner()->GetWorld();
-    ATestBaseCharacter* BaseCharacter = Cast<ATestBaseCharacter>(GetOwner());
+    //ATestBaseCharacter* BaseCharacter = Cast<ATestBaseCharacter>(GetOwner());
 
     World->GetTimerManager().ClearTimer(TimerHandle_Interaction);
     if (IsValid(TargetInteractable.GetObject()))
     {
-        TargetInteractable->Interact(BaseCharacter);
+        TargetInteractable->Interact(Character);
     }
 }
-
 
 void UTestItemComponent::UpdateInteractionWidget() const
 {
@@ -176,4 +181,30 @@ void UTestItemComponent::UpdateInteractionWidget() const
     {
         TestGameHUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
     }
+}
+
+void UTestItemComponent::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
+{
+    UTestInventoryComponent* PlayerInventory = Character->GetInventory();
+
+    if (PlayerInventory->FindMatchingItem(ItemToDrop))
+    {
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = Character;
+        SpawnParams.bNoFail = true;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+        ItemToDrop->AssetData.StaticMesh;
+        const FVector SpawnLocation{Character->GetActorLocation() + (Character->GetActorForwardVector() * 50.0f)};
+        const FTransform SpawnTransform(Character->GetActorRotation(), SpawnLocation);
+        const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+        ATestPicupActor* Pickup = GetWorld()->SpawnActor<ATestPicupActor>(ATestPicupActor::StaticClass(), SpawnTransform, SpawnParams); 
+        Pickup->InitializeDrop(ItemToDrop, RemovedQuantity);
+    }
+    else
+    {
+        UE_LOG(TestItemComponentLog, Display, TEXT("Item to drop was somehow null!"));
+    }
+
 }
