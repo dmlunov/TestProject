@@ -1,12 +1,12 @@
 // Test Game,  All Rights Reserved.
-//game
+// game
 #include "UI/Inventory/InventoryItemSlot.h"
 #include "UI/Inventory/DragItemVisual.h"
 #include "UI/Inventory/InventoryTooltip.h"
 #include "Items/ItemBase.h"
 #include "UI/Inventory/ItemDragDropOperation.h"
 
-//engine
+// engine
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
@@ -19,8 +19,6 @@ void UInventoryItemSlot::NativeOnInitialized()
         UInventoryTooltip* ToolTip = CreateWidget<UInventoryTooltip>(this, TooltipClass);
         ToolTip->InventorySlotBeingHovered = this;
         SetToolTip(ToolTip);
-
-
     }
 
     //
@@ -32,7 +30,7 @@ void UInventoryItemSlot::NativeConstruct()
     if (ItemReference)
     {
         ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
-        if (ItemReference->NumericData.bIsStackble && ItemReference->Quantity >1)
+        if (ItemReference->NumericData.bIsStackble && ItemReference->Quantity > 1)
         {
             ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
         }
@@ -47,7 +45,7 @@ FReply UInventoryItemSlot::NativeOnMouseButtonDown(  //
     const FGeometry& InGeometry,                     //
     const FPointerEvent& InMouseEvent)
 {
-    FReply Reply =  Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+    FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
         return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
@@ -69,7 +67,10 @@ void UInventoryItemSlot::NativeOnDragDetected(  //
         const TObjectPtr<UDragItemVisual> DragVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
         DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
         DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-        DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
+
+        ItemReference->NumericData.bIsStackble  //
+            ? DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity))
+            : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
 
         UItemDragDropOperation* DragItemOperation = NewObject<UItemDragDropOperation>();
         DragItemOperation->SourceItem = ItemReference;
@@ -77,7 +78,6 @@ void UInventoryItemSlot::NativeOnDragDetected(  //
         DragItemOperation->DefaultDragVisual = DragVisual;
         DragItemOperation->Pivot = EDragPivot::TopLeft;
         OutOperation = DragItemOperation;
-
     }
 
     //

@@ -7,6 +7,7 @@
 #include "TestInventoryComponent.generated.h"
 
 class UItemBase;
+class ATestBaseCharacter;
 
 DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdateSignature);
 
@@ -108,6 +109,8 @@ public:
     UFUNCTION(Category = "Inventory")
     FORCEINLINE void SetWeightCapacity(const float NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
+
+
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Inventory")
     float InventoryTotalWeight;
@@ -128,6 +131,8 @@ protected:
     void AddNewItem(UItemBase* Item, const int32 AmountToAdd);
 
     virtual void BeginPlay() override;
+
+    ATestBaseCharacter* Character;
 
 public:
 };

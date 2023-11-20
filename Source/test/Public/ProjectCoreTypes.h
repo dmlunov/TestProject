@@ -89,8 +89,8 @@ USTRUCT() struct FItemNumericData
     UPROPERTY(EditAnywhere)
     float Weight;
     UPROPERTY(EditAnywhere)
-    int MaxStackSize;
-    UPROPERTY(EditAnywhere)
+    int32 MaxStackSize;
+    UPROPERTY()
     bool bIsStackble;
 };
 

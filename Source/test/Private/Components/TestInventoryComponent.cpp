@@ -2,10 +2,9 @@
 
 #include "Components/TestInventoryComponent.h"
 #include "Items/ItemBase.h"
-
+#include "Player/TestBaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(InventoryComponentLog, All, All);
-
 
 UTestInventoryComponent::UTestInventoryComponent()
 {
@@ -15,6 +14,8 @@ UTestInventoryComponent::UTestInventoryComponent()
 void UTestInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
+
+    Character = Cast<ATestBaseCharacter>(GetOwner());
 }
 
 UItemBase* UTestInventoryComponent::FindMatchingItem(UItemBase* ItemIn) const
@@ -115,16 +116,95 @@ FItemAddResult UTestInventoryComponent::HandleNonStackableItems(UItemBase* Input
 
 int32 UTestInventoryComponent::HandleStackableItems(UItemBase* InputItem, int32 RequestedAddAmount)
 {
-    //
+
+    if (RequestedAddAmount <= 0 || FMath::IsNearlyZero(InputItem->GetItemStackWeight()))
+    {
+        return 0;
+    }
+    int32 AmountToDistribute = RequestedAddAmount;
+    // проверяем существет ли товар в инвентаре и не заполнен ли он полностью
+    UItemBase* ExistingItemStack = FindNextPatialStack(InputItem);
+    // собрать одинакоые вещи в один стек
+    while (ExistingItemStack)
+    {
+        // сколько  предметов потребуется для создания полного стек
+        const int32 AmountToMakeFullStack = CalculateNumberForFullStack(ExistingItemStack, AmountToDistribute);
+        // сумма веса нужно для полной грузоподьемности
+        const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ExistingItemStack, AmountToMakeFullStack);
+
+        // расчеты пока оставшися товар не привысит грузоподьемность
+        if (WeightLimitAddAmount > 0)
+        {
+            // корректируем количество существующих предметов и общий вес инвентаря
+            ExistingItemStack->SetQuantity(ExistingItemStack->Quantity + WeightLimitAddAmount);
+            InventoryTotalWeight += (ExistingItemStack->GetItemSingleWeight() * WeightLimitAddAmount);
+
+            AmountToDistribute -= WeightLimitAddAmount;
+
+            InputItem->SetQuantity(AmountToDistribute);
+
+            // по идеи это условие не когда не случится
+            // если максимальная шрузоподьемнось достигнута то выходим
+
+            if (InventoryTotalWeight + ExistingItemStack->GetItemSingleWeight() > InventoryWeightCapacity)
+            {
+                OnInventoryUpdate.Broadcast();
+                return RequestedAddAmount - AmountToDistribute;
+            }
+        }
+        else if (WeightLimitAddAmount <= 0)
+        {
+            if (AmountToDistribute != RequestedAddAmount)
+            {
+                // если товар распределить по не скольким стопкам и будет достигнут придел
+                OnInventoryUpdate.Broadcast();
+                return RequestedAddAmount - AmountToDistribute;
+            }
+            return 0;
+        }
+        if (AmountToDistribute <= 0)
+        {
+            // все распределенно по стекам
+            OnInventoryUpdate.Broadcast();
+            return RequestedAddAmount;
+        }
+        // проверка есть ли еще стек
+        ExistingItemStack = FindNextPatialStack(InputItem);
+    }
+    // проверьте, можно ли добавить новый стек
+    if (InventoryContents.Num() + 1 <= InventorySloatCapacity)
+    {
+        // попытатся добавить как можно больше из оставшихся элиментов
+        const int32 WeightItemLimitAddAmount = CalculateWeightAddAmount(InputItem, AmountToDistribute);
+        if (WeightItemLimitAddAmount > 0)
+        {
+            // если придел веса достигнут
+            if (WeightItemLimitAddAmount < AmountToDistribute)
+            {
+                // добавляем новый стек максимум сколько можно
+                AmountToDistribute -= WeightItemLimitAddAmount;
+                InputItem->SetQuantity(AmountToDistribute);
+                // создаем копию в инвентаре , что бы не создавать ссылку на вешь оставшюуся на земле
+                AddNewItem(InputItem->CreateItemCopy(), WeightItemLimitAddAmount);
+                return RequestedAddAmount - AmountToDistribute;
+            }
+            AddNewItem(InputItem, AmountToDistribute);
+            return RequestedAddAmount;
+        }
+       // OnInventoryUpdate.Broadcast();
+        return RequestedAddAmount - AmountToDistribute;
+    }
     return 0;
 }
 
 FItemAddResult UTestInventoryComponent::HandleAddItem(UItemBase* InputItem)
 {
+
     if (GetOwner())
     {
+
         const int32 InitialRequestedAddAmount = InputItem->Quantity;
-        if (InputItem->NumericData.bIsStackble)
+        if (!InputItem->NumericData.bIsStackble)
         {
             return HandleNonStackableItems(InputItem);
         }
@@ -134,7 +214,7 @@ FItemAddResult UTestInventoryComponent::HandleAddItem(UItemBase* InputItem)
         {
             return FItemAddResult::AddedAll(InitialRequestedAddAmount,
                 FText::Format(FText::FromString("HandleAddItem Successfully add {0} {1} to the inventory"),  //
-                    InitialRequestedAddAmount,                                                 //
+                    InitialRequestedAddAmount,                                                               //
                     InputItem->TextData.Name));
         }
         if (StackableAmountAdded < InitialRequestedAddAmount && StackableAmountAdded > 0)
@@ -151,6 +231,7 @@ FItemAddResult UTestInventoryComponent::HandleAddItem(UItemBase* InputItem)
                     InputItem->TextData.Name));
         }
     }
+
     check(false);
     return FItemAddResult::AddedNone(FText::FromString("TryAddItem fallthrough error. GetOwner() check somehow failed"));
 }
@@ -163,15 +244,15 @@ void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAd
         // проверка элемента не является ли он копией
         NewItem = Item;
         NewItem->ResetItemFlags();
-        UE_LOG(InventoryComponentLog, Display, TEXT("Item %s , %s"), *NewItem->TextData.Name.ToString(),
-            *NewItem->Transform.GetScale3D().ToString());
+        // UE_LOG(InventoryComponentLog, Display, TEXT("Item %s , %s"), *NewItem->TextData.Name.ToString(),
+        //    *NewItem->Transform.GetScale3D().ToString());
     }
     else
     {
         // используется когда разделяем стопку элементов или  забираем из другого инвентаря
         NewItem = Item->CreateItemCopy();
-        UE_LOG(InventoryComponentLog, Display, TEXT("NewItem %s , Item %s"), *NewItem->Transform.GetScale3D().ToString(),
-            *Item->Transform.GetScale3D().ToString());
+        // UE_LOG(InventoryComponentLog, Display, TEXT("NewItem %s , Item %s"), *NewItem->Transform.GetScale3D().ToString(),
+        // *Item->Transform.GetScale3D().ToString());
     }
     NewItem->OwningInventoryComponent = this;
     NewItem->SetQuantity(AmountToAdd);

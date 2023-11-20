@@ -34,7 +34,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup | Components")
     UStaticMeshComponent* PickupMesh;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")
+    UPROPERTY(EditAnywhere, Category = "Pickup | Item Initialization")
     UDataTable* ItemDataTable;
 
 
@@ -45,7 +45,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item reference")
     UItemBase* ItemReference;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")
+    UPROPERTY(EditAnywhere, Category = "Pickup | Item Initialization")
     int32 ItemQuantity;
 
     UPROPERTY(VisibleAnyWhere, Category = "Pickup | Interaction")

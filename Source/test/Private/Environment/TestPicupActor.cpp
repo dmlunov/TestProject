@@ -47,6 +47,7 @@ void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
         ItemReference->Transform = PickupMesh->GetComponentTransform();
         ItemReference->ItemPhysicalMass = PickupMesh->GetMass();
  
+        ItemReference->NumericData.bIsStackble = ItemData->ItemNumericData.MaxStackSize > 1;
        // ItemData->Transform = PickupMesh->GetComponentTransform();
         InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
         // UE_LOG(TestPicupActorLog, Display, TEXT("Ouantity %s = %i"), *ItemReference->TextData.Name.ToString(), InQuantity);
@@ -87,6 +88,7 @@ void ATestPicupActor::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuanti
     ItemReference = ItemToDrop;
     InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
     ItemReference->NumericData.Weight = ItemToDrop->GetItemSingleWeight();
+    ItemReference->OwningInventoryComponent = nullptr;
     PickupMesh->SetStaticMesh(ItemToDrop->AssetData.StaticMesh);
     UpdateInteractableData();
 }

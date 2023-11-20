@@ -4,6 +4,7 @@
 #include "Player/TestBaseCharacter.h"
 #include "Components/TestInventoryComponent.h"
 #include "UI/Inventory/InventoryItemSlot.h"
+#include "UI/Inventory/ItemDragDropOperation.h"
 // engine
 #include "Components/TextBlock.h"
 #include "Components/WrapBox.h"
@@ -56,5 +57,13 @@ bool UInventoryPanel::NativeOnDrop(         //
     const FDragDropEvent& InDragDropEvent,  //
     UDragDropOperation* InOperation)
 {
-    return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+    const UItemDragDropOperation* ItemDragDrop = Cast<UItemDragDropOperation>(InOperation);
+    if (ItemDragDrop->SourceItem && InventoryReference)
+    {
+    
+        return true;
+    }
+
+    return false;
+   // return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 }
