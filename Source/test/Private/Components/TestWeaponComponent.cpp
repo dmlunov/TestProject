@@ -9,7 +9,6 @@
 #include "Weapon/TestShotgunWeapon.h"
 #include "UI/TestGameHUD.h"
 
-
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
 UTestWeaponComponent::UTestWeaponComponent()
@@ -27,7 +26,6 @@ void UTestWeaponComponent::BeginPlay()
     SpawnWeapons();
     EquipWeapon(CurrentWeaponIndex);
     TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-
 }
 
 void UTestWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayPeason)
@@ -50,15 +48,18 @@ void UTestWeaponComponent::SpawnWeapons()
 
     for (auto OneWeaponData : WeaponData)
     {
-        auto Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
-        if (!Weapon) continue;
+
+        ATestBaseWeapon* Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
+        if (!Weapon || !Weapon->IsWeaponInInventory) continue;
+
+        UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
 
         Weapon->OnClipEmpty.AddUObject(this, &UTestWeaponComponent::OnEmptyClip);
 
         Weapon->SetOwner(Character);
         Weapons.Add(Weapon);
 
-         if (Weapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(Weapon))
+        if (Weapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(Weapon))
             AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
         else
             AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketName);
@@ -86,8 +87,8 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, Weapons.Num() - 1, 0);
     int32 NextIndex = ClampIndex(WeaponIndex, 1, Weapons.Num() - 1, 0);
 
-    // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
-    // NextIndex);
+   // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
+   //  NextIndex);
 
     if (CurrentWeapon)
     {
@@ -96,12 +97,15 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
             AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
         else
             AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
+        if (WeaponIndex > 1)
         CurrentWeapon->SetActorHiddenInGame(false);
     }
 
     CurrentWeapon = Weapons[WeaponIndex];
+    if (WeaponIndex > 1)
     CurrentWeapon->SetActorHiddenInGame(false);
     ATestBaseWeapon* LastWeapon = Weapons[NextIndex];
+    if (WeaponIndex > 1)
     LastWeapon->SetActorHiddenInGame(true);
     // CurrentReloadAnimMontage = WeaponData[WeaponIndex].ReloadAnimMontage;
     const auto CurrentWeaponData =

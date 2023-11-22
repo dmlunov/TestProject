@@ -26,7 +26,7 @@ void ATestPicupActor::BeginPlay()
     InitializePickup(UItemBase::StaticClass(), ItemQuantity);
     // Interact(ATestBaseCharacter * BaseCharacter);
 
-    UE_LOG(TestPicupActorLog, Display, TEXT("PicapActor Create"));
+   // UE_LOG(TestPicupActorLog, Display, TEXT("PicapActor Create"));
 }
 
 void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)

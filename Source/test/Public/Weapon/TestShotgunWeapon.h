@@ -32,6 +32,7 @@ protected:
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
 
 
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     TSubclassOf<ATestProjecttile> ProjecttileClass;
 

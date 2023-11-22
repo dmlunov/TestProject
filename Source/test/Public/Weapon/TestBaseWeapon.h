@@ -29,6 +29,9 @@ public:
     void ChangeClip();
     bool CanReload() const;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    bool IsWeaponInInventory = false;
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -44,6 +47,8 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     FAmmoData DefaultAmmo {15, 10, false};
+
+
 
     virtual void MakeShot();
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;

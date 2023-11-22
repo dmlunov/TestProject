@@ -16,10 +16,13 @@ class TEST_API ATestLauncherWeapon : public ATestBaseWeapon
 public:
     virtual void StartFire() override;
 
+
 protected:
 
     virtual void MakeShot() override;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     TSubclassOf<ATestProjecttile> ProjecttileClass;
+
+
 };

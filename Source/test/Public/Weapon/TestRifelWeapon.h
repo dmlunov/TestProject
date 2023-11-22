@@ -18,6 +18,7 @@ public:
     virtual void StartFire() override;
     virtual void StopFire() override;
 
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     float BulletSpread = 1.5f;
@@ -33,6 +34,8 @@ protected:
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
 
     void MakeDamage(const FHitResult& HitResult);
+
+
 
 private:
     FTimerHandle ShotTimerHandle;
