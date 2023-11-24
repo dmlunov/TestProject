@@ -121,7 +121,7 @@ void ATestPicupActor::TakePickup(const ATestBaseCharacter* TekerCharacter)
     {
         if (ItemReference)
         {
-            if (UTestInventoryComponent* PlayerInventory = TekerCharacter->GetInventory())
+            if (UTestInventoryComponent* PlayerInventory = TekerCharacter->GetInventoryComponent())
             {
                 const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
 
@@ -130,7 +130,7 @@ void ATestPicupActor::TakePickup(const ATestBaseCharacter* TekerCharacter)
                     case EItemAssResult::IAR_NoItemAdded: break;
                     case EItemAssResult::IAR_PatialAmountItemAdded:
                         UpdateInteractableData();
-                        TekerCharacter->GetItem()->UpdateInteractionWidget();
+                        TekerCharacter->GetItemComponent()->UpdateInteractionWidget();
                         break;
                     case EItemAssResult::IAR_AllItemAdded: Destroy(); break;
                 }

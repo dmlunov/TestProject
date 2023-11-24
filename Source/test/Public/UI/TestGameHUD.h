@@ -34,12 +34,17 @@ public:
 
     void ShowInteractionWidget() const;
     void HideInteractionWidget() const;
-    void UpdateInteractionWidget(const FInteractableData* InteractableData) const ;
+    void UpdateInteractionWidget ( const FInteractableData* InteractableData) const ;
+
+
 
 
 protected:
 
     virtual void BeginPlay() override;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    TSubclassOf <UUserWidget> PlayerHUDWidgetClass;
 
     UPROPERTY()
     UMainMenu* MainMenuWidget;

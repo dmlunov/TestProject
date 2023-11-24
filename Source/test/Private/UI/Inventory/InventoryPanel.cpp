@@ -16,7 +16,7 @@ void UInventoryPanel::NativeOnInitialized()
     BaseCharacter = Cast<ATestBaseCharacter>(GetOwningPlayerPawn());
     if (BaseCharacter)
     {
-        InventoryReference = BaseCharacter->GetInventory();
+        InventoryReference = BaseCharacter->GetInventoryComponent();
         if (InventoryReference)
         {
             InventoryReference->OnInventoryUpdate.AddUObject(this, &UInventoryPanel::RefreshInventory);

@@ -7,12 +7,8 @@
 #include "ProjectCoreTypes.h"
 #include "TestWeaponComponent.generated.h"
 
-
 class ATestBaseWeapon;
 class ATestGameHUD;
-
-
-
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class TEST_API UTestWeaponComponent : public UActorComponent
@@ -26,8 +22,20 @@ public:
     void NextWeapon();
     void Reload();
 
-protected:
+    UFUNCTION()
+    TArray<ATestBaseWeapon*> GetWeaponsInInventary() const { return WeaponsInInventary; };
 
+    UFUNCTION()
+    void SetWeaponsInInventary(TArray<ATestBaseWeapon*> NewWeapons)
+    {
+        WeaponsInInventary.Empty();
+        WeaponsInInventary = NewWeapons;
+    };
+
+    UFUNCTION()
+    TArray<ATestBaseWeapon*> GetWeapons() const { return Weapons; };
+
+protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayPeason) override;
 
@@ -46,7 +54,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     FName WeaponArmorySoketToShotGunName = "ArmorySocketToShotGun";
 
-     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     UAnimMontage* EquipMontage;
 
 private:
@@ -55,6 +63,9 @@ private:
 
     UPROPERTY()
     TArray<ATestBaseWeapon*> Weapons;
+
+    UPROPERTY()
+    TArray<ATestBaseWeapon*> WeaponsInInventary;
 
     UPROPERTY()
     UAnimMontage* CurrentReloadAnimMontage = nullptr;
@@ -72,22 +83,19 @@ private:
     void InitAnimation();
     void SpawnWeapons();
     void AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName);
-    void EquipWeapon(int32 WeaponIndex); 
+    void EquipWeapon(int32 WeaponIndex);
 
     void PlayAnimMontage(UAnimMontage* Animation);
-   
+
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
 
-    bool CanFire() const ;
+    bool CanFire() const;
     bool CanEquip() const;
     bool CanReload() const;
 
     void OnEmptyClip();
     void ChangeClip();
 
-    int32 ClampIndex(int32 value,int32 valueStep, int32 max, int32 min);
-
-
-   
+    int32 ClampIndex(int32 value, int32 valueStep, int32 max, int32 min);
 };

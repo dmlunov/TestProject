@@ -36,6 +36,8 @@ struct FWeaponData
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     UAnimMontage* ReloadAnimMontage;
+
+
 };
 
 // HelthComponent

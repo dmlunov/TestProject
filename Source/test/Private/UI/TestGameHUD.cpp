@@ -5,6 +5,7 @@
 #include "UI/MainMenu.h"
 #include "UI/Interaction/InteractionWidget.h"
 #include "Interface/TestBaseInterface.h"
+#include "Blueprint/UserWidget.h"
 
 ATestGameHUD::ATestGameHUD()
 {
@@ -27,6 +28,12 @@ void ATestGameHUD::BeginPlay()
         InteractionWidget = CreateWidget<UInteractionWidget>(GetWorld(), InteractionWidgetClass);
         InteractionWidget->AddToViewport(-1);
         InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+    }
+
+    auto PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass);
+    if (PlayerHUDWidget)
+    {
+        PlayerHUDWidget->AddToViewport();
     }
 }
 

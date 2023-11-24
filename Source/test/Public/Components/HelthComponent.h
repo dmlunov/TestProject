@@ -22,9 +22,13 @@ public:
     UFUNCTION(BlueprintCallable)
     bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
+    UFUNCTION(BlueprintCallable)
+    float GetHealthPercent() const { return Health / MaxHealth; };
+
     float GetHealth() const { return Health; }
     float GetMaxHealth() const { return MaxHealth; }
     void SetAutoHeal(bool AHeal) { AutoHeal = AHeal; };
+
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "1000.0"))

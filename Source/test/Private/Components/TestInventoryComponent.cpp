@@ -3,6 +3,8 @@
 #include "Components/TestInventoryComponent.h"
 #include "Items/ItemBase.h"
 #include "Player/TestBaseCharacter.h"
+#include "Components/TestWeaponComponent.h"
+#include "Weapon/TestBaseWeapon.h"
 
 DEFINE_LOG_CATEGORY_STATIC(InventoryComponentLog, All, All);
 
@@ -191,7 +193,7 @@ int32 UTestInventoryComponent::HandleStackableItems(UItemBase* InputItem, int32 
             AddNewItem(InputItem, AmountToDistribute);
             return RequestedAddAmount;
         }
-       // OnInventoryUpdate.Broadcast();
+        // OnInventoryUpdate.Broadcast();
         return RequestedAddAmount - AmountToDistribute;
     }
     return 0;
@@ -238,6 +240,7 @@ FItemAddResult UTestInventoryComponent::HandleAddItem(UItemBase* InputItem)
 
 void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 {
+
     UItemBase* NewItem;
     if (Item->bIsCopy || Item->bIsPickup)
     {
@@ -251,13 +254,37 @@ void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAd
     {
         // используется когда разделяем стопку элементов или  забираем из другого инвентаря
         NewItem = Item->CreateItemCopy();
+
         // UE_LOG(InventoryComponentLog, Display, TEXT("NewItem %s , Item %s"), *NewItem->Transform.GetScale3D().ToString(),
         // *Item->Transform.GetScale3D().ToString());
     }
+
     NewItem->OwningInventoryComponent = this;
     NewItem->SetQuantity(AmountToAdd);
 
     InventoryContents.Add(NewItem);
     InventoryTotalWeight += NewItem->GetItemStackWeight();
     OnInventoryUpdate.Broadcast();
+
+    if (NewItem->ItemType == EItemType::Weapon)
+    {
+        const FString ItemName = NewItem->TextData.Name.ToString();
+
+        const TArray<ATestBaseWeapon*> Weapons = Character->GetWeaponComponent()->GetWeapons();
+        TArray<ATestBaseWeapon*> NewWeapons;
+
+        if (!Character || !GetWorld()) return;
+
+        for (ATestBaseWeapon* OneWeapon : Weapons)
+        {
+            if (OneWeapon->GetName().Contains(ItemName)) OneWeapon->IsWeaponInInventory = true;
+            if (OneWeapon->IsWeaponInInventory) NewWeapons.Add(OneWeapon);
+        }
+        // UE_LOG(InventoryComponentLog, Display, TEXT("NewWeapons Num = %d "), NewWeapons.Num());
+        if (!NewWeapons.IsEmpty())
+        {
+            Character->GetWeaponComponent()->SetWeaponsInInventary(NewWeapons);
+            Character->GetWeaponComponent()->NextWeapon();
+        }
+    }
 }

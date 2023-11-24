@@ -111,6 +111,7 @@ void UTestItemComponent::FoundInteracteble(AActor* NewInteractable)
     InteractionData.CurrentInteractable = NewInteractable;
     TargetInteractable = NewInteractable;
 
+    //UE_LOG(TestItemComponentLog, Display, TEXT("Found Actor name = %s"), *NewInteractable->GetName());
     // update interaction widget
     TestGameHUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
 
@@ -197,7 +198,7 @@ void UTestItemComponent::UpdateInteractionWidget() const
 
 void UTestItemComponent::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
 {
-    UTestInventoryComponent* PlayerInventory = Character->GetInventory();
+    UTestInventoryComponent* PlayerInventory = Character->GetInventoryComponent();
 
     if (PlayerInventory->FindMatchingItem(ItemToDrop))
     {

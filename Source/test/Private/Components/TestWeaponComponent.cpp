@@ -50,9 +50,9 @@ void UTestWeaponComponent::SpawnWeapons()
     {
 
         ATestBaseWeapon* Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
-        if (!Weapon || !Weapon->IsWeaponInInventory) continue;
+        if (!Weapon) continue;
 
-        UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
+       // UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
 
         Weapon->OnClipEmpty.AddUObject(this, &UTestWeaponComponent::OnEmptyClip);
 
@@ -64,7 +64,19 @@ void UTestWeaponComponent::SpawnWeapons()
         else
             AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketName);
     }
+
+    for (auto weapon : Weapons)
+    {
+        weapon->SetActorHiddenInGame(true);
+        if (weapon->IsWeaponInInventory)
+        {
+            weapon->SetActorHiddenInGame(false);
+            WeaponsInInventary.Add(weapon);
+        }
+    }
+
 }
+
 
 void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName)
 
@@ -76,7 +88,7 @@ void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneCo
 
 void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
 {
-    if (WeaponIndex < 0 || WeaponIndex >= Weapons.Num())
+    if (WeaponIndex < 0 || WeaponIndex >= WeaponsInInventary.Num() || WeaponsInInventary.IsEmpty())
     {
         UE_LOG(TestWeaponComponentLog, Display, TEXT("invalid waepon index"));
         return;
@@ -84,11 +96,10 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character) return;
 
-    int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, Weapons.Num() - 1, 0);
-    int32 NextIndex = ClampIndex(WeaponIndex, 1, Weapons.Num() - 1, 0);
+    int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, WeaponsInInventary.Num() - 1, 0);
+    int32 NextIndex = ClampIndex(WeaponIndex, 1, WeaponsInInventary.Num() - 1, 0);
 
-   // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
-   //  NextIndex);
+   UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,  NextIndex);
 
     if (CurrentWeapon)
     {
@@ -97,16 +108,19 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
             AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
         else
             AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
-        if (WeaponIndex > 1)
+
         CurrentWeapon->SetActorHiddenInGame(false);
     }
 
-    CurrentWeapon = Weapons[WeaponIndex];
-    if (WeaponIndex > 1)
+    CurrentWeapon = WeaponsInInventary[WeaponIndex];
     CurrentWeapon->SetActorHiddenInGame(false);
-    ATestBaseWeapon* LastWeapon = Weapons[NextIndex];
-    if (WeaponIndex > 1)
-    LastWeapon->SetActorHiddenInGame(true);
+    ATestBaseWeapon* LastWeapon = WeaponsInInventary[LastIndex];
+    ATestBaseWeapon* NextWeapon = WeaponsInInventary[NextIndex];
+    if (WeaponsInInventary.Num() - 1 > 1)
+    {
+        NextWeapon->SetActorHiddenInGame(false);
+        LastWeapon->SetActorHiddenInGame(true);
+    }
     // CurrentReloadAnimMontage = WeaponData[WeaponIndex].ReloadAnimMontage;
     const auto CurrentWeaponData =
         WeaponData.FindByPredicate([&](const FWeaponData& Data) { return Data.WeaponClass == CurrentWeapon->GetClass(); });
@@ -141,8 +155,8 @@ void UTestWeaponComponent::StopFire()
 
 void UTestWeaponComponent::NextWeapon()
 {
-    if (!CanEquip()) return;
-    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % Weapons.Num();
+    if (!CanEquip() || WeaponsInInventary.IsEmpty() || WeaponsInInventary.Num() < 1 ) return;
+    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
     EquipWeapon(CurrentWeaponIndex);
 }
 
