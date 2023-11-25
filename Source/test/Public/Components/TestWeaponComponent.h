@@ -22,6 +22,9 @@ public:
     void NextWeapon();
     void Reload();
 
+    bool GetCurrentWeaponUIDate(FWeaponUIData& UIData) const;
+    bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
+
     UFUNCTION()
     TArray<ATestBaseWeapon*> GetWeaponsInInventary() const { return WeaponsInInventary; };
 

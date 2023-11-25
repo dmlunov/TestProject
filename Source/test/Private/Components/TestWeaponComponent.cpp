@@ -52,7 +52,7 @@ void UTestWeaponComponent::SpawnWeapons()
         ATestBaseWeapon* Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
         if (!Weapon) continue;
 
-       // UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
+        // UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
 
         Weapon->OnClipEmpty.AddUObject(this, &UTestWeaponComponent::OnEmptyClip);
 
@@ -74,9 +74,7 @@ void UTestWeaponComponent::SpawnWeapons()
             WeaponsInInventary.Add(weapon);
         }
     }
-
 }
-
 
 void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName)
 
@@ -99,7 +97,7 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, WeaponsInInventary.Num() - 1, 0);
     int32 NextIndex = ClampIndex(WeaponIndex, 1, WeaponsInInventary.Num() - 1, 0);
 
-   UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,  NextIndex);
+    UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex, NextIndex);
 
     if (CurrentWeapon)
     {
@@ -155,7 +153,7 @@ void UTestWeaponComponent::StopFire()
 
 void UTestWeaponComponent::NextWeapon()
 {
-    if (!CanEquip() || WeaponsInInventary.IsEmpty() || WeaponsInInventary.Num() < 1 ) return;
+    if (!CanEquip() || WeaponsInInventary.IsEmpty() || WeaponsInInventary.Num() < 1) return;
     CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
     EquipWeapon(CurrentWeaponIndex);
 }
@@ -254,3 +252,23 @@ int32 UTestWeaponComponent::ClampIndex(int32 value, int32 valueStep, int32 max, 
         out = value;
     return out;
 }
+
+bool UTestWeaponComponent::GetCurrentWeaponUIDate(FWeaponUIData& UIData) const
+{
+    if (CurrentWeapon)
+    {
+        UIData = CurrentWeapon->GetUIData();
+        return true;
+    }
+    return false;
+};
+
+bool UTestWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
+{
+    if (CurrentWeapon)
+    {
+        AmmoData = CurrentWeapon->GetAmmoData();
+        return true;
+    }
+    return false;
+};

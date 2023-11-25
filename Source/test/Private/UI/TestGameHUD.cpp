@@ -41,7 +41,7 @@ void ATestGameHUD::DrawHUD()
 {
     Super::DrawHUD();
 
-    DrawCross();
+   // DrawCross();
 }
 
 void ATestGameHUD::DrawCross()
