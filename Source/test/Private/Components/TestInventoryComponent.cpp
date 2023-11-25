@@ -71,6 +71,8 @@ int32 UTestInventoryComponent::CalculateNumberForFullStack(UItemBase* StackableI
 void UTestInventoryComponent::RemoveSingleInstanceOfItem(UItemBase* ItemToRemove)
 {
     InventoryContents.RemoveSingle(ItemToRemove);
+    UE_LOG(InventoryComponentLog, Display, TEXT("Remuve Item name = %s "), *ItemToRemove->TextData.Name.ToString());
+    ChangeCurentWeapons(ItemToRemove, false);
 
     OnInventoryUpdate.Broadcast();
 }
@@ -81,6 +83,7 @@ int32 UTestInventoryComponent::RemoveAmountOfItem(UItemBase* ItemIn, int32 Desir
     ItemIn->SetQuantity(ItemIn->Quantity - ActualAmouuntToRemove);
     InventoryTotalWeight -= ActualAmouuntToRemove * ItemIn->GetItemSingleWeight();
     OnInventoryUpdate.Broadcast();
+
     return ActualAmouuntToRemove;
 }
 
@@ -266,25 +269,45 @@ void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAd
     InventoryTotalWeight += NewItem->GetItemStackWeight();
     OnInventoryUpdate.Broadcast();
 
-    if (NewItem->ItemType == EItemType::Weapon)
+    ChangeCurentWeapons(NewItem, true);
+}
+
+void UTestInventoryComponent::ChangeCurentWeapons(UItemBase* Item, bool IsInInvetary)
+{
+    if (Item->ItemType == EItemType::Weapon)
     {
-        const FString ItemName = NewItem->TextData.Name.ToString();
+        const FString ItemName = Item->TextData.Name.ToString();
 
         const TArray<ATestBaseWeapon*> Weapons = Character->GetWeaponComponent()->GetWeapons();
         TArray<ATestBaseWeapon*> NewWeapons;
+        TArray<ATestBaseWeapon*> WeaponsInInventary = Character->GetWeaponComponent()->GetWeaponsInInventary();
+        ATestBaseWeapon* CurrentWeapon = Character->GetWeaponComponent()->GetCurrentWeapon();
 
         if (!Character || !GetWorld()) return;
 
         for (ATestBaseWeapon* OneWeapon : Weapons)
         {
-            if (OneWeapon->GetName().Contains(ItemName)) OneWeapon->IsWeaponInInventory = true;
-            if (OneWeapon->IsWeaponInInventory) NewWeapons.Add(OneWeapon);
+            if (OneWeapon->GetName().Contains(ItemName)) OneWeapon->IsWeaponInInventory = IsInInvetary;
+            if (OneWeapon->IsWeaponInInventory)
+                NewWeapons.Add(OneWeapon);
+            else if (OneWeapon->GetName().Contains(ItemName))
+            {
+                OneWeapon->SetActorHiddenInGame(true);
+                if (OneWeapon == CurrentWeapon)
+                {
+                    Character->GetWeaponComponent()->SetCurrentWeapon(nullptr);
+                    UE_LOG(InventoryComponentLog, Display, TEXT("Remove Current Weapon Name = %s "), *OneWeapon->GetName());
+                }
+
+                UE_LOG(InventoryComponentLog, Display, TEXT("Remove Weapon Name = %s "), *OneWeapon->GetName());
+
+            }
         }
-        // UE_LOG(InventoryComponentLog, Display, TEXT("NewWeapons Num = %d "), NewWeapons.Num());
-        if (!NewWeapons.IsEmpty())
-        {
-            Character->GetWeaponComponent()->SetWeaponsInInventary(NewWeapons);
-            Character->GetWeaponComponent()->NextWeapon();
-        }
+        // if (!NewWeapons.IsEmpty())
+        // {
+        Character->GetWeaponComponent()->SetWeaponsInInventary(NewWeapons);
+        if (IsInInvetary) 
+        Character->GetWeaponComponent()->NextWeapon();
+        //  }
     }
 }

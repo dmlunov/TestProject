@@ -134,5 +134,8 @@ protected:
 
     ATestBaseCharacter* Character;
 
+    void ChangeCurentWeapons(UItemBase* Item , bool IsInInvetary);
+
+
 public:
 };

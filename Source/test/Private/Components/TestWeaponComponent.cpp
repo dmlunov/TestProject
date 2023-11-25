@@ -84,6 +84,19 @@ void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneCo
     Weapon->AttachToComponent(SceneComponent, AttachmentRules, SoketName);
 }
 
+void UTestWeaponComponent::NextWeapon()
+{
+    if (!CanEquip() ) return;//|| WeaponsInInventary.Num() < 1
+
+    if (WeaponsInInventary.IsEmpty())
+        CurrentWeaponIndex = -1;
+    else if (WeaponsInInventary.Num() < 1)
+        CurrentWeaponIndex = 0;
+    else
+    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
+    EquipWeapon(CurrentWeaponIndex);
+}
+
 void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
 {
     if (WeaponIndex < 0 || WeaponIndex >= WeaponsInInventary.Num() || WeaponsInInventary.IsEmpty())
@@ -151,12 +164,7 @@ void UTestWeaponComponent::StopFire()
     CurrentWeapon->StopFire();
 }
 
-void UTestWeaponComponent::NextWeapon()
-{
-    if (!CanEquip() || WeaponsInInventary.IsEmpty() || WeaponsInInventary.Num() < 1) return;
-    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
-    EquipWeapon(CurrentWeaponIndex);
-}
+
 
 void UTestWeaponComponent::PlayAnimMontage(UAnimMontage* Animation)
 {

@@ -37,6 +37,10 @@ public:
 
     UFUNCTION()
     TArray<ATestBaseWeapon*> GetWeapons() const { return Weapons; };
+    UFUNCTION()
+    ATestBaseWeapon* GetCurrentWeapon() const { return CurrentWeapon;};
+    UFUNCTION()
+    void SetCurrentWeapon(ATestBaseWeapon* NewCurrentWeapon) { CurrentWeapon = NewCurrentWeapon; };
 
 protected:
     virtual void BeginPlay() override;
