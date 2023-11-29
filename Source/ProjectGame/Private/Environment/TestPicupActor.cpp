@@ -147,7 +147,7 @@ void ATestPicupActor::TakePickup(const AProjectBaseCharacter* TekerCharacter)
         }
     }
 }
-
+/*
 void ATestPicupActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
     Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -166,4 +166,4 @@ void ATestPicupActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
             }
         }
     }
-}
+}*/

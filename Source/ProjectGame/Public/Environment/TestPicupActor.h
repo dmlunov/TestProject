@@ -30,12 +30,14 @@ public:
 
     FORCEINLINE UStaticMeshComponent* GetPickupMesh() const { return PickupMesh; };
 
-protected:
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pickup | Components")
     UStaticMeshComponent* PickupMesh;
 
     UPROPERTY(EditAnywhere, Category = "Pickup | Item Initialization")
     UDataTable* ItemDataTable;
+
+
 
 
 
@@ -51,6 +53,7 @@ protected:
     UPROPERTY(VisibleAnyWhere, Category = "Pickup | Interaction")
     FInteractableData InstanceInteractableData;
 
+protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
@@ -58,7 +61,8 @@ protected:
     virtual void EndFocus() override;
     virtual void Interact(AProjectBaseCharacter* BaseCharacter) override;
 
+/*
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
+#endif*/
 };
