@@ -20,10 +20,13 @@ public:
     void StartFire();
     void StopFire();
     void NextWeapon();
+    void FastNextWeapon();
     void Reload();
 
     bool GetCurrentWeaponUIDate(FWeaponUIData& UIData) const;
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
+
+    bool InvntaryEquipWeapon = false;
 
     UFUNCTION()
     TArray<ATestBaseWeapon*> GetWeaponsInInventary() const { return WeaponsInInventary; };

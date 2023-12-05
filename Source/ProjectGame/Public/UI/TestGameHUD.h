@@ -36,7 +36,8 @@ public:
     void HideInteractionWidget() const;
     void UpdateInteractionWidget ( const FInteractableData* InteractableData) const ;
 
-
+    UFUNCTION()
+    FORCEINLINE UMainMenu* GetMainMenuWidget() const { return MainMenuWidget;};
 
 
 protected:

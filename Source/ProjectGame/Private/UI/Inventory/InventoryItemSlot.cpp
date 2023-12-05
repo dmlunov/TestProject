@@ -5,12 +5,15 @@
 #include "UI/Inventory/InventoryTooltip.h"
 #include "Items/ItemBase.h"
 #include "UI/Inventory/ItemDragDropOperation.h"
-
+#include "UI/Inventory/InventoryActionMessage.h"
+#include "UI/TestGameHUD.h"
+#include "UI/MainMenu.h"
 // engine
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
 
+DEFINE_LOG_CATEGORY_STATIC(InventoryItemSlotLog, All, All);
 void UInventoryItemSlot::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
@@ -39,6 +42,11 @@ void UInventoryItemSlot::NativeConstruct()
             ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
         }
     }
+
+    ATestGameHUD* TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    MainMenuWidget = TestGameHUD->GetMainMenuWidget();
+
+    // MainMenuWidget->InventoryActionMessage = this;
 }
 
 FReply UInventoryItemSlot::NativeOnMouseButtonDown(  //
@@ -48,7 +56,49 @@ FReply UInventoryItemSlot::NativeOnMouseButtonDown(  //
     FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
     if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
+        InitialMousePosition = InMouseEvent.GetScreenSpacePosition();
+
+        // UE_LOG(InventoryItemSlotLog, Display, TEXT("InventoryItemSlotLog OnMouseButtonDown"));
         return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+    }
+
+    // submenu on right click will hapen here
+    return Reply.Unhandled();
+}
+
+FReply UInventoryItemSlot::NativeOnMouseButtonUp(  //
+    const FGeometry& InGeometry,                   //
+    const FPointerEvent& InMouseEvent)
+{
+    FReply Reply = Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+    //
+    if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+    {
+        FinalMousePosition = InMouseEvent.GetScreenSpacePosition();
+
+        float DeltaX = FinalMousePosition.X - InitialMousePosition.X;
+        float DeltaY = FinalMousePosition.Y - InitialMousePosition.Y;
+        if (FMath::IsNearlyZero(DeltaX, 0.1f) && FMath::IsNearlyZero(DeltaY, 0.1f))
+        {
+            //UE_LOG(InventoryItemSlotLog, Display, TEXT("Clic MouseButton"));
+            UInventoryActionMessage*  ActionMessageWidget = MainMenuWidget->GetInventoryActionMessageWidget();
+            if (!ActionMessageWidget)
+            {
+                UE_LOG(InventoryItemSlotLog, Display, TEXT(" InventoryActionMessage is emty"));
+                return Reply.Unhandled();
+            }
+
+            // const TObjectPtr<UInventoryActionMessage>
+            ActionMessageWidget->InventorySlot = this;
+            ActionMessageWidget->ChangeData();
+            // if (ActionMessageWidget->IsVisible())
+            ActionMessageWidget->SetVisibility(ESlateVisibility::Visible);
+            //UE_LOG(InventoryItemSlotLog, Display, TEXT("ActionMessageWidget can be Visible"));
+
+            // ActionMessageWidget->SetVisibility(ESlateVisibility::Visible);
+        }
+
+        return Reply.Unhandled();  //.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
     }
 
     // submenu on right click will hapen here

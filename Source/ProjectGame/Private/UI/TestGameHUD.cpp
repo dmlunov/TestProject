@@ -6,6 +6,7 @@
 #include "UI/Interaction/InteractionWidget.h"
 #include "Interface/TestBaseInterface.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Inventory/InventoryActionMessage.h"
 
 ATestGameHUD::ATestGameHUD()
 {
@@ -73,6 +74,7 @@ void ATestGameHUD::HideMenu()
     {
         bIsMenuVisible = false;
         MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+        MainMenuWidget->InventoryActionMessage->SetVisibility(ESlateVisibility::Collapsed);
     }
 }
 

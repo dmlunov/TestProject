@@ -6,6 +6,8 @@
 #include "UI/Inventory/ItemDragDropOperation.h"
 #include "Components/TestItemComponent.h"
 #include "Items/ItemBase.h"
+#include "UI/Inventory/InventoryActionMessage.h"
+#include "UI/Inventory/InventoryPanel.h"
 
 
 void UMainMenu::NativeOnInitialized()
@@ -19,6 +21,9 @@ void UMainMenu::NativeConstruct()
     Super::NativeConstruct();
 
     BaseCharacter = Cast<AProjectBaseCharacter>(GetOwningPlayerPawn());
+
+
+    InventoryActionMessage->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

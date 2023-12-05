@@ -83,10 +83,21 @@ void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneCo
     FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
     Weapon->AttachToComponent(SceneComponent, AttachmentRules, SoketName);
 }
+void UTestWeaponComponent::FastNextWeapon() 
+{
+    if (WeaponsInInventary.IsEmpty())
+        CurrentWeaponIndex = -1;
+    else if (WeaponsInInventary.Num() < 1)
+        CurrentWeaponIndex = 0;
+    else
+        CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
+    EquipWeapon(CurrentWeaponIndex);
+    //UE_LOG(TestWeaponComponentLog, Display, TEXT("Next waepon index = %i"), CurrentWeaponIndex);
+}
 
 void UTestWeaponComponent::NextWeapon()
 {
-    if (!CanEquip() ) return;//|| WeaponsInInventary.Num() < 1
+    if (!CanEquip()) return;  //|| WeaponsInInventary.Num() < 1
 
     if (WeaponsInInventary.IsEmpty())
         CurrentWeaponIndex = -1;
@@ -110,7 +121,7 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, WeaponsInInventary.Num() - 1, 0);
     int32 NextIndex = ClampIndex(WeaponIndex, 1, WeaponsInInventary.Num() - 1, 0);
 
-    UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex, NextIndex);
+    //UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex, NextIndex);
 
     if (CurrentWeapon)
     {
