@@ -9,15 +9,27 @@ public class ProjectGame : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+        // Core
         PublicDependencyModuleNames.AddRange(new string[] { 
             "Core",
             "CoreUObject",
             "Engine",
             "InputCore",
+            "EnhancedInput"
+        });
+
+        // UI
+        PrivateDependencyModuleNames.AddRange(new string[] {
             "UMG",
             "Slate",
             "SlateCore"
-        
+        });
+
+        // Gameplay Ability System
+        PublicDependencyModuleNames.AddRange(new string[] { 
+            "GameplayAbilities",
+            "GameplayTags",
+            "GameplayTasks"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
@@ -30,7 +42,8 @@ public class ProjectGame : ModuleRules
             "ProjectGame/Public/UI",
              "ProjectGame/Public/Animation",
              "ProjectGame/Public/Environment",
-             "ProjectGame/Public/Items"
+             "ProjectGame/Public/Items",
+             "ProjectGame/Public/Abilities"
         });
 
         // Uncomment if you are using Slate UI

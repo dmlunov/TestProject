@@ -145,3 +145,14 @@ USTRUCT() struct FItemData : public FTableRowBase
     //bool IsCanChangeTrancform{false};
 
 };
+
+
+//GAS data
+UENUM(BlueprintType)
+enum class EPGAbilityInputID : uint8
+{
+    None ,
+    Confirm,
+    Cancel ,
+    Push 
+};
