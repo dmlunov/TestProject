@@ -7,6 +7,7 @@
 #include "Interface/TestBaseInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Inventory/InventoryActionMessage.h"
+#include "UI/TestPlayerHUDWidget.h"
 
 ATestGameHUD::ATestGameHUD()
 {
@@ -30,10 +31,9 @@ void ATestGameHUD::BeginPlay()
         InteractionWidget->AddToViewport(-1);
         InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
     }
-
-    auto PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass);
-    if (PlayerHUDWidget)
+    if (PlayerHUDWidgetClass)
     {
+        PlayerHUDWidget = CreateWidget<UTestPlayerHUDWidget>(GetWorld(), PlayerHUDWidgetClass);
         PlayerHUDWidget->AddToViewport();
     }
 }
@@ -42,7 +42,7 @@ void ATestGameHUD::DrawHUD()
 {
     Super::DrawHUD();
 
-   // DrawCross();
+    // DrawCross();
 }
 
 void ATestGameHUD::DrawCross()
@@ -68,7 +68,7 @@ void ATestGameHUD::DisplayMenu()
     }
 }
 
-void ATestGameHUD::HideMenu() 
+void ATestGameHUD::HideMenu()
 {
     if (MainMenuWidget)
     {
@@ -104,25 +104,23 @@ void ATestGameHUD::UpdateInteractionWidget(const FInteractableData* Interactable
         }
 
         InteractionWidget->UpdateWidget(InteractableData);
-        
-
     }
 }
 
- void ATestGameHUD::ToggleMenu() 
- {
-     if (bIsMenuVisible)
+void ATestGameHUD::ToggleMenu()
+{
+    if (bIsMenuVisible)
     {
         HideMenu();
         const FInputModeGameOnly InputMode;
         GetOwningPlayerController()->SetInputMode(InputMode);
         GetOwningPlayerController()->SetShowMouseCursor(false);
-     }
+    }
     else
     {
         DisplayMenu();
         const FInputModeGameAndUI InputMode;
         GetOwningPlayerController()->SetInputMode(InputMode);
         GetOwningPlayerController()->SetShowMouseCursor(true);
-     }
- }
+    }
+}

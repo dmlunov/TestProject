@@ -4,6 +4,8 @@
 #include "Abilities/PGAttributeSet.h"
 #include "Components/PGAbilitySystemComponent.h"
 #include "Player/TestPlayerController.h"
+#include "UI/TestPlayerHUDWidget.h"
+#include "UI/TestGameHUD.h"
 
 APGPlayerState::APGPlayerState()
 {
@@ -41,12 +43,15 @@ bool APGPlayerState::IsAlive() const
 
 void APGPlayerState::ShowAbilityConfirmCancelText(bool ShowText)
 {
-    ATestPlayerController* PC = Cast<ATestPlayerController>(GetOwner());
-    if (PC)
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
     {
         0;
-        // UTestPlayerHUDWidget* HUD = PC->GetHUD();
-        //  if (HUD)  {HUD->ShowAbilityConfirmCancelText(ShowText);  }
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget)
+        {
+            PlayerHUDWidget->ShowAbilityConfirmCancelText(ShowText);
+        }
     }
 }
 
@@ -54,7 +59,6 @@ UPGAttributeSet* APGPlayerState::GetAttributeSetBase() const
 {
     return AttributeSetBase;
 }
-
 
 float APGPlayerState::GetHealth() const
 {  //////////////////////////////
@@ -135,7 +139,7 @@ void APGPlayerState::BeginPlay()
     if (AbilitySystemComponent)
     {
         // Attribute change callbacks
-         HealthChangedDelegateHandle =
+        HealthChangedDelegateHandle =
             AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetHealthAttribute())
                 .AddUObject(this, &APGPlayerState::HealthChanged);
         MaxHealthChangedDelegateHandle =
@@ -161,7 +165,7 @@ void APGPlayerState::BeginPlay()
         StaminaRegenRateChangedDelegateHandle =
             AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetStaminaRegenRateAttribute())
                 .AddUObject(this, &APGPlayerState::StaminaRegenRateChanged);
-         XPChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetXPAttribute())
+        XPChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetXPAttribute())
                                       .AddUObject(this, &APGPlayerState::XPChanged);
         GoldChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetGoldAttribute())
                                         .AddUObject(this, &APGPlayerState::GoldChanged);

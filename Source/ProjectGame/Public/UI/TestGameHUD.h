@@ -8,6 +8,7 @@
 
 class UMainMenu;
 class UInteractionWidget;
+class UTestPlayerHUDWidget;
 struct FInteractableData;
 
 UCLASS()
@@ -38,20 +39,24 @@ public:
 
     UFUNCTION()
     FORCEINLINE UMainMenu* GetMainMenuWidget() const { return MainMenuWidget;};
-
+    UFUNCTION()
+    FORCEINLINE UTestPlayerHUDWidget* GetPlayerHUDWidget() const { return PlayerHUDWidget; };
 
 protected:
 
     virtual void BeginPlay() override;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
-    TSubclassOf <UUserWidget> PlayerHUDWidgetClass;
+    TSubclassOf<UTestPlayerHUDWidget> PlayerHUDWidgetClass;
 
     UPROPERTY()
     UMainMenu* MainMenuWidget;
 
     UPROPERTY()
     UInteractionWidget* InteractionWidget;
+
+    UPROPERTY()
+    UTestPlayerHUDWidget* PlayerHUDWidget;
 
 private:
     void DrawCross();
