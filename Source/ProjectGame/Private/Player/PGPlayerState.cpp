@@ -135,7 +135,7 @@ void APGPlayerState::BeginPlay()
     if (AbilitySystemComponent)
     {
         // Attribute change callbacks
-        /* HealthChangedDelegateHandle =
+         HealthChangedDelegateHandle =
             AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSetBase->GetHealthAttribute())
                 .AddUObject(this, &APGPlayerState::HealthChanged);
         MaxHealthChangedDelegateHandle =
@@ -172,7 +172,7 @@ void APGPlayerState::BeginPlay()
         // Tag change callbacks
         AbilitySystemComponent
             ->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")), EGameplayTagEventType::NewOrRemoved)
-            .AddUObject(this, &APGPlayerState::StunTagChanged);*/
+            .AddUObject(this, &APGPlayerState::StunTagChanged);
     }
 }
 
