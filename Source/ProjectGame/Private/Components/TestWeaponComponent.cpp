@@ -8,6 +8,8 @@
 #include "Animation/AnimUtils.h"
 #include "Weapon/TestShotgunWeapon.h"
 #include "UI/TestGameHUD.h"
+#include "AI/ProjectAICharacter.h"
+#include "Weapon/TestRifelWeapon.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -42,6 +44,9 @@ void UTestWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayPeason)
 
 void UTestWeaponComponent::SpawnWeapons()
 {
+     
+   //    AProjectAICharacter* AICharacter = Cast<AProjectAICharacter>(GetOwner());
+  //  if (AICharacter )  {}
 
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character || !GetWorld()) return;

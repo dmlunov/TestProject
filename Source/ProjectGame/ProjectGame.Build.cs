@@ -29,7 +29,12 @@ public class ProjectGame : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { 
             "GameplayAbilities",
             "GameplayTags",
-            "GameplayTasks"
+        });
+
+        // AI
+        PublicDependencyModuleNames.AddRange(new string[] {
+             "GameplayTasks",
+            "NavigationSystem"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
@@ -44,7 +49,8 @@ public class ProjectGame : ModuleRules
              "ProjectGame/Public/Environment",
              "ProjectGame/Public/Items",
              "ProjectGame/Public/Abilities",
-             "ProjectGame/Public/AI"
+             "ProjectGame/Public/AI",
+             "ProjectGame/Public/AI/Tasks"
         });
 
         // Uncomment if you are using Slate UI

@@ -15,4 +15,9 @@ class PROJECTGAME_API AProjectAICharacter : public AProjectBaseCharacter
 	GENERATED_BODY()
 	
 	AProjectAICharacter(const FObjectInitializer& ObjInit);
+
+	protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+
 };
