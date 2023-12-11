@@ -43,7 +43,8 @@ public class ProjectGame : ModuleRules
              "ProjectGame/Public/Animation",
              "ProjectGame/Public/Environment",
              "ProjectGame/Public/Items",
-             "ProjectGame/Public/Abilities"
+             "ProjectGame/Public/Abilities",
+             "ProjectGame/Public/AI"
         });
 
         // Uncomment if you are using Slate UI

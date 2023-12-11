@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GamePlayEffectTypes.h"
+#include "GameplayTagContainer.h"
 #include "ProjectBaseCharacter.generated.h"
 
 class USpringArmComponent;
@@ -22,9 +23,7 @@ class UPGAbilitySystemComponent;
 class UPGAttributeSet;
 class UPGGameplayAbility;
 class UGameplayEffect;
-
 struct FGameplayTagContainer;
-
 
 UCLASS()
 class PROJECTGAME_API AProjectBaseCharacter : public ACharacter, public IAbilitySystemInterface
@@ -44,6 +43,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDerection() const;
 
+    UFUNCTION()
+    FORCEINLINE UPGAttributeSet* GetAttributes() const { return Attributes.Get(); };
+
     UPROPERTY(EditDefaultsOnly, Category = "Character | Animation_1")
     UAnimMontage* DeathAnimMontage;
 
@@ -55,6 +57,11 @@ public:
     FORCEINLINE UTestWeaponComponent* GetWeaponComponent() const { return WeaponComponent; };
     UPROPERTY()
     ATestGameHUD* TestGameHUD;
+
+    virtual void OnDeath();
+
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
+    virtual void FinishDying();
 
 protected:
     // Called when the game starts or when spawned
@@ -84,12 +91,10 @@ protected:
     /****************************
                GAS / AbilitySystem
     *****************************/
+
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-    virtual void AddStartupGameplayAbilities();
 
 
-    virtual void PossessedBy(AController* NewControler) override;
-    virtual void OnRep_PlayerState() override;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility")
     TObjectPtr<UPGAbilitySystemComponent> AbilitySystemComponent;
@@ -98,54 +103,78 @@ protected:
     TObjectPtr<UPGAttributeSet> Attributes;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility")
-    TArray<TSubclassOf<UPGGameplayAbility>> GameplayAbilities;
+    TArray<TSubclassOf<UPGGameplayAbility>> CharacterAbilities;
+
+    FGameplayTag DeadTag;
+    FGameplayTag EffectRemoveOnDeathTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|GDCharacter")
+    FText CharacterName;
 
     // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
     // TSubclassOf < UPGGameplayAbility > InitialAbilit;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
-    TArray <TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
+    TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
-    TSubclassOf<UGameplayEffect> DefaultAbilitEffect;
+    TSubclassOf<UGameplayEffect> DefaultAttributes;
 
-    //Благодаря использованию битового поля, достигается экономия памяти, так как булевский тип по умолчанию занимает 1 байт, но в данном случае используется всего 1 бит.
-    UPROPERTY()
-    uint8 bAbilitiesInitialized : 1;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
+    TArray<TSubclassOf<UGameplayEffect>> StartupEffects;
 
- 
-    /**
-     * Вызывается, когда персонаж получает урон, который мог его убить
-     *
-     * @param DamageAmount Количество нанесенного урона, не фиксируемое на основе текущего здоровья.
-     * @param HitInfo Информация о попадании, вызвавшем этот урон.
-     * @param DamageTags Теги игрового процесса события, причинившего ущерб.
-     * @param InstigatorCharacter Персонаж, нанесший этот урон.
-     * @param DamageCauser Фактическим действующим лицом, нанесшим урон, может быть оружие или снаряд.
-     */
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnDamagedGAS(float DamageAmount, const FHitResult& HitInfo, const FGameplayTagContainer& DamageTags,
-        AProjectBaseCharacter* InstigatorCharacter, AActor* DamageCauser);
+    UPROPERTY(BlueprintAssignable, Category = "GASGameplayAbility|Character")
+    FCharacterDiedDelegate OnCharacterDied;
 
-    /**
-     * Вызывается при изменении здоровья в результате лечения или повреждения.
-     * Для урона это вызывается в дополнение к OnDamaged/OnKilled.
-     *
-     * @param DeltaValue Изменение значения здоровья, положительное для лечения, отрицательное для стоимости. Если 0, дельта неизвестна.
-     * @param EventTags Теги игрового процесса события, которое изменило ману.
-     */
-    UFUNCTION(BlueprintImplementableEvent)
-    void OnHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
+    // Включите «AbilityID», чтобы вернуть индивидуальные уровни способностей.
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
+    virtual int32 GetAbilityLevel(EPGAbilityInputID AbilityID) const;
+
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
+    virtual bool IsAlive() const;
+
+    // Удаляет все способности персонажа. Может быть вызван только Сервером. Удаление на сервере приведет и к удалению с клиента.
+    virtual void RemoveCharacterAbilities();
+
+    virtual void AddCharacterAbilities();
+
+    virtual void InitializeAttributes();
+
+    virtual void AddStartupEffects();
+
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    int32 GetCharacterLevel() const;
+
+public:
+    
+    // Благодаря использованию битового поля, достигается экономия памяти, так как булевский тип по умолчанию занимает 1 байт, но в данном
+    // случае используется всего 1 бит.
+   // UPROPERTY()
+   // uint8 bAbilitiesInitialized : 1;
+
+   
+
+  //  friend UPGAttributeSet;
+    
 
 
-    /** Вызываются из HopperAttributeSet, они вызывают события BP, указанные выше */
-    virtual void HandleDamage(float DamageAmount, const FHitResult& HitInfo, const FGameplayTagContainer& DamageTags,
-        AProjectBaseCharacter* InstigatorCharacter, AActor* DamageCauser);
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetHealth() const;
 
-    virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetMaxHealth() const;
 
-    friend UPGAttributeSet;
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetMana() const;
 
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetMaxMana() const;
+
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetStamina() const;
+
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
+    float GetMaxStamina() const;
 
 private:
     bool WantsToRun = false;
@@ -155,8 +184,12 @@ private:
     void MoveRight(float Amount);
     void OnStartRunning();
     void OnStopRunning();
-    void OnDeath();
+
     void OnHealthChanged(float Health);
 
     void ToggleMenu();
+
+    virtual void SetHealth(float Health);
+    virtual void SetMana(float Mana);
+    virtual void SetStamina(float Stamina);
 };

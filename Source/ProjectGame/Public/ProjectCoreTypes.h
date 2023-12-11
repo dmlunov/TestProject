@@ -4,6 +4,9 @@
 #include "Engine/DataTable.h"
 #include "ProjectCoreTypes.generated.h"
 
+//ProjectBaseCharacter
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AProjectBaseCharacter*, Character);
+
 // weapon
 DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
 
@@ -36,8 +39,6 @@ struct FWeaponData
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     UAnimMontage* ReloadAnimMontage;
-
-
 };
 
 USTRUCT(BlueprintType)
@@ -48,7 +49,6 @@ struct FWeaponUIData
     UTexture2D* MainIcon;
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     UTexture2D* CrossHairIcon;
-
 };
 
 // HelthComponent
@@ -139,20 +139,36 @@ USTRUCT() struct FItemData : public FTableRowBase
     UPROPERTY(EditAnywhere, Category = "Item Data")
     FItemAssetData ItemAssetData;
 
-    //UPROPERTY(EditAnywhere, Category = "Item Data")
-    //FTransform Transform;
-    //UPROPERTY(EditAnywhere, Category = "Item Data")
-    //bool IsCanChangeTrancform{false};
-
+    // UPROPERTY(EditAnywhere, Category = "Item Data")
+    // FTransform Transform;
+    // UPROPERTY(EditAnywhere, Category = "Item Data")
+    // bool IsCanChangeTrancform{false};
 };
 
-
-//GAS data
+// GAS data
 UENUM(BlueprintType)
 enum class EPGAbilityInputID : uint8
 {
-    None ,
-    Confirm,
-    Cancel ,
-    Push 
+    // 0 None
+    None UMETA(DisplayName = "None"),
+    // 1 Confirm
+    Confirm UMETA(DisplayName = "Confirm"),
+    // 2 Cancel
+    Cancel UMETA(DisplayName = "Cancel"),
+    // 3 LMB
+    Ability1 UMETA(DisplayName = "Ability1"),
+    // 4 RMB
+    Ability2 UMETA(DisplayName = "Ability2"),
+    // 5 Q
+    Ability3 UMETA(DisplayName = "Ability3"),
+    // 6 E
+    Ability4 UMETA(DisplayName = "Ability4"),
+    // 7 R
+    Ability5 UMETA(DisplayName = "Ability5"),
+    // 8 Sprint
+    Sprint UMETA(DisplayName = "Sprint"),
+    // 9 Jump
+    Jump UMETA(DisplayName = "Jump"),
+    //10 Push
+    Push UMETA(DisplayName = "Push")
 };

@@ -7,7 +7,7 @@
 #include "ProjectCoreTypes.h"
 #include "HelthComponent.generated.h"
 
-
+class UPGAttributeSet;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent)) class PROJECTGAME_API UHelthComponent : public UActorComponent
 {
@@ -20,15 +20,17 @@ public:
     FOnHealthChangedSignature OnHealthChanged;
 
     UFUNCTION(BlueprintCallable)
-    bool IsDead() const { return FMath::IsNearlyZero(Health); }
+    virtual bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
     UFUNCTION(BlueprintCallable)
     float GetHealthPercent() const { return Health / MaxHealth; };
 
-    float GetHealth() const { return Health; }
-    float GetMaxHealth() const { return MaxHealth; }
+    float GetHealth() const { return Health; };
+    float GetMaxHealth() const { return MaxHealth; };
     void SetAutoHeal(bool AHeal) { AutoHeal = AHeal; };
 
+    UFUNCTION()
+    virtual void SetHealth(float NewHealth);
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "1000.0"))
@@ -58,5 +60,6 @@ private:
 
     void HealUpdate();
 
-    void SetHealth(float NewHealth);
+   // UPROPERTY()
+   // UPGAttributeSet* Attributes;
 };
