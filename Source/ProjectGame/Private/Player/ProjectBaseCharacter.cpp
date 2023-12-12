@@ -10,9 +10,9 @@
 // #include "ProjectCoreTypes.h"
 
 // Engine
-#include "Camera/CameraComponent.h"
+//#include "Camera/CameraComponent.h"
+//#include "GameFramework/SpringArmComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
@@ -35,14 +35,14 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-
+    /*
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
     SpringArmComponent->SocketOffset = FVector(-90.0f, -100.0f, 80.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);
+    CameraComponent->SetupAttachment(SpringArmComponent);*/
 
     WeaponComponent = CreateDefaultSubobject<UTestWeaponComponent>("WeaponComponent");
 
@@ -64,7 +64,7 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 
    // bAbilitiesInitialized = false;
     Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+   // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
     bAlwaysRelevant = true;
 
     DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
@@ -98,7 +98,7 @@ UAbilitySystemComponent* AProjectBaseCharacter::GetAbilitySystemComponent() cons
 {
     return AbilitySystemComponent.Get();
 };
-
+/*
 void AProjectBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -121,8 +121,8 @@ void AProjectBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     PlayerInputComponent->BindAction("Interact", IE_Released, ItemComponent, &UTestItemComponent::EndInteract);
     PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AProjectBaseCharacter::ToggleMenu);
 
-};
-
+};*/
+/*
 void AProjectBaseCharacter::MoveRight(float Amount)
 {
     if (Amount == 0.0f) return;
@@ -137,6 +137,20 @@ void AProjectBaseCharacter::OnStopRunning()
 {
     WantsToRun = false;
 };
+
+void AProjectBaseCharacter::MoveForward(float Amount)
+{
+    IsMovingForward = Amount > 0.0f;
+    if (Amount == 0.0f) return;
+    AddMovementInput(GetActorForwardVector(), Amount);
+};
+void AProjectBaseCharacter::ToggleMenu()
+{
+    TestGameHUD->ToggleMenu();
+};
+
+
+*/
 
 bool AProjectBaseCharacter::IsRunning() const
 {
@@ -154,6 +168,18 @@ float AProjectBaseCharacter::GetMovementDerection() const
 
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 };
+
+
+
+bool AProjectBaseCharacter::IsAlive() const
+{
+    return GetHealth() > 0.0f;
+}
+
+int32 AProjectBaseCharacter::GetAbilityLevel(EPGAbilityInputID AbilityID) const
+{
+    return 1;
+}
 
 void AProjectBaseCharacter::OnDeath()
 {
@@ -195,10 +221,6 @@ void AProjectBaseCharacter::OnHealthChanged(float Health)
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 };
 
-void AProjectBaseCharacter::ToggleMenu()
-{
-    TestGameHUD->ToggleMenu();
-};
 
 /****************************
            GAS / AbilitySystem
@@ -227,23 +249,6 @@ void AProjectBaseCharacter::RemoveCharacterAbilities()
     }
 
     AbilitySystemComponent->bCharacterAbilitiesGiven = false;
-}
-
-void AProjectBaseCharacter::MoveForward(float Amount)
-{
-    IsMovingForward = Amount > 0.0f;
-    if (Amount == 0.0f) return;
-    AddMovementInput(GetActorForwardVector(), Amount);
-};
-
-bool AProjectBaseCharacter::IsAlive() const
-{
-    return GetHealth() > 0.0f;
-}
-
-int32 AProjectBaseCharacter::GetAbilityLevel(EPGAbilityInputID AbilityID) const
-{
-    return 1;
 }
 
 void AProjectBaseCharacter::AddCharacterAbilities()

@@ -10,8 +10,8 @@
 #include "GameplayTagContainer.h"
 #include "ProjectBaseCharacter.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
+// class USpringArmComponent;
+// class UCameraComponent;
 class UHelthComponent;
 class UTextRenderComponent;
 class UTestWeaponComponent;
@@ -35,7 +35,7 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
-    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    // virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
@@ -67,11 +67,11 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UCameraComponent* CameraComponent;
+    /* UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+     UCameraComponent* CameraComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    USpringArmComponent* SpringArmComponent;
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+     USpringArmComponent* SpringArmComponent;*/
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UHelthComponent* HelthComponent;
@@ -93,8 +93,6 @@ protected:
     *****************************/
 
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility")
     TObjectPtr<UPGAbilitySystemComponent> AbilitySystemComponent;
@@ -146,17 +144,6 @@ protected:
     int32 GetCharacterLevel() const;
 
 public:
-    
-    // Благодаря использованию битового поля, достигается экономия памяти, так как булевский тип по умолчанию занимает 1 байт, но в данном
-    // случае используется всего 1 бит.
-   // UPROPERTY()
-   // uint8 bAbilitiesInitialized : 1;
-
-   
-
-  //  friend UPGAttributeSet;
-    
-
 
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     float GetHealth() const;
@@ -176,19 +163,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     float GetMaxStamina() const;
 
-private:
+protected:
     bool WantsToRun = false;
     bool IsMovingForward = false;
 
-    void MoveForward(float Amount);
+   /* void MoveForward(float Amount);
     void MoveRight(float Amount);
     void OnStartRunning();
     void OnStopRunning();
+    void ToggleMenu();*/
 
     void OnHealthChanged(float Health);
-
-    void ToggleMenu();
-
     virtual void SetHealth(float Health);
     virtual void SetMana(float Mana);
     virtual void SetStamina(float Stamina);
