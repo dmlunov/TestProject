@@ -18,7 +18,7 @@ void AProjectAICharacter::BeginPlay()
     Super::BeginPlay();
    
 
-   WeaponComponent;
+   
 
    // InventoryComponent->AddNewItem(Item, 1);
 }

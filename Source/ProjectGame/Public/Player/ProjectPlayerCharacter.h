@@ -27,16 +27,16 @@ public:
     // Only called on the Server. Calls before Server's AcknowledgePossession.
     virtual void PossessedBy(AController* NewController) override;
 
-     USpringArmComponent* GetSpringArmComponent();//GetCameraBoom
+     USpringArmComponent* GetSpringArmComponent() { return SpringArmComponent; };  // GetCameraBoom
 
-    UCameraComponent* GetCameraComponent();  // GetFollowCamera
+    UCameraComponent* GetCameraComponent() const{ return CameraComponent; };  // GetFollowCamera
 
-
-    UFUNCTION(BlueprintCallable, Category = "GASDocumentation|Camera")
-    float GetStartingCameraBoomArmLength();
 
     UFUNCTION(BlueprintCallable, Category = "GASDocumentation|Camera")
-    FVector GetStartingCameraBoomLocation();
+    float GetCameraSpringArmLength() const { return CameraSpringArmLength; };
+
+    UFUNCTION(BlueprintCallable, Category = "GASDocumentation|Camera")
+    FVector GetCameraSpringArmLocation() const { return CameraSpringArmLocation; };
 
   //  class UGDFloatingStatusBarWidget* GetFloatingStatusBar();
 
@@ -45,6 +45,10 @@ public:
 //    virtual void FinishDying() override;
 
 protected:
+    virtual void BeginPlay() override;
+
+    virtual void PostInitializeComponents() override;
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASDocumentation|Camera")
     float BaseTurnRate = 45.0f;
 
@@ -52,10 +56,10 @@ protected:
     float BaseLookUpRate = 45.0f;
 
     UPROPERTY(BlueprintReadOnly, Category = "GASDocumentation|Camera")
-    float StartingCameraBoomArmLength;
+    float CameraSpringArmLength;
 
     UPROPERTY(BlueprintReadOnly, Category = "GASDocumentation|Camera")
-    FVector StartingCameraBoomLocation;
+    FVector CameraSpringArmLocation;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
@@ -63,6 +67,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 
+    bool ASCInputBound = false;
+
+    FGameplayTag DeadTag;
    
 
  //   UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
@@ -77,14 +84,10 @@ protected:
    // UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASDocumentation|UI")
   //  class UWidgetComponent* UIFloatingStatusBarComponent;
 
-    bool ASCInputBound = false;
 
-    FGameplayTag DeadTag;
 
     // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
 
-    virtual void PostInitializeComponents() override;
     /*
     // Mouse
     void LookUp(float Value);

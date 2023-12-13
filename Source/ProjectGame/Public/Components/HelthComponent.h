@@ -8,6 +8,7 @@
 #include "HelthComponent.generated.h"
 
 class UPGAttributeSet;
+class AProjectBaseCharacter;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent)) class PROJECTGAME_API UHelthComponent : public UActorComponent
 {
@@ -48,6 +49,9 @@ protected:
     float HealModifier = 5.0f;
 
     virtual void BeginPlay() override;
+
+    UPROPERTY()
+    AProjectBaseCharacter* Character;
 
 private:
     float Health = 0.0f;

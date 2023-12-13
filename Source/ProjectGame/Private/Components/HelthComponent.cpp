@@ -4,7 +4,8 @@
 #include "Player/ProjectBaseCharacter.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-//#include "Abilities/PGAttributeSet.h"
+ #include "Player/ProjectPlayerCharacter.h"
+#include "Abilities/PGAttributeSet.h"
 
 DEFINE_LOG_CATEGORY_STATIC(HealthComponentLog, All, All)
 
@@ -17,13 +18,15 @@ UHelthComponent::UHelthComponent()
 void UHelthComponent::BeginPlay()
 {
     Super::BeginPlay();
-
-    check(MaxHealth > 0);
+    
+    Character = Cast<AProjectPlayerCharacter>(GetOwner());
+    if (Character)
+    {
+        MaxHealth = Character->GetMaxHealth();
+        Health = Character->GetHealth();
+    }
+check(MaxHealth > 0);
     SetHealth(MaxHealth);
-
-   // AProjectBaseCharacter*  Character = Cast<AProjectBaseCharacter>(GetOwner());
-   // if (Character) { Attributes = Character->GetAttributes(); }
-
     AActor* ComponentOwner = GetOwner();
     if (ComponentOwner)
     {
@@ -35,7 +38,16 @@ void UHelthComponent::OnTakeAnyDamage(
     AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
     if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
+
+    // if (Character) Character->SetHealth(Character->GetHealth() - Damage);
+
+    // SetHealth(Character->GetHealth());
+
+    // else
+
     SetHealth(Health - Damage);
+
+    if (Character) Character->GetAttributes()->SetHealth(Health - Damage);
 
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
 
@@ -54,6 +66,8 @@ void UHelthComponent::HealUpdate()
 
     SetHealth(Health + HealModifier);
 
+    if (Character) Character->GetAttributes()->SetHealth(Health + HealModifier);
+
     if (FMath::IsNearlyEqual(Health, MaxHealth) && GetWorld())
     {
         GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
@@ -64,9 +78,17 @@ void UHelthComponent::SetHealth(float NewHealth)
 {
     Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
     OnHealthChanged.Broadcast(Health);
-   // UE_LOG(HealthComponentLog, Display, TEXT("Health get = %f"), Health);
-    
-   // if (Attributes)
-   //  { UE_LOG(HealthComponentLog, Display, TEXT("Attributs Health get helth = %f"), Health);
-   //     Attributes->SetHealth(Health);}
+
+    GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
+
+    if (IsDead())
+    {
+        OnDeath.Broadcast();
+    }
+    else if (AutoHeal)
+    {
+        GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &UHelthComponent::HealUpdate, HealUpdateTime, true, HealDelay);
+    }
+
+    // UE_LOG(HealthComponentLog, Display, TEXT("HealthComponent set Attributes Helth = %f"), Health);
 }

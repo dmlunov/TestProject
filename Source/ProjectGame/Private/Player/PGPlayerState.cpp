@@ -6,6 +6,9 @@
 #include "Player/TestPlayerController.h"
 #include "UI/TestPlayerHUDWidget.h"
 #include "UI/TestGameHUD.h"
+#include "Player/ProjectBaseCharacter.h"
+
+DEFINE_LOG_CATEGORY_STATIC(PGPlayerStateLog, All, All)
 
 APGPlayerState::APGPlayerState()
 {
@@ -183,6 +186,14 @@ void APGPlayerState::BeginPlay()
 void APGPlayerState::HealthChanged(const FOnAttributeChangeData& Data)
 {
     float Health = Data.NewValue;
+
+    AProjectBaseCharacter* CurentCharacter = Cast<AProjectBaseCharacter>(GetPawn());
+
+    if (CurentCharacter)
+    {
+        UE_LOG(PGPlayerStateLog, Display, TEXT("Health is = %f"), Health);
+        CurentCharacter->SetHealth(Health);
+    }
 
     // Update floating status bar
     /* AGDHeroCharacter* Hero = Cast<AGDHeroCharacter>(GetPawn());

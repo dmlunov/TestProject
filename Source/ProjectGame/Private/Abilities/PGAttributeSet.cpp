@@ -6,8 +6,8 @@
 // #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
 #include "Player/ProjectBaseCharacter.h"
-//#include "Components/HelthComponent.h"
-#include "ProjectUtils.h"
+// #include "Components/HelthComponent.h"
+// #include "ProjectUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(PGAttributeSetLog, All, All)
 
@@ -68,21 +68,10 @@ void UPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
     if (Data.EvaluatedData.Attribute == GetHealthAttribute())
     {
-        /* UHelthComponent* HealthComponent{nullptr};
-        APawn* CurentPawn = Cast<APawn>(GetOwningAbilitySystemComponent()->GetOwnerActor());
 
-        if (!CurentPawn) return;
-
-        HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(CurentPawn);
-
-        if (!HealthComponent) return;
-
-        HealthComponent->SetHealth(FMath::Clamp(HealthComponent->GetHealth(), 0.f, HealthComponent->GetMaxHealth()));
-        UE_LOG(PGAttributeSetLog, Display, TEXT("Health is = %f"), HealthComponent->GetHealth());*/
-         SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-
-       // if (TargetCharacter)  TargetCharacter->HandleHealthChanged(DeltaValue, SourceTags);
-
+        SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+        //UE_LOG(PGAttributeSetLog, Display, TEXT("Health is = %f"), GetHealth());
+        // if (TargetCharacter)  TargetCharacter->HandleHealthChanged(DeltaValue, SourceTags);
     }
 }
 
@@ -174,7 +163,6 @@ void UPGAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed
 {
     GAMEPLAYATTRIBUTE_REPNOTIFY(UPGAttributeSet, MoveSpeed, OldMoveSpeed);
 }
-
 
 void UPGAttributeSet::OnRep_XP(const FGameplayAttributeData& OldXP)
 {

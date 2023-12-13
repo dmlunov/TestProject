@@ -9,7 +9,8 @@
 #include "UI/TestGameHUD.h"
 #include "Player/PGPlayerState.h"
 #include "Player/TestPlayerController.h"
- #include "ProjectCoreTypes.h"
+#include "ProjectCoreTypes.h"
+#include "AI/PGAIController.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -44,41 +45,41 @@ AProjectPlayerCharacter::AProjectPlayerCharacter(const class FObjectInitializer&
 
     // Makes sure that the animations play on the Server so that we can use bone and socket transforms
     // to do things like spawning projectiles and other FX.
-    /* GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
-        GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        GetMesh()->SetCollisionProfileName(FName("NoCollision"));
+    GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->SetCollisionProfileName(FName("NoCollision"));
+    /*
+            UIFloatingStatusBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingStatusBarComponent"));
+            UIFloatingStatusBarComponent->SetupAttachment(RootComponent);
+            UIFloatingStatusBarComponent->SetRelativeLocation(FVector(0, 0, 120));
+            UIFloatingStatusBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
+            UIFloatingStatusBarComponent->SetDrawSize(FVector2D(500, 500));
 
-        UIFloatingStatusBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingStatusBarComponent"));
-        UIFloatingStatusBarComponent->SetupAttachment(RootComponent);
-        UIFloatingStatusBarComponent->SetRelativeLocation(FVector(0, 0, 120));
-        UIFloatingStatusBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
-        UIFloatingStatusBarComponent->SetDrawSize(FVector2D(500, 500));
+            UIFloatingStatusBarClass = StaticLoadClass(
+                UObject::StaticClass(), nullptr, TEXT("/Game/GASDocumentation/UI/UI_FloatingStatusBar_Hero.UI_FloatingStatusBar_Hero_C"));
+            if (!UIFloatingStatusBarClass)
+            {
+                UE_LOG(LogTemp, Error,
+                    TEXT("%s() Failed to find UIFloatingStatusBarClass. If it was moved, please update the reference location in C++."),
+                    *FString(__FUNCTION__));
+            }*/
 
-        UIFloatingStatusBarClass = StaticLoadClass(
-            UObject::StaticClass(), nullptr, TEXT("/Game/GASDocumentation/UI/UI_FloatingStatusBar_Hero.UI_FloatingStatusBar_Hero_C"));
-        if (!UIFloatingStatusBarClass)
-        {
-            UE_LOG(LogTemp, Error,
-                TEXT("%s() Failed to find UIFloatingStatusBarClass. If it was moved, please update the reference location in C++."),
-                *FString(__FUNCTION__));
-        }
+    AIControllerClass = APGAIController::StaticClass();
 
-        AIControllerClass = AGDHeroAIController::StaticClass();
-
-        DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));*/
+    DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
 void AProjectPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Only needed for Heroes placed in world and when the player is the Server.
+    // Only needed for Player placed in world and when the player is the Server.
     // On respawn, they are set up in PossessedBy.
     // When the player a client, the floating status bars are all set up in OnRep_PlayerState.
-   // InitializeFloatingStatusBar();
+    // InitializeFloatingStatusBar();
 
-    StartingCameraBoomArmLength = SpringArmComponent->TargetArmLength;
-    StartingCameraBoomLocation = SpringArmComponent->GetRelativeLocation();
+    CameraSpringArmLength = SpringArmComponent->TargetArmLength;
+    CameraSpringArmLocation = SpringArmComponent->GetRelativeLocation();
 }
 
 // Called to bind functionality to input
@@ -104,11 +105,7 @@ void AProjectPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
     PlayerInputComponent->BindAction("Interact", IE_Released, ItemComponent, &UTestItemComponent::EndInteract);
     PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AProjectPlayerCharacter::ToggleMenu);
 
-    /* PlayerInputComponent->BindAxis("MoveForward", this, &AGDHeroCharacter::MoveForward);
-     PlayerInputComponent->BindAxis("MoveRight", this, &AGDHeroCharacter::MoveRight);
-
-     PlayerInputComponent->BindAxis("LookUp", this, &AGDHeroCharacter::LookUp);
-     PlayerInputComponent->BindAxis("LookUpRate", this, &AGDHeroCharacter::LookUpRate);
+    /*
      PlayerInputComponent->BindAxis("Turn", this, &AGDHeroCharacter::Turn);
      PlayerInputComponent->BindAxis("TurnRate", this, &AGDHeroCharacter::TurnRate);*/
 
@@ -121,18 +118,18 @@ void AProjectPlayerCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
-    APGPlayerState* PS = GetPlayerState<APGPlayerState>();
-    if (PS)
+    APGPlayerState* Player_State = GetPlayerState<APGPlayerState>();
+    if (Player_State)
     {
         // Set the ASC on the Server. Clients do this in OnRep_PlayerState()
-        AbilitySystemComponent = Cast<UPGAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+        AbilitySystemComponent = Cast<UPGAbilitySystemComponent>(Player_State->GetAbilitySystemComponent());
 
         // AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have
         // PlayerControllers.
-        PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+        Player_State->GetAbilitySystemComponent()->InitAbilityActorInfo(Player_State, this);
 
         // Set the AttributeSetBase for convenience attribute functions
-        Attributes = PS->GetAttributeSetBase();
+        Attributes = Player_State->GetAttributeSetBase();
 
         // If we handle players disconnecting and rejoining in the future, we'll have to change this so that possession from rejoining
         // doesn't reset attributes. For now assume possession = spawn/respawn.
@@ -154,34 +151,14 @@ void AProjectPlayerCharacter::PossessedBy(AController* NewController)
 
         AddCharacterAbilities();
 
-        ATestPlayerController* PC = Cast<ATestPlayerController>(GetController());
-        if (PC)
+        ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetController());
+        if (PlayerController)
         {
-            PC->CreateHUD();
+            PlayerController->CreateHUD();
         }
 
-      //  InitializeFloatingStatusBar();
+        //  InitializeFloatingStatusBar();
     }
-}
-
-USpringArmComponent* AProjectPlayerCharacter::GetSpringArmComponent()
-{
-    return SpringArmComponent;
-}
-
-UCameraComponent* AProjectPlayerCharacter::GetCameraComponent()
-{
-    return CameraComponent;
-}
-
-float AProjectPlayerCharacter::GetStartingCameraBoomArmLength()
-{
-    return StartingCameraBoomArmLength;
-}
-
-FVector AProjectPlayerCharacter::GetStartingCameraBoomLocation()
-{
-    return StartingCameraBoomLocation;
 }
 
 /*
@@ -217,7 +194,6 @@ void AProjectPlayerCharacter::FinishDying()
  * possession.
  */
 
-
 void AProjectPlayerCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
@@ -227,10 +203,6 @@ void AProjectPlayerCharacter::PostInitializeComponents()
         GunComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("GunSocket"));
     }*/
 }
-
-
-
-
 
 /*
 void AProjectPlayerCharacter::InitializeFloatingStatusBar()
@@ -291,7 +263,7 @@ void AProjectPlayerCharacter::OnRep_PlayerState()
         }
 
         // Simulated on proxies don't have their PlayerStates yet when BeginPlay is called so we call it again here
-       // InitializeFloatingStatusBar();
+        // InitializeFloatingStatusBar();
 
         // Respawn specific things that won't affect first possession.
 
@@ -307,17 +279,17 @@ void AProjectPlayerCharacter::OnRep_PlayerState()
 
 void AProjectPlayerCharacter::BindASCInput()
 {
-    if (!ASCInputBound && AbilitySystemComponent && IsValid(InputComponent))
+    if (!ASCInputBound && AbilitySystemComponent && InputComponent)
     {
-       // FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
-      //  AbilitySystemComponent->BindAbilityActivationToInputComponent(
+
+        FTopLevelAssetPath AbilityEnumAssetPath =
+            FTopLevelAssetPath(FName("/Script/ProjectGame/Public/ProjectCoreTypes"), FName("EPGAbilityInputID"));
+       // AbilitySystemComponent->BindAbilityActivationToInputComponent(
       //      InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), AbilityEnumAssetPath,
       //                          static_cast<int32>(EPGAbilityInputID::Confirm), static_cast<int32>(EPGAbilityInputID::Cancel)));
-
         ASCInputBound = true;
     }
 }
-
 
 void AProjectPlayerCharacter::MoveForward(float Amount)
 {

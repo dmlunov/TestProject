@@ -19,6 +19,7 @@ class UTestItemComponent;
 class UTestInventoryComponent;
 class ATestGameHUD;
 
+
 class UPGAbilitySystemComponent;
 class UPGAttributeSet;
 class UPGGameplayAbility;
@@ -34,8 +35,6 @@ public:
     AProjectBaseCharacter(const FObjectInitializer& ObjInit);
 
     virtual void Tick(float DeltaTime) override;
-
-    // virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
@@ -67,12 +66,6 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    /* UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-     UCameraComponent* CameraComponent;
-
-     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-     USpringArmComponent* SpringArmComponent;*/
-
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UHelthComponent* HelthComponent;
 
@@ -94,28 +87,28 @@ protected:
 
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility|Abilities")
     TObjectPtr<UPGAbilitySystemComponent> AbilitySystemComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility|Abilities")
     TObjectPtr<UPGAttributeSet> Attributes;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TArray<TSubclassOf<UPGGameplayAbility>> CharacterAbilities;
 
     FGameplayTag DeadTag;
     FGameplayTag EffectRemoveOnDeathTag;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|GDCharacter")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Character")
     FText CharacterName;
 
     // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
     // TSubclassOf < UPGGameplayAbility > InitialAbilit;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TSubclassOf<UGameplayEffect> DefaultAttributes;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
@@ -143,8 +136,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     int32 GetCharacterLevel() const;
 
-public:
 
+
+public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     float GetHealth() const;
 
@@ -163,18 +157,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     float GetMaxStamina() const;
 
-protected:
-    bool WantsToRun = false;
-    bool IsMovingForward = false;
-
-   /* void MoveForward(float Amount);
-    void MoveRight(float Amount);
-    void OnStartRunning();
-    void OnStopRunning();
-    void ToggleMenu();*/
-
     void OnHealthChanged(float Health);
     virtual void SetHealth(float Health);
     virtual void SetMana(float Mana);
     virtual void SetStamina(float Stamina);
+
+protected:
+    bool WantsToRun = false;
+    bool IsMovingForward = false;
+
+
 };

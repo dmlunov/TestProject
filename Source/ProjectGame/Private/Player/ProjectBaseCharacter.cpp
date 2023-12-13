@@ -10,8 +10,8 @@
 // #include "ProjectCoreTypes.h"
 
 // Engine
-//#include "Camera/CameraComponent.h"
-//#include "GameFramework/SpringArmComponent.h"
+// #include "Camera/CameraComponent.h"
+// #include "GameFramework/SpringArmComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -35,14 +35,6 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-    /*
-    SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-    SpringArmComponent->SetupAttachment(GetRootComponent());
-    SpringArmComponent->bUsePawnControlRotation = true;
-    SpringArmComponent->SocketOffset = FVector(-90.0f, -100.0f, 80.0f);
-
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);*/
 
     WeaponComponent = CreateDefaultSubobject<UTestWeaponComponent>("WeaponComponent");
 
@@ -62,9 +54,9 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 
     //*********************** GAS
 
-   // bAbilitiesInitialized = false;
+    // bAbilitiesInitialized = false;
     Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
-   // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+    // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
     bAlwaysRelevant = true;
 
     DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
@@ -98,59 +90,6 @@ UAbilitySystemComponent* AProjectBaseCharacter::GetAbilitySystemComponent() cons
 {
     return AbilitySystemComponent.Get();
 };
-/*
-void AProjectBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-    check(PlayerInputComponent);
-    check(WeaponComponent);
-
-    PlayerInputComponent->BindAxis("MoveForward", this, &AProjectBaseCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &AProjectBaseCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("LookUp", this, &AProjectBaseCharacter::AddControllerPitchInput);
-    PlayerInputComponent->BindAxis("TurnAround", this, &AProjectBaseCharacter::AddControllerYawInput);
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AProjectBaseCharacter::Jump);
-    PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AProjectBaseCharacter::OnStartRunning);
-    PlayerInputComponent->BindAction("Run", IE_Released, this, &AProjectBaseCharacter::OnStopRunning);
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &UTestWeaponComponent::StartFire);
-    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &UTestWeaponComponent::StopFire);
-    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &UTestWeaponComponent::NextWeapon);
-    PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &UTestWeaponComponent::Reload);
-
-    PlayerInputComponent->BindAction("Interact", IE_Pressed, ItemComponent, &UTestItemComponent::BeginInteract);
-    PlayerInputComponent->BindAction("Interact", IE_Released, ItemComponent, &UTestItemComponent::EndInteract);
-    PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AProjectBaseCharacter::ToggleMenu);
-
-};*/
-/*
-void AProjectBaseCharacter::MoveRight(float Amount)
-{
-    if (Amount == 0.0f) return;
-    AddMovementInput(GetActorRightVector(), Amount);
-};
-
-void AProjectBaseCharacter::OnStartRunning()
-{
-    WantsToRun = true;
-};
-void AProjectBaseCharacter::OnStopRunning()
-{
-    WantsToRun = false;
-};
-
-void AProjectBaseCharacter::MoveForward(float Amount)
-{
-    IsMovingForward = Amount > 0.0f;
-    if (Amount == 0.0f) return;
-    AddMovementInput(GetActorForwardVector(), Amount);
-};
-void AProjectBaseCharacter::ToggleMenu()
-{
-    TestGameHUD->ToggleMenu();
-};
-
-
-*/
 
 bool AProjectBaseCharacter::IsRunning() const
 {
@@ -168,8 +107,6 @@ float AProjectBaseCharacter::GetMovementDerection() const
 
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 };
-
-
 
 bool AProjectBaseCharacter::IsAlive() const
 {
@@ -219,8 +156,10 @@ void AProjectBaseCharacter::FinishDying()
 void AProjectBaseCharacter::OnHealthChanged(float Health)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-};
 
+   // Attributes->SetHealth(Health);
+
+};
 
 /****************************
            GAS / AbilitySystem
@@ -289,6 +228,7 @@ void AProjectBaseCharacter::InitializeAttributes()
     {
         FActiveGameplayEffectHandle ActiveGEHandle =
             AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+        UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
     }
 }
 
@@ -309,6 +249,7 @@ void AProjectBaseCharacter::AddStartupEffects()
         {
             FActiveGameplayEffectHandle ActiveGEHandle =
                 AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+            UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
         }
     }
 
@@ -357,12 +298,13 @@ float AProjectBaseCharacter::GetMaxStamina() const
 
 void AProjectBaseCharacter::SetHealth(float Health)
 {
+    //UE_LOG(BaseCharacterLog, Display, TEXT("Attributs Health set = %f"), Health);
     if (Attributes)
     {
-        // UE_LOG(HealthComponentLog, Display, TEXT("Attributs Health get helth = %f"), Health);
-        Attributes->SetHealth(Health);
+        //UE_LOG(BaseCharacterLog, Display, TEXT("character set helth to HelthComponent  = %f"), Health);
+        // Attributes->SetHealth(Health);
+        HelthComponent->SetHealth(Health);
     }
-    HelthComponent->SetHealth(Health);
 };
 void AProjectBaseCharacter::SetMana(float Mana)
 {
