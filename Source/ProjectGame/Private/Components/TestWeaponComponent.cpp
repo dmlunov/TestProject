@@ -44,9 +44,9 @@ void UTestWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayPeason)
 
 void UTestWeaponComponent::SpawnWeapons()
 {
-     
-   //    AProjectAICharacter* AICharacter = Cast<AProjectAICharacter>(GetOwner());
-  //  if (AICharacter )  {}
+
+    //    AProjectAICharacter* AICharacter = Cast<AProjectAICharacter>(GetOwner());
+    //  if (AICharacter )  {}
 
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character || !GetWorld()) return;
@@ -88,7 +88,7 @@ void UTestWeaponComponent::AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneCo
     FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
     Weapon->AttachToComponent(SceneComponent, AttachmentRules, SoketName);
 }
-void UTestWeaponComponent::FastNextWeapon() 
+void UTestWeaponComponent::FastNextWeapon()
 {
     if (WeaponsInInventary.IsEmpty())
         CurrentWeaponIndex = -1;
@@ -97,7 +97,7 @@ void UTestWeaponComponent::FastNextWeapon()
     else
         CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
     EquipWeapon(CurrentWeaponIndex);
-    //UE_LOG(TestWeaponComponentLog, Display, TEXT("Next waepon index = %i"), CurrentWeaponIndex);
+    // UE_LOG(TestWeaponComponentLog, Display, TEXT("Next waepon index = %i"), CurrentWeaponIndex);
 }
 
 void UTestWeaponComponent::NextWeapon()
@@ -109,7 +109,7 @@ void UTestWeaponComponent::NextWeapon()
     else if (WeaponsInInventary.Num() < 1)
         CurrentWeaponIndex = 0;
     else
-    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
+        CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
     EquipWeapon(CurrentWeaponIndex);
 }
 
@@ -126,7 +126,8 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, WeaponsInInventary.Num() - 1, 0);
     int32 NextIndex = ClampIndex(WeaponIndex, 1, WeaponsInInventary.Num() - 1, 0);
 
-    //UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex, NextIndex);
+    // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
+    // NextIndex);
 
     if (CurrentWeapon)
     {
@@ -179,8 +180,6 @@ void UTestWeaponComponent::StopFire()
 
     CurrentWeapon->StopFire();
 }
-
-
 
 void UTestWeaponComponent::PlayAnimMontage(UAnimMontage* Animation)
 {
@@ -239,14 +238,16 @@ bool UTestWeaponComponent::CanEquip() const
 
 bool UTestWeaponComponent::CanReload() const
 {
-    return CurrentWeapon             //
-           && !EquipAnimInProgress   //
-           && !ReloadAnimInProgress  //
-           && CurrentWeapon->CanReload();
+    return                        // WeaponsInInventary.Num()>0  //
+        CurrentWeapon             //
+        && !EquipAnimInProgress   //
+        && !ReloadAnimInProgress  //
+        && CurrentWeapon->CanReload();
 }
 
 void UTestWeaponComponent::Reload()
 {
+    if (WeaponsInInventary.Num() <= 0) return;
     ChangeClip();
 }
 
@@ -257,6 +258,7 @@ void UTestWeaponComponent::OnEmptyClip()
 
 void UTestWeaponComponent::ChangeClip()
 {
+    
     ReloadAnimInProgress = true;
     ReloadAnimInProgress = true;
     CurrentWeapon->StopFire();

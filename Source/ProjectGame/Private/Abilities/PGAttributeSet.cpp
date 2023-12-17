@@ -60,11 +60,7 @@ void UPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
         TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
         TargetCharacter = Cast<AProjectBaseCharacter>(TargetActor);
     }
-    else
-    {
-        TargetController = Cast<AController>(TargetCharacter->AIControllerClass);
-        TargetCharacter = Cast<AProjectBaseCharacter>(GetOwningActor());
-    }
+   
 
     // Get the Source actor
     AActor* SourceActor = nullptr;
