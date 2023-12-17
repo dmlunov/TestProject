@@ -11,6 +11,7 @@
 #include "Player/TestPlayerController.h"
 #include "ProjectCoreTypes.h"
 #include "AI/PGAIController.h"
+#include "ProjectGame/ProjectGame.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -18,6 +19,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
 
 // GAS
 #include "Abilities/PGAttributeSet.h"
@@ -25,6 +28,8 @@
 #include "Abilities/PGGameplayAbility.h"
 #include "GameplayTagContainer.h"
 #include "Abilities/GameplayAbilityTypes.h"
+
+DEFINE_LOG_CATEGORY_STATIC(PlayerCharacterLog, All, All);
 
 AProjectPlayerCharacter::AProjectPlayerCharacter(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -39,7 +44,7 @@ AProjectPlayerCharacter::AProjectPlayerCharacter(const class FObjectInitializer&
     CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->FieldOfView = 80.0f;
 
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
     // GunComponent = CreateDefaultSubobject<USkeletalMeshComponent>(FName("Gun"));
 
@@ -63,16 +68,21 @@ AProjectPlayerCharacter::AProjectPlayerCharacter(const class FObjectInitializer&
                     TEXT("%s() Failed to find UIFloatingStatusBarClass. If it was moved, please update the reference location in C++."),
                     *FString(__FUNCTION__));
             }*/
-
-    AIControllerClass = APGAIController::StaticClass();
+// AIControllerClass = ATestPlayerController::StaticClass();
 
     DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
+
 }
 
 void AProjectPlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetController());
+    if (PlayerController)
+    {
+        PlayerController->CreateHUD();
+    }
     // Only needed for Player placed in world and when the player is the Server.
     // On respawn, they are set up in PossessedBy.
     // When the player a client, the floating status bars are all set up in OnRep_PlayerState.
@@ -114,7 +124,7 @@ void AProjectPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 }
 
 // Server only
-void AProjectPlayerCharacter::PossessedBy(AController* NewController)
+/* void AProjectPlayerCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
 
@@ -159,7 +169,7 @@ void AProjectPlayerCharacter::PossessedBy(AController* NewController)
 
         //  InitializeFloatingStatusBar();
     }
-}
+}*/
 
 /*
 UGDFloatingStatusBarWidget* AProjectPlayerCharacter::GetFloatingStatusBar()
@@ -282,11 +292,10 @@ void AProjectPlayerCharacter::BindASCInput()
     if (!ASCInputBound && AbilitySystemComponent && InputComponent)
     {
 
-        FTopLevelAssetPath AbilityEnumAssetPath =
-            FTopLevelAssetPath(FName("/Script/ProjectGame/Public/ProjectCoreTypes"), FName("EPGAbilityInputID"));
-       // AbilitySystemComponent->BindAbilityActivationToInputComponent(
-      //      InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), AbilityEnumAssetPath,
-      //                          static_cast<int32>(EPGAbilityInputID::Confirm), static_cast<int32>(EPGAbilityInputID::Cancel)));
+        FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/ProjectGame"), FName("EPGAbilityInputID"));
+        AbilitySystemComponent->BindAbilityActivationToInputComponent(
+            InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), AbilityEnumAssetPath,
+                                static_cast<int32>(EPGAbilityInputID::Confirm), static_cast<int32>(EPGAbilityInputID::Cancel)));
         ASCInputBound = true;
     }
 }
@@ -306,12 +315,42 @@ void AProjectPlayerCharacter::MoveRight(float Amount)
 
 void AProjectPlayerCharacter::OnStartRunning()
 {
+    if (GetStamina() <= 0.f) return;
+
     WantsToRun = true;
+
+    if (IsAlive())
+    {
+        GetWorld()->GetTimerManager().SetTimer(StaminaTimerHandle, this, &AProjectPlayerCharacter::StaminaUpdate, 1.0f, true, 0.0f);
+    }
+    else
+    {
+        GetWorld()->GetTimerManager().ClearTimer(StaminaTimerHandle);
+    }
 };
+
 void AProjectPlayerCharacter::OnStopRunning()
 {
     WantsToRun = false;
+    // auto proverka = FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()) ? FString{"true"} : FString{"false"};
+    // UE_LOG(PlayerCharacterLog, Display, TEXT("Stop Running Stamina = %f, MaxStamina = %f, %s"), GetStamina(), GetMaxStamina(),
+    // *proverka);
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(StaminaTimerHandle);
+    }
 };
+
+void AProjectPlayerCharacter::StaminaUpdate()
+{
+    Attributes->SetStamina(GetStamina() - 5.0f);
+
+    if (FMath::IsNearlyEqual(GetStamina(), 0.0f) && GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(StaminaTimerHandle);
+        WantsToRun = false;
+    }
+}
 
 void AProjectPlayerCharacter::ToggleMenu()
 {

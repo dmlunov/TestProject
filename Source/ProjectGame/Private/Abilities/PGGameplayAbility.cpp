@@ -4,6 +4,7 @@
 #include "Abilities/PGGameplayAbility.h"
 #include "Components/PGAbilitySystemComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(PGGameplayAbilityLog, All, All);
 UPGGameplayAbility::UPGGameplayAbility()
 {
     // Default to Instance Per Actor
@@ -17,6 +18,8 @@ UPGGameplayAbility::UPGGameplayAbility()
 void UPGGameplayAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     Super::OnAvatarSet(ActorInfo, Spec);
+
+    UE_LOG(PGGameplayAbilityLog, Display, TEXT("PGGameplayAbility started "));
 
     if (ActivateAbilityOnGranted)
     {

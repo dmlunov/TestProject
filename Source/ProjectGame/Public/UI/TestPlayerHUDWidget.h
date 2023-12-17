@@ -7,6 +7,8 @@
 #include "ProjectCoreTypes.h"
 #include "TestPlayerHUDWidget.generated.h"
 
+class AProjectBaseCharacter;
+class UTextBlock;
 
 UCLASS()
 class PROJECTGAME_API UTestPlayerHUDWidget : public UUserWidget
@@ -16,6 +18,20 @@ class PROJECTGAME_API UTestPlayerHUDWidget : public UUserWidget
 public:
     UFUNCTION(BlueprintCallable, Category = "UI")
     float GetHealthPercent() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetManaPercent() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetStaminaPercent() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void SetHealth(float Health);
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void SetMana(float Mana);
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void SetStamina(float Stamina);
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     bool GetCurrentWeaponUIDate(FWeaponUIData& UIData) const;
@@ -82,6 +98,16 @@ public:
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
     void SetGold(int32 Gold);
 
+protected:
+    virtual void NativeConstruct() override;
+    AProjectBaseCharacter* Character;
+
+    UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
+    UTextBlock* HealthText;
+    UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
+    UTextBlock* ManaText;
+    UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
+    UTextBlock* StaminaText;
 
 private:
     /* UTestWeaponComponent* GetWeaponComponent() const;

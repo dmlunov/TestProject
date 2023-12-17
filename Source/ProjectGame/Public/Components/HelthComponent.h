@@ -21,7 +21,7 @@ public:
     FOnHealthChangedSignature OnHealthChanged;
 
     UFUNCTION(BlueprintCallable)
-    virtual bool IsDead() const { return FMath::IsNearlyZero(Health); }
+    virtual bool IsDead() const { return FMath::IsNearlyZero(Health) || Health < 0; }
 
     UFUNCTION(BlueprintCallable)
     float GetHealthPercent() const { return Health / MaxHealth; };

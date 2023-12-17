@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "ProjectCoreTypes.h"
+#include "ProjectGame/ProjectGame.h"
 #include "PGGameplayAbility.generated.h"
 
 

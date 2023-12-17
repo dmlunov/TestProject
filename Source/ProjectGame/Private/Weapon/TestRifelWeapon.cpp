@@ -7,6 +7,8 @@
 #include "Components/HelthComponent.h"
 #include "Player/ProjectBaseCharacter.h"
 
+DEFINE_LOG_CATEGORY_STATIC(RifelWeaponLog, All, All)
+
 void ATestRifelWeapon::StartFire()
 {
    
@@ -42,9 +44,10 @@ void ATestRifelWeapon::MakeShot()
        
 
         AActor* HitActor = HitResult.GetActor();
+       
         if (HitActor && HitActor->FindComponentByClass<UHelthComponent>())
         {
-
+           
             DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 0.1f, 0, 0.5f);
             DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 2.0f, 12, FColor::Red, false, 0.5f);
         }
@@ -83,4 +86,5 @@ void ATestRifelWeapon::MakeDamage(const FHitResult& HitResult)
     const auto DamageActor = HitResult.GetActor();
     if (!DamageActor) return;
     DamageActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+   
 }

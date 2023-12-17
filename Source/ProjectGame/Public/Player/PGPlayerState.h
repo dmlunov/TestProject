@@ -11,7 +11,9 @@
 
 class UPGAttributeSet;
 class UPGAbilitySystemComponent;
-
+//class ATestPlayerController;
+//class AProjectBaseCharacter;
+//class UTestPlayerHUDWidget;
 /**
  *
  */
@@ -90,6 +92,9 @@ protected:
 
     FGameplayTag DeadTag;
 
+   // AProjectBaseCharacter* CurentCharacter;
+   // ATestPlayerController* PlayerController;
+   // UTestPlayerHUDWidget* PlayerHUDWidget;
 
     FDelegateHandle HealthChangedDelegateHandle;
     FDelegateHandle MaxHealthChangedDelegateHandle;

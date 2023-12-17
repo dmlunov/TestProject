@@ -9,17 +9,20 @@
 #include "Player/ProjectBaseCharacter.h"
 
 
+DEFINE_LOG_CATEGORY_STATIC(PlayerControllerLog, All, All);
 
 void ATestPlayerController::BeginPlay()
 {
     Super::BeginPlay();
-    TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
-    PlayerHUDWidget = TestGameHUD->GetPlayerHUDWidget();
+   // TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+   // PlayerHUDWidget = TestGameHUD->GetPlayerHUDWidget();
 }
 
 
 ATestGameHUD* ATestPlayerController::GetHUD() const
 {
+    ATestGameHUD* TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+
     return TestGameHUD;
  }
 
@@ -63,6 +66,9 @@ void ATestPlayerController::OnRep_PlayerState()
         return;
     }
 
+   ATestGameHUD* TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    UTestPlayerHUDWidget* PlayerHUDWidget = TestGameHUD->GetPlayerHUDWidget();
+
     if (!PlayerHUDWidget) return;
 	// Set attributes
     PlayerHUDWidget->SetCurrentHealth(PS->GetHealth());
@@ -80,7 +86,7 @@ void ATestPlayerController::OnRep_PlayerState()
     PlayerHUDWidget->SetExperience(PS->GetXP());
     PlayerHUDWidget->SetGold(PS->GetGold());
     PlayerHUDWidget->SetHeroLevel(PS->GetCharacterLevel());
-
+    UE_LOG(PlayerControllerLog, Display, TEXT("Create HUD"));
 }
 
  void ATestPlayerController::ShowDamageNumber_Implementation(float DamageAmount, AProjectBaseCharacter* TargetCharacter)
@@ -101,6 +107,9 @@ bool ATestPlayerController::ShowDamageNumber_Validate(float DamageAmount, AProje
 
 void ATestPlayerController::SetRespawnCountdown_Implementation(float RespawnTimeRemaining)
 {
+    ATestGameHUD* TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+    UTestPlayerHUDWidget* PlayerHUDWidget = TestGameHUD->GetPlayerHUDWidget();
+
     if (PlayerHUDWidget)
     {
         PlayerHUDWidget->SetRespawnCountdown(RespawnTimeRemaining);

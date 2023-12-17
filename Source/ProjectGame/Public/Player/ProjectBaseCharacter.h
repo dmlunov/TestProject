@@ -19,7 +19,6 @@ class UTestItemComponent;
 class UTestInventoryComponent;
 class ATestGameHUD;
 
-
 class UPGAbilitySystemComponent;
 class UPGAttributeSet;
 class UPGGameplayAbility;
@@ -41,6 +40,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDerection() const;
+
+    // Only called on the Server. Calls before Server's AcknowledgePossession.
+    virtual void PossessedBy(AController* NewController) override;
 
     UFUNCTION()
     FORCEINLINE UPGAttributeSet* GetAttributes() const { return Attributes.Get(); };
@@ -87,26 +89,11 @@ protected:
 
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility|Abilities")
     TObjectPtr<UPGAbilitySystemComponent> AbilitySystemComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GASGameplayAbility|Abilities")
     TObjectPtr<UPGAttributeSet> Attributes;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TArray<TSubclassOf<UPGGameplayAbility>> CharacterAbilities;
-
-    FGameplayTag DeadTag;
-    FGameplayTag EffectRemoveOnDeathTag;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Character")
-    FText CharacterName;
-
-    // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
-    // TSubclassOf < UPGGameplayAbility > InitialAbilit;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
-    TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TSubclassOf<UGameplayEffect> DefaultAttributes;
@@ -114,8 +101,20 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
     TArray<TSubclassOf<UGameplayEffect>> StartupEffects;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASGameplayAbility|Character")
+    FText CharacterName;
+
     UPROPERTY(BlueprintAssignable, Category = "GASGameplayAbility|Character")
     FCharacterDiedDelegate OnCharacterDied;
+
+    FGameplayTag DeadTag;
+    FGameplayTag EffectRemoveOnDeathTag;
+
+    // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility")
+    // TSubclassOf < UPGGameplayAbility > InitialAbilit;
+
+    // UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGameplayAbility|Abilities")
+    // TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
     // ¬ключите ЂAbilityIDї, чтобы вернуть индивидуальные уровни способностей.
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
@@ -133,10 +132,9 @@ protected:
 
     virtual void AddStartupEffects();
 
+
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     int32 GetCharacterLevel() const;
-
-
 
 public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
@@ -165,6 +163,4 @@ public:
 protected:
     bool WantsToRun = false;
     bool IsMovingForward = false;
-
-
 };

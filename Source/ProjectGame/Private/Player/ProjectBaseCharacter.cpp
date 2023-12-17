@@ -7,6 +7,8 @@
 #include "Components/TestItemComponent.h"
 #include "Components/TestInventoryComponent.h"
 #include "UI/TestGameHUD.h"
+#include "Player/PGPlayerState.h"
+#include "Player/TestPlayerController.h"
 // #include "ProjectCoreTypes.h"
 
 // Engine
@@ -58,6 +60,8 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
     Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
     // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
     bAlwaysRelevant = true;
+
+    AIControllerClass = ATestPlayerController::StaticClass();
 
     DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
     EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
@@ -155,11 +159,59 @@ void AProjectBaseCharacter::FinishDying()
 
 void AProjectBaseCharacter::OnHealthChanged(float Health)
 {
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-
-   // Attributes->SetHealth(Health);
-
+    auto Health0 = FMath::Clamp(Health, 0.0f, GetMaxHealth());
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health0)));
+   // UE_LOG(BaseCharacterLog, Display, TEXT("OnHealthChanged Health = %f, %s"), Health0, *GetName());
 };
+
+// Server only
+void AProjectBaseCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    APGPlayerState* Player_State = GetPlayerState<APGPlayerState>();
+    if (Player_State)
+    {
+        // Set the ASC on the Server. Clients do this in OnRep_PlayerState()
+        AbilitySystemComponent = Cast<UPGAbilitySystemComponent>(Player_State->GetAbilitySystemComponent());
+
+        // AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have
+        // PlayerControllers.
+        Player_State->GetAbilitySystemComponent()->InitAbilityActorInfo(Player_State, this);
+
+        // Set the AttributeSetBase for convenience attribute functions
+        Attributes = Player_State->GetAttributeSetBase();
+
+        // If we handle players disconnecting and rejoining in the future, we'll have to change this so that possession from rejoining
+        // doesn't reset attributes. For now assume possession = spawn/respawn.
+        InitializeAttributes();
+
+        // Respawn specific things that won't affect first possession.
+
+        // Forcibly set the DeadTag count to 0
+        AbilitySystemComponent->SetTagMapCount(DeadTag, 0);
+
+        // Set Health/Mana/Stamina to their max. This is only necessary for *Respawn*.
+        SetHealth(GetMaxHealth());
+        SetMana(GetMaxMana());
+        SetStamina(GetMaxStamina());
+
+        // End respawn specific things
+
+        AddStartupEffects();
+
+        AddCharacterAbilities();
+
+        // ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetController());
+        //  if (PlayerController)
+        // {
+        //      PlayerController->CreateHUD();
+        //  }
+
+        //  DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
+        //  InitializeFloatingStatusBar();
+    }
+}
 
 /****************************
            GAS / AbilitySystem
@@ -197,9 +249,9 @@ void AProjectBaseCharacter::AddCharacterAbilities()
     {
         return;
     }
-
     for (TSubclassOf<UPGGameplayAbility>& StartupAbility : CharacterAbilities)
     {
+       // UE_LOG(BaseCharacterLog, Display, TEXT("Add Character Abilitie  Name: %s"), *StartupAbility->GetName());
         AbilitySystemComponent->GiveAbility(
             FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
                 static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
@@ -228,7 +280,7 @@ void AProjectBaseCharacter::InitializeAttributes()
     {
         FActiveGameplayEffectHandle ActiveGEHandle =
             AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
-        UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
+       // UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
     }
 }
 
@@ -249,7 +301,7 @@ void AProjectBaseCharacter::AddStartupEffects()
         {
             FActiveGameplayEffectHandle ActiveGEHandle =
                 AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
-            UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
+          //  UE_LOG(BaseCharacterLog, Display, TEXT(" AbilitySystem is added"));
         }
     }
 
@@ -298,18 +350,20 @@ float AProjectBaseCharacter::GetMaxStamina() const
 
 void AProjectBaseCharacter::SetHealth(float Health)
 {
-    //UE_LOG(BaseCharacterLog, Display, TEXT("Attributs Health set = %f"), Health);
+    // UE_LOG(BaseCharacterLog, Display, TEXT("Attributs Health set = %f"), Health);
     if (Attributes)
     {
-        //UE_LOG(BaseCharacterLog, Display, TEXT("character set helth to HelthComponent  = %f"), Health);
-        // Attributes->SetHealth(Health);
+        // UE_LOG(BaseCharacterLog, Display, TEXT("character set helth to HelthComponent  = %f"), Health);
+        //  Attributes->SetHealth(Health);
         HelthComponent->SetHealth(Health);
     }
 };
+
 void AProjectBaseCharacter::SetMana(float Mana)
 {
     if (Attributes) Attributes->SetMana(Mana);
 };
+
 void AProjectBaseCharacter::SetStamina(float Stamina)
 {
     if (Attributes) Attributes->SetStamina(Stamina);

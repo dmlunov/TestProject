@@ -41,9 +41,9 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY()
-    ATestGameHUD* TestGameHUD;
-    UTestPlayerHUDWidget* PlayerHUDWidget;
+   // UPROPERTY()
+   // ATestGameHUD* TestGameHUD;
+   // UTestPlayerHUDWidget* PlayerHUDWidget;
 
     // Server only
     virtual void OnPossess(APawn* InPawn) override;

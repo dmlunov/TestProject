@@ -46,15 +46,12 @@ bool APGPlayerState::IsAlive() const
 
 void APGPlayerState::ShowAbilityConfirmCancelText(bool ShowText)
 {
+
     ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
     if (PlayerController)
     {
-        0;
         UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
-        if (PlayerHUDWidget)
-        {
-            PlayerHUDWidget->ShowAbilityConfirmCancelText(ShowText);
-        }
+        if (PlayerHUDWidget) PlayerHUDWidget->ShowAbilityConfirmCancelText(ShowText);
     }
 }
 
@@ -139,6 +136,11 @@ void APGPlayerState::BeginPlay()
 {
     Super::BeginPlay();
 
+    // CurentCharacter = Cast<AProjectBaseCharacter>(GetPawn());
+    // PlayerController = Cast<ATestPlayerController>(GetOwner());
+    // if (PlayerController) PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+    // if (CurentCharacter) PlayerHUDWidget = CurentCharacter->TestGameHUD->GetPlayerHUDWidget();  // GetPlayerHUDWidget();
+
     if (AbilitySystemComponent)
     {
         // Attribute change callbacks
@@ -186,13 +188,17 @@ void APGPlayerState::BeginPlay()
 void APGPlayerState::HealthChanged(const FOnAttributeChangeData& Data)
 {
     float Health = Data.NewValue;
-
+    float Health0 = FMath::Clamp(Health, 0.0f, GetMaxHealth());
+    //Health > GetMaxHealth() ? GetMaxHealth() : Health;
     AProjectBaseCharacter* CurentCharacter = Cast<AProjectBaseCharacter>(GetPawn());
 
-    if (CurentCharacter)
+    if (CurentCharacter) CurentCharacter->OnHealthChanged(Health0);
+
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
     {
-        UE_LOG(PGPlayerStateLog, Display, TEXT("Health is = %f"), Health);
-        CurentCharacter->SetHealth(Health);
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetHealth(Health0);
     }
 
     // Update floating status bar
@@ -251,20 +257,19 @@ void APGPlayerState::HealthRegenRateChanged(const FOnAttributeChangeData& Data)
     float HealthRegenRate = Data.NewValue;
 
     // Update the HUD
-    ATestPlayerController* PC = Cast<ATestPlayerController>(GetOwner());
-    if (PC)
-    {
-        /*UGDHUDWidget* HUD = PC->GetHUD();
-        if (HUD)
-        {
-            HUD->SetHealthRegenRate(HealthRegenRate);
-        }*/
-    }
 }
 
 void APGPlayerState::ManaChanged(const FOnAttributeChangeData& Data)
 {
     float Mana = Data.NewValue;
+    float Mana0 = FMath::Clamp(Mana, 0.0f, GetMaxMana());
+
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
+    {
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetMana(Mana0);
+    }
 
     // Update floating status bar
     /* AGDHeroCharacter* Hero = Cast<AGDHeroCharacter>(GetPawn());
@@ -284,6 +289,13 @@ void APGPlayerState::ManaChanged(const FOnAttributeChangeData& Data)
 void APGPlayerState::MaxManaChanged(const FOnAttributeChangeData& Data)
 {
     float MaxMana = Data.NewValue;
+
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
+    {
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetMaxMana(MaxMana);
+    }
 
     // Update floating status bar
     /* AGDHeroCharacter* Hero = Cast<AGDHeroCharacter>(GetPawn());
@@ -313,20 +325,30 @@ void APGPlayerState::ManaRegenRateChanged(const FOnAttributeChangeData& Data)
     float ManaRegenRate = Data.NewValue;
 
     // Update the HUD
-    ATestPlayerController* PC = Cast<ATestPlayerController>(GetOwner());
-    if (PC)
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
     {
-        /* UGDHUDWidget* HUD = PC->GetHUD();
-        if (HUD)
-        {
-            HUD->SetManaRegenRate(ManaRegenRate);
-        }*/
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetMana(ManaRegenRate);
     }
 }
 
 void APGPlayerState::StaminaChanged(const FOnAttributeChangeData& Data)
 {
     float Stamina = Data.NewValue;
+    float Stamina0 = FMath::Clamp(Stamina, 0.0f, GetMaxStamina());
+
+    // auto PlayerHUDWidget = CurentCharacter->TestGameHUD->GetPlayerHUDWidget();
+
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+
+    if (PlayerController)
+    {
+         UE_LOG(PGPlayerStateLog, Display, TEXT("PlayerHUDWidget Changed = %f, %s"), Stamina0, *(PlayerController->GetName()));
+
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(Stamina0);
+    }
 
     // Update the HUD
     // Handled in the UI itself using the AsyncTaskAttributeChanged node as an example how to do it in Blueprint
@@ -337,30 +359,24 @@ void APGPlayerState::MaxStaminaChanged(const FOnAttributeChangeData& Data)
     float MaxStamina = Data.NewValue;
 
     // Update the HUD
-    ATestPlayerController* PC = Cast<ATestPlayerController>(GetOwner());
-    if (PC)
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
     {
-        /* UGDHUDWidget* HUD = PC->GetHUD();
-        if (HUD)
-        {
-            HUD->SetMaxStamina(MaxStamina);
-        }*/
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetMaxStamina(MaxStamina);
     }
 }
 
 void APGPlayerState::StaminaRegenRateChanged(const FOnAttributeChangeData& Data)
 {
     float StaminaRegenRate = Data.NewValue;
-
-    // Update the HUD
-    ATestPlayerController* PC = Cast<ATestPlayerController>(GetOwner());
-    if (PC)
+    // float Stamina0 = FMath::Clamp(Stamina, 0.0f, GetMaxStamina());
+    //  Update the HUD
+    ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
+    if (PlayerController)
     {
-        /* UGDHUDWidget* HUD = PC->GetHUD();
-        if (HUD)
-        {
-            HUD->SetStaminaRegenRate(StaminaRegenRate);
-        }*/
+        UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
+        if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(StaminaRegenRate);
     }
 }
 
