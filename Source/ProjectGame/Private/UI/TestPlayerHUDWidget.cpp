@@ -53,18 +53,18 @@ float UTestPlayerHUDWidget::GetStaminaPercent() const
 
 void UTestPlayerHUDWidget::SetHealth(float Health)
 {
-    auto THealth = FMath::RoundToInt(Health) > Character->GetMaxHealth() ? Character->GetMaxHealth() : Health;
+    auto THealth = FMath::RoundToInt(Health > Character->GetMaxHealth() ? Character->GetMaxHealth() : Health);
 
     HealthText->SetText(FText::AsNumber(THealth));
 }
 void UTestPlayerHUDWidget::SetMana(float Mana)
 {
-    auto TMana = FMath::RoundToInt(Mana) > Character->GetMaxMana() ? Character->GetMaxMana() : Mana;
+    auto TMana = FMath::RoundToInt(Mana > Character->GetMaxMana() ? Character->GetMaxMana() : Mana);
     ManaText->SetText(FText::AsNumber(FMath::RoundToInt(Mana)));
 }
 void UTestPlayerHUDWidget::SetStamina(float Stamina)
 {
-    auto TStamina = FMath::RoundToInt(Stamina) > Character->GetMaxStamina() ? Character->GetMaxStamina() : Stamina;
+    auto TStamina = FMath::RoundToInt(Stamina > Character->GetMaxStamina() ? Character->GetMaxStamina() : Stamina);
     StaminaText->SetText(FText::AsNumber(TStamina));
 }
 

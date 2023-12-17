@@ -289,7 +289,7 @@ void APGPlayerState::ManaChanged(const FOnAttributeChangeData& Data)
 void APGPlayerState::MaxManaChanged(const FOnAttributeChangeData& Data)
 {
     float MaxMana = Data.NewValue;
-
+   
     ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
     if (PlayerController)
     {
@@ -323,13 +323,13 @@ void APGPlayerState::MaxManaChanged(const FOnAttributeChangeData& Data)
 void APGPlayerState::ManaRegenRateChanged(const FOnAttributeChangeData& Data)
 {
     float ManaRegenRate = Data.NewValue;
-
+    float ManaRegenRate0 = FMath::Clamp(ManaRegenRate, 0.0f, GetMaxMana());
     // Update the HUD
     ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
     if (PlayerController)
     {
         UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
-        if (PlayerHUDWidget) PlayerHUDWidget->SetMana(ManaRegenRate);
+        if (PlayerHUDWidget) PlayerHUDWidget->SetMana(ManaRegenRate0);
     }
 }
 
@@ -344,7 +344,7 @@ void APGPlayerState::StaminaChanged(const FOnAttributeChangeData& Data)
 
     if (PlayerController)
     {
-         UE_LOG(PGPlayerStateLog, Display, TEXT("PlayerHUDWidget Changed = %f, %s"), Stamina0, *(PlayerController->GetName()));
+        UE_LOG(PGPlayerStateLog, Display, TEXT("PlayerHUDWidget Changed = %f, %s"), Stamina, *(PlayerController->GetName()));
 
         UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
         if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(Stamina0);
@@ -370,13 +370,13 @@ void APGPlayerState::MaxStaminaChanged(const FOnAttributeChangeData& Data)
 void APGPlayerState::StaminaRegenRateChanged(const FOnAttributeChangeData& Data)
 {
     float StaminaRegenRate = Data.NewValue;
-    // float Stamina0 = FMath::Clamp(Stamina, 0.0f, GetMaxStamina());
+    float Stamina0 = FMath::Clamp(StaminaRegenRate, 0.0f, GetMaxStamina());
     //  Update the HUD
     ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
     if (PlayerController)
     {
         UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
-        if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(StaminaRegenRate);
+        if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(Stamina0);
     }
 }
 

@@ -64,6 +64,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
     virtual void FinishDying();
 
+    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
+    virtual bool IsAlive() const;
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -120,9 +123,6 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
     virtual int32 GetAbilityLevel(EPGAbilityInputID AbilityID) const;
 
-    UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
-    virtual bool IsAlive() const;
-
     // Удаляет все способности персонажа. Может быть вызван только Сервером. Удаление на сервере приведет и к удалению с клиента.
     virtual void RemoveCharacterAbilities();
 
@@ -131,7 +131,6 @@ protected:
     virtual void InitializeAttributes();
 
     virtual void AddStartupEffects();
-
 
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     int32 GetCharacterLevel() const;
