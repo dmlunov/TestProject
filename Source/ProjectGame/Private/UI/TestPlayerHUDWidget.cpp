@@ -26,11 +26,17 @@ void UTestPlayerHUDWidget::NativeConstruct()
 
 float UTestPlayerHUDWidget::GetHealthPercent() const
 {
-    const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
-    if (!HealthComponent) return 0.0f;
+    if (!Character) return 0.0f;
+    if (Character->GetMaxHealth() > 0)
+        return Character->GetHealth() / Character->GetMaxHealth();
+    else
+        return 0.0f;
+
+  //  const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
+  //  if (!HealthComponent) return 0.0f;
     //UE_LOG(PlayerHUDWidgetLog, Display, TEXT("Health Percent = %f"), HealthComponent->GetHealthPercent());
 
-    return HealthComponent->GetHealthPercent();
+  //  return HealthComponent->GetHealthPercent();
 }
 
 float UTestPlayerHUDWidget::GetManaPercent() const
