@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UPGWeaponFXComponent;
 
 UCLASS()
 class PROJECTGAME_API ATestProjecttile : public AActor
@@ -38,6 +39,10 @@ protected:
     float LifeProgectile = 5.0f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     float HitImpulse = 750.0f;
+
+         UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+    UPGWeaponFXComponent* WeaponFXComponent;
+
 
 public:
     void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; };

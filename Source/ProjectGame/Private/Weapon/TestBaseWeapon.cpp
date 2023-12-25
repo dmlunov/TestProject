@@ -9,6 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "Player/TestPlayerController.h"
 #include "TimerManager.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All);
 
@@ -79,6 +81,9 @@ void ATestBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, 
     // игнарируем пересечения LineTrace с собственным персанажем
     FCollisionQueryParams CollisionParams;
     CollisionParams.AddIgnoredActor(GetOwner());
+
+    CollisionParams.bReturnPhysicalMaterial = true;
+
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
 
@@ -91,7 +96,7 @@ void ATestBaseWeapon::DecreaseAmmo()
     }
 
     CurrentAmmo.Bullets--;
-    //LogAmmo();
+    // LogAmmo();
 
     if (IsClipEmpty() && !IsAmmoEmpty())
     {
@@ -137,4 +142,16 @@ void ATestBaseWeapon::LogAmmo()
     FString AmmoInfo = "Ammo" + FString::FromInt(CurrentAmmo.Bullets) + " / ";
     AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
     UE_LOG(BaseWeaponLog, Display, TEXT("%s"), *AmmoInfo);
+}
+
+UNiagaraComponent* ATestBaseWeapon::SpawnMuzzleFX()
+
+{
+    //
+    return UNiagaraFunctionLibrary::SpawnSystemAttached(MuzzleFX,  // указатель на неогара систему
+        WeaponMesh,                                                // компонент к которому приатачиваем
+        SocketName,                                                // название сокета
+        FVector::ZeroVector,                                       // вектор смещения
+        FRotator::ZeroRotator,                                     // разворот
+        EAttachLocation::SnapToTarget, true);                      // EAttachLocation enam / auto distroy = true
 }

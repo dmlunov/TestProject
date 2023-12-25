@@ -40,4 +40,6 @@ void ATestLauncherWeapon::MakeShot()
 
     //UGameplayStatics::FinishSpawningActor(Projectile, SpawnTransform);
     DecreaseAmmo();
+    SpawnMuzzleFX();
+
  }

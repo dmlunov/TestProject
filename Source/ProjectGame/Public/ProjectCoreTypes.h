@@ -4,7 +4,7 @@
 #include "Engine/DataTable.h"
 #include "ProjectCoreTypes.generated.h"
 
-//ProjectBaseCharacter
+// ProjectBaseCharacter
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AProjectBaseCharacter*, Character);
 
 // weapon
@@ -49,6 +49,35 @@ struct FWeaponUIData
     UTexture2D* MainIcon;
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     UTexture2D* CrossHairIcon;
+};
+// VFX
+
+class UNiagaraSystem;
+
+USTRUCT(BlueprintType)
+struct FDecalData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    UMaterialInterface* Matirial;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    FVector Size = FVector(10.0f);
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    float LifeTime = 5.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    float FadeOutTime = 0.7f;
+};
+
+USTRUCT(BlueprintType)
+struct FImpactData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    UNiagaraSystem* NiagaraEffect;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FVX")
+    FDecalData DecalData;
 };
 
 // HelthComponent
@@ -144,4 +173,3 @@ USTRUCT() struct FItemData : public FTableRowBase
     // UPROPERTY(EditAnywhere, Category = "Item Data")
     // bool IsCanChangeTrancform{false};
 };
-

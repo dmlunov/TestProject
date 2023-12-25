@@ -54,11 +54,14 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
+     GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    
     //*********************** GAS
 
     // bAbilitiesInitialized = false;
     Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
-    // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
     bAlwaysRelevant = true;
 
     AIControllerClass = ATestPlayerController::StaticClass();
@@ -74,6 +77,7 @@ void AProjectBaseCharacter::BeginPlay()
     check(HelthComponent);
     check(HealthTextComponent);
     check(GetCharacterMovement());
+    check(GetMesh());
 
     TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
@@ -133,7 +137,7 @@ void AProjectBaseCharacter::OnDeath()
     }
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
+   
     WeaponComponent->StopFire();
 
     OnCharacterDied.Broadcast(this);
@@ -148,8 +152,10 @@ void AProjectBaseCharacter::OnDeath()
 
         AbilitySystemComponent->AddLooseGameplayTag(DeadTag);
     }
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    GetMesh()->SetSimulatePhysics(true);
 
-    PlayAnimMontage(DeathAnimMontage);
+    //PlayAnimMontage(DeathAnimMontage);
 };
 
 void AProjectBaseCharacter::FinishDying()

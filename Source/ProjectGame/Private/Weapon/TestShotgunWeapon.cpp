@@ -59,6 +59,7 @@ void ATestShotgunWeapon::MakeShot()
 
     // UGameplayStatics::FinishSpawningActor(Projectile, SpawnTransform);
     DecreaseAmmo();
+    SpawnMuzzleFX();
 }
 
 bool ATestShotgunWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const

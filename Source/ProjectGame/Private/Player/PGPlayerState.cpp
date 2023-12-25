@@ -344,7 +344,7 @@ void APGPlayerState::StaminaChanged(const FOnAttributeChangeData& Data)
 
     if (PlayerController)
     {
-        UE_LOG(PGPlayerStateLog, Display, TEXT("PlayerHUDWidget Changed = %f, %s"), Stamina, *(PlayerController->GetName()));
+       // UE_LOG(PGPlayerStateLog, Display, TEXT("PlayerHUDWidget Changed = %f, %s"), Stamina, *(PlayerController->GetName()));
 
         UTestPlayerHUDWidget* PlayerHUDWidget = PlayerController->GetPlayerHUDWidget();
         if (PlayerHUDWidget) PlayerHUDWidget->SetStamina(Stamina0);

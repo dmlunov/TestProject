@@ -15,7 +15,9 @@ public class ProjectGame : ModuleRules
             "CoreUObject",
             "Engine",
             "InputCore",
-            "EnhancedInput"
+            "EnhancedInput",
+            "Niagara",
+            "PhysicsCore"
         });
 
         // UI
@@ -50,7 +52,9 @@ public class ProjectGame : ModuleRules
              "ProjectGame/Public/Items",
              "ProjectGame/Public/Abilities",
              "ProjectGame/Public/AI",
-             "ProjectGame/Public/AI/Tasks"
+             "ProjectGame/Public/AI/Tasks",
+             "ProjectGame/Public/Weapon/Components",
+              "ProjectGame/Public/AI/Services"
         });
 
         // Uncomment if you are using Slate UI

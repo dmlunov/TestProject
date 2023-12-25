@@ -5,6 +5,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Weapon/Components/PGWeaponFXComponent.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(ProjectTileLog, All, All);
 
@@ -16,6 +18,7 @@ ATestProjecttile::ATestProjecttile()
     CollisionComponent->InitSphereRadius(5.0f);
     CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+    CollisionComponent->bReturnMaterialOnMove = true;
 
     SetRootComponent(CollisionComponent);
 
@@ -23,6 +26,8 @@ ATestProjecttile::ATestProjecttile()
     MovementComponent->InitialSpeed = 2000.0f;
 
     MovementComponent->ProjectileGravityScale = 0.5f;
+
+     WeaponFXComponent = CreateDefaultSubobject<UPGWeaponFXComponent>("WeaponFXComponent");
 }
 
 void ATestProjecttile::BeginPlay()
@@ -30,6 +35,7 @@ void ATestProjecttile::BeginPlay()
     Super::BeginPlay();
     check(MovementComponent);
     check(CollisionComponent);
+    check(WeaponFXComponent);
 
     MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
     CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
@@ -91,7 +97,8 @@ void ATestProjecttile::OnProjecttileHit(UPrimitiveComponent* HitComponent, AActo
         }
     }
 
-    DrawDebugSphere(GetWorld(), CenterHitLocation, DamageRadius, 24, FColor::Red, false, 0.5f);
+   // DrawDebugSphere(GetWorld(), CenterHitLocation, DamageRadius, 24, FColor::Red, false, 0.5f);
+    WeaponFXComponent->PlayImpactFX(Hit);
 
     Destroy();
 }

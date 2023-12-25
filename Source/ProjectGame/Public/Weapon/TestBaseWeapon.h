@@ -8,8 +8,9 @@
 #include "TestBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
-
-
+class USoundCue;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 
 
@@ -55,6 +56,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     FWeaponUIData UIData;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+    USoundCue* FireSound;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+    UNiagaraSystem* MuzzleFX;
 
     virtual void MakeShot();
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
@@ -72,6 +78,9 @@ protected:
     bool IsClipEmpty() const;
     
     void LogAmmo();
+
+    UNiagaraComponent* SpawnMuzzleFX();
+
 
 private:
     FAmmoData CurrentAmmo;

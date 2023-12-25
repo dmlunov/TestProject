@@ -44,15 +44,15 @@ AProjectPlayerCharacter::AProjectPlayerCharacter(const class FObjectInitializer&
     CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->FieldOfView = 80.0f;
 
-    // GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+     //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
     // GunComponent = CreateDefaultSubobject<USkeletalMeshComponent>(FName("Gun"));
 
     // Makes sure that the animations play on the Server so that we can use bone and socket transforms
     // to do things like spawning projectiles and other FX.
-    GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
-    GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    GetMesh()->SetCollisionProfileName(FName("NoCollision"));
+    //GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+   // GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+   // GetMesh()->SetCollisionProfileName(FName("NoCollision"));
     /*
             UIFloatingStatusBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingStatusBarComponent"));
             UIFloatingStatusBarComponent->SetupAttachment(RootComponent);

@@ -23,7 +23,7 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     // Only called on the Server. Calls before Server's AcknowledgePossession.
-    //virtual void PossessedBy(AController* NewController) override;
+    // virtual void PossessedBy(AController* NewController) override;
 
     USpringArmComponent* GetSpringArmComponent() { return SpringArmComponent; };  // GetCameraBoom
 
