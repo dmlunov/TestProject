@@ -10,6 +10,7 @@
 #include "UI/TestGameHUD.h"
 #include "AI/ProjectAICharacter.h"
 #include "Weapon/TestRifelWeapon.h"
+#include "Weapon/PGPunchAttack.h"
 
 DEFINE_LOG_CATEGORY_STATIC(TestWeaponComponentLog, All, All);
 
@@ -57,15 +58,15 @@ void UTestWeaponComponent::SpawnWeapons()
         ATestBaseWeapon* Weapon = GetWorld()->SpawnActor<ATestBaseWeapon>(OneWeaponData.WeaponClass);
         if (!Weapon) continue;
 
-        // UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
+        UE_LOG(TestWeaponComponentLog, Display, TEXT("Weapon name = %s "), *Weapon->GetName());
 
         Weapon->OnClipEmpty.AddUObject(this, &UTestWeaponComponent::OnEmptyClip);
 
         Weapon->SetOwner(Character);
         Weapons.Add(Weapon);
 
-        if (Weapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(Weapon))
-            AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
+        if (Weapon->IsA<ATestShotgunWeapon>() || Weapon->IsA<APGPunchAttack>())  // if (Cast<ATestShotgunWeapon>(Weapon))
+            AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoket2);
         else
             AttachWeaponToSoked(Weapon, Character->GetMesh(), WeaponArmorySoketName);
     }
@@ -102,6 +103,7 @@ void UTestWeaponComponent::FastNextWeapon()
 
 void UTestWeaponComponent::NextWeapon()
 {
+   // UE_LOG(TestWeaponComponentLog, Display, TEXT("Reload Animation Weapons In Inventary = %i"), WeaponsInInventary.Num());
     if (!CanEquip()) return;  //|| WeaponsInInventary.Num() < 1
 
     if (WeaponsInInventary.IsEmpty())
@@ -110,6 +112,7 @@ void UTestWeaponComponent::NextWeapon()
         CurrentWeaponIndex = 0;
     else
         CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
+    if (WeaponsInInventary.Num() >1)
     EquipWeapon(CurrentWeaponIndex);
 }
 
@@ -132,8 +135,9 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     if (CurrentWeapon)
     {
         CurrentWeapon->StopFire();
-        if (CurrentWeapon->IsA<ATestShotgunWeapon>())  // if (Cast<ATestShotgunWeapon>(CurrentWeapon))
-            AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketToShotGunName);
+        if (CurrentWeapon->IsA<ATestShotgunWeapon>() ||
+            CurrentWeapon->IsA<APGPunchAttack>())  // if (Cast<ATestShotgunWeapon>(CurrentWeapon))
+            AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoket2);
         else
             AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponArmorySoketName);
 
@@ -155,9 +159,9 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
 
     CurrentReloadAnimMontage = CurrentWeaponData ? CurrentWeaponData->ReloadAnimMontage : nullptr;
 
-    if (CurrentWeapon->IsA<ATestShotgunWeapon>())  // (Cast<ATestShotgunWeapon>(CurrentWeapon))
+    if (CurrentWeapon->IsA<ATestShotgunWeapon>() || CurrentWeapon->IsA<APGPunchAttack>())  // (Cast<ATestShotgunWeapon>(CurrentWeapon))
     {
-        AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipShotGunSoketName);
+        AttachWeaponToSoked(CurrentWeapon, Character->GetMesh(), WeaponEquipSoketName2);
     }
     else
     {
@@ -203,6 +207,8 @@ void UTestWeaponComponent::InitAnimation()
 
     for (auto OneWeaponData : WeaponData)
     {
+        if (!OneWeaponData.ReloadAnimMontage) continue;
+
         auto ReloadFinishAnimMontage = AnimUtils::FindNotifyByClass<UTestReloadFinishAnimNotify>(OneWeaponData.ReloadAnimMontage);
         if (!ReloadFinishAnimMontage)
         {
@@ -229,25 +235,27 @@ void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
 
 bool UTestWeaponComponent::CanFire() const
 {
-    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
+    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !PunchAnimInProgress && !TestGameHUD->bIsMenuVisible;
 }
 bool UTestWeaponComponent::CanEquip() const
 {
-    return !EquipAnimInProgress && !ReloadAnimInProgress;
+    return !EquipAnimInProgress && !ReloadAnimInProgress && !PunchAnimInProgress;
 }
 
 bool UTestWeaponComponent::CanReload() const
 {
-    return                        // WeaponsInInventary.Num()>0  //
-        CurrentWeapon             //
-        && !EquipAnimInProgress   //
-        && !ReloadAnimInProgress  //
-        && CurrentWeapon->CanReload();
+
+    return                         //
+        CurrentWeapon              //
+        && !EquipAnimInProgress    //
+        && !ReloadAnimInProgress;  //
+                                   // && CurrentWeapon->CanReload();
 }
 
 void UTestWeaponComponent::Reload()
 {
-    if (WeaponsInInventary.Num() <= 0) return;
+
+    if (CanReload()) return;  // WeaponsInInventary.Num() <= 0) return;
     ChangeClip();
 }
 
@@ -258,9 +266,10 @@ void UTestWeaponComponent::OnEmptyClip()
 
 void UTestWeaponComponent::ChangeClip()
 {
-    
+    if (!CurrentReloadAnimMontage) return;
+
     ReloadAnimInProgress = true;
-    ReloadAnimInProgress = true;
+    // ReloadAnimInProgress = true;
     CurrentWeapon->StopFire();
     CurrentWeapon->ChangeClip();
     PlayAnimMontage(CurrentReloadAnimMontage);

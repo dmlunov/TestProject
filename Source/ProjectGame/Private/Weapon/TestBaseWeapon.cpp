@@ -19,6 +19,8 @@ ATestBaseWeapon::ATestBaseWeapon()
     PrimaryActorTick.bCanEverTick = false;
 
     WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMeshComponent");
+    WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    
     SetRootComponent(WeaponMesh);
 }
 void ATestBaseWeapon::BeginPlay()

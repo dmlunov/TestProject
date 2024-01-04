@@ -59,10 +59,10 @@ protected:
     FName WeaponArmorySoketName = "ArmorySocket";
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    FName WeaponEquipShotGunSoketName = "WeaponSocketToShotGun";
+    FName WeaponEquipSoketName2 = "WeaponSocket2";
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    FName WeaponArmorySoketToShotGunName = "ArmorySocketToShotGun";
+    FName WeaponArmorySoket2 = "ArmorySocket2";
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     UAnimMontage* EquipMontage;
@@ -83,6 +83,8 @@ private:
     bool EquipAnimInProgress = false;
 
     bool ReloadAnimInProgress = false;
+
+    bool PunchAnimInProgress = false;
 
     UPROPERTY()
     ATestGameHUD* TestGameHUD;
