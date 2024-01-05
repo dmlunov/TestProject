@@ -84,7 +84,6 @@ private:
 
     bool ReloadAnimInProgress = false;
 
-    bool PunchAnimInProgress = false;
 
     UPROPERTY()
     ATestGameHUD* TestGameHUD;
@@ -101,6 +100,7 @@ private:
 
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
+   
 
     bool CanFire() const;
     bool CanEquip() const;

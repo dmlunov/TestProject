@@ -44,4 +44,10 @@ protected:
 
     UFUNCTION()
     void MakeDamage(const FHitResult& HitResult);
+
+    void InitAnimation();
+    void OnPunchFinished(USkeletalMeshComponent* MeshComp);
+    bool CanPunch() const;
+
+    bool PunchAnimInProgress = false;
 };

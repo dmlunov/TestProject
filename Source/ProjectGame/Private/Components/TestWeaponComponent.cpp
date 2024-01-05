@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Animation/TestEquipFinishedAnimNotify.h"
 #include "Animation/TestReloadFinishAnimNotify.h"
+#include "Animation/PGPunchFinishAnimNotify.h"
 #include "Animation/AnimUtils.h"
 #include "Weapon/TestShotgunWeapon.h"
 #include "UI/TestGameHUD.h"
@@ -233,13 +234,15 @@ void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
     ReloadAnimInProgress = false;
 }
 
+
+
 bool UTestWeaponComponent::CanFire() const
 {
-    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !PunchAnimInProgress && !TestGameHUD->bIsMenuVisible;
+    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
 }
 bool UTestWeaponComponent::CanEquip() const
 {
-    return !EquipAnimInProgress && !ReloadAnimInProgress && !PunchAnimInProgress;
+    return !EquipAnimInProgress && !ReloadAnimInProgress ;
 }
 
 bool UTestWeaponComponent::CanReload() const

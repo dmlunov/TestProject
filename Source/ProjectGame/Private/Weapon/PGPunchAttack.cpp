@@ -4,6 +4,8 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/HelthComponent.h"
+#include "Animation/PGPunchFinishAnimNotify.h"
+#include "Animation/AnimUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(PGPunchAttackLog, All, All);
 
@@ -35,16 +37,22 @@ void APGPunchAttack::BeginPlay()
 
     HitCollision->OnComponentBeginOverlap.AddDynamic(this, &APGPunchAttack::MakePunch);
     HitCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    InitAnimation(); 
+         
 }
 
 void APGPunchAttack::StartFire()
 {
+
+    if (!CanPunch()) return;
 
     HitCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     if (!GetWorld()) return;
 
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character && !PunchAnimMontage) return;
+    PunchAnimInProgress = true;
+
     Character->PlayAnimMontage(PunchAnimMontage);
 
     FVector PawnViewLocation = Character->GetPawnViewLocation();
@@ -106,4 +114,31 @@ void APGPunchAttack::MakeDamage(const FHitResult& HitResult)
     const auto DamageActor = HitResult.GetActor();
     if (!DamageActor) return;
     DamageActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+}
+
+void APGPunchAttack::InitAnimation() 
+{
+    auto PunchFinishedNotify = AnimUtils::FindNotifyByClass<UPGPunchFinishAnimNotify>(PunchAnimMontage);
+    if (PunchFinishedNotify)
+    {
+        PunchFinishedNotify->OnNotified.AddUObject(this, &APGPunchAttack::OnPunchFinished);
+    }
+    else
+    {
+        UE_LOG(PGPunchAttackLog, Error, TEXT("Equip Animation notify is forgotten to set"));
+        checkNoEntry();
+    }
+}
+
+
+void APGPunchAttack::OnPunchFinished(USkeletalMeshComponent* MeshComp)
+{
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+    if (!Character || Character->GetMesh() != MeshComp) return;
+    PunchAnimInProgress = false;
+}
+
+bool APGPunchAttack::CanPunch() const
+{
+    return !PunchAnimInProgress ;
 }
