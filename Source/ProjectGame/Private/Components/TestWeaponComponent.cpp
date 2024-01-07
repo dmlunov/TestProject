@@ -104,7 +104,7 @@ void UTestWeaponComponent::FastNextWeapon()
 
 void UTestWeaponComponent::NextWeapon()
 {
-   // UE_LOG(TestWeaponComponentLog, Display, TEXT("Reload Animation Weapons In Inventary = %i"), WeaponsInInventary.Num());
+    // UE_LOG(TestWeaponComponentLog, Display, TEXT("Reload Animation Weapons In Inventary = %i"), WeaponsInInventary.Num());
     if (!CanEquip()) return;  //|| WeaponsInInventary.Num() < 1
 
     if (WeaponsInInventary.IsEmpty())
@@ -113,8 +113,7 @@ void UTestWeaponComponent::NextWeapon()
         CurrentWeaponIndex = 0;
     else
         CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponsInInventary.Num();
-    if (WeaponsInInventary.Num() >1)
-    EquipWeapon(CurrentWeaponIndex);
+    if (WeaponsInInventary.Num() > 1) EquipWeapon(CurrentWeaponIndex);
 }
 
 void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
@@ -130,8 +129,7 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     int32 LastIndex = ClampIndex(WeaponIndex + 1, 1, WeaponsInInventary.Num() - 1, 0);
     int32 NextIndex = ClampIndex(WeaponIndex, 1, WeaponsInInventary.Num() - 1, 0);
 
-    // UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, nwxt index = %i"), WeaponIndex, LastIndex,
-    // NextIndex);
+    UE_LOG(TestWeaponComponentLog, Display, TEXT("waepon index = %i, last index = %i, next index = %i"), WeaponIndex, LastIndex, NextIndex);
 
     if (CurrentWeapon)
     {
@@ -146,14 +144,21 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     }
 
     CurrentWeapon = WeaponsInInventary[WeaponIndex];
-    CurrentWeapon->SetActorHiddenInGame(false);
+   
     ATestBaseWeapon* LastWeapon = WeaponsInInventary[LastIndex];
     ATestBaseWeapon* NextWeapon = WeaponsInInventary[NextIndex];
-    if (WeaponsInInventary.Num() - 1 > 1)
+
+    for (ATestBaseWeapon* weapon : WeaponsInInventary)
     {
-        NextWeapon->SetActorHiddenInGame(false);
-        LastWeapon->SetActorHiddenInGame(true);
+        weapon->SetActorHiddenInGame(true);
     }
+     CurrentWeapon->SetActorHiddenInGame(false);
+    NextWeapon->SetActorHiddenInGame(false);
+
+   // if (WeaponsInInventary.Num() - 1 > 1){
+   //     NextWeapon->SetActorHiddenInGame(false);
+   //     LastWeapon->SetActorHiddenInGame(true);}
+   // 
     // CurrentReloadAnimMontage = WeaponData[WeaponIndex].ReloadAnimMontage;
     const auto CurrentWeaponData =
         WeaponData.FindByPredicate([&](const FWeaponData& Data) { return Data.WeaponClass == CurrentWeapon->GetClass(); });
@@ -170,6 +175,8 @@ void UTestWeaponComponent::EquipWeapon(int32 WeaponIndex)
     }
     EquipAnimInProgress = true;
     PlayAnimMontage(EquipMontage);
+
+    IsGetWeapon = CurrentWeapon->IsA<APGPunchAttack>() ? false : true;
 }
 
 void UTestWeaponComponent::StartFire()
@@ -234,15 +241,13 @@ void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
     ReloadAnimInProgress = false;
 }
 
-
-
 bool UTestWeaponComponent::CanFire() const
 {
     return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
 }
 bool UTestWeaponComponent::CanEquip() const
 {
-    return !EquipAnimInProgress && !ReloadAnimInProgress ;
+    return !EquipAnimInProgress && !ReloadAnimInProgress;
 }
 
 bool UTestWeaponComponent::CanReload() const
@@ -278,7 +283,7 @@ void UTestWeaponComponent::ChangeClip()
     PlayAnimMontage(CurrentReloadAnimMontage);
 }
 
-int32 UTestWeaponComponent::ClampIndex(int32 value, int32 valueStep, int32 max, int32 min)
+int32 UTestWeaponComponent::ClampIndex(int32 value, int32 valueStep, int32 max, int32 min) const
 {
     value += valueStep;
     int32 out;

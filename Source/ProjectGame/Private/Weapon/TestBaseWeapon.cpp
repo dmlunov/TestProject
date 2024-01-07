@@ -50,10 +50,26 @@ APlayerController* ATestBaseWeapon::GetPlayerController() const
 
 bool ATestBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const
 {
-    const auto Controller = GetPlayerController();
-    if (!Controller) return false;
-    // с помошью контролера получаем позицию и направления камеры
-    Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+     const auto PGCharacter = Cast<ACharacter>(GetOwner());
+    if (!PGCharacter) return false;
+    if (PGCharacter->IsPlayerControlled())
+    {
+        const auto Controller = PGCharacter->GetController<APlayerController>();
+        if (!Controller) return false;
+        // с помошью контролера получаем позицию и направления камеры
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    }
+    else
+    {
+        ViewLocation = GetMuzzleWorldLocation();
+        ViewRotation = WeaponMesh->GetSocketRotation(SocketName);  // MuzzleSocketName);
+    }
+
+   // const auto Controller = GetPlayerController();
+   // if (!Controller) return false;
+   
+  //  Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
     return true;
 }
 

@@ -33,7 +33,7 @@ protected:
 
     virtual void BeginPlay() override;
 
-   // virtual void OnDeath() override;
+    virtual void OnDeath() override;
 
    // virtual void OnHealthChanged(float Health) override;
 

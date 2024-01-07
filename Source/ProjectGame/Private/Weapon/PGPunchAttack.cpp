@@ -37,8 +37,7 @@ void APGPunchAttack::BeginPlay()
 
     HitCollision->OnComponentBeginOverlap.AddDynamic(this, &APGPunchAttack::MakePunch);
     HitCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    InitAnimation(); 
-         
+    InitAnimation();
 }
 
 void APGPunchAttack::StartFire()
@@ -50,6 +49,10 @@ void APGPunchAttack::StartFire()
     if (!GetWorld()) return;
 
     ACharacter* Character = Cast<ACharacter>(GetOwner());
+    int32 RandomIndex = FMath::RandRange(0, PunchAnimMontages.Num() - 1);
+
+    PunchAnimMontage = PunchAnimMontages[RandomIndex];
+
     if (!Character && !PunchAnimMontage) return;
     PunchAnimInProgress = true;
 
@@ -69,7 +72,7 @@ void APGPunchAttack::StartFire()
 
     if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
     {
-        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+       // DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
         HitActor = TraceHit.GetActor();
     }
 
@@ -89,21 +92,28 @@ void APGPunchAttack::MakePunch  //
 
     // TraceFXEnd = HitResult.ImpactPoint;
     AActor* HitActorOverLap = HitResult.GetActor();
-    UE_LOG(PGPunchAttackLog, Display, TEXT(" OverLapActor: %s"), *HitActorOverLap->GetName());
+   // UE_LOG(PGPunchAttackLog, Display, TEXT(" OverLapActor: %s"), *HitActorOverLap->GetName());
     if (HitActor && HitActor->FindComponentByClass<UHelthComponent>() && HitActor != GetOwner())
     {
-        UE_LOG(PGPunchAttackLog, Display, TEXT("Damage HitActor: %s"), *HitActor->GetName());
-        HitActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+        if (!HitActors.Contains(HitActor))
+        {
+
+          //  UE_LOG(PGPunchAttackLog, Display, TEXT("Damage HitActor: %s"), *HitActor->GetName());
+            HitActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+            HitActors.Add(HitActor);
+        }
     }
     else if (HitActorOverLap && HitActorOverLap->FindComponentByClass<UHelthComponent>() && HitActorOverLap != GetOwner())
     {
-
-        HitActorOverLap->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+        if (!HitActors.Contains(HitActorOverLap))
+        {
+            HitActorOverLap->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+            HitActors.Add(HitActorOverLap);
+        }
     }
     if (HitActorOverLap != GetOwner())
     {
         HitActor = nullptr;
-        HitCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
     // SpawnMuzzleFX();
@@ -116,23 +126,27 @@ void APGPunchAttack::MakeDamage(const FHitResult& HitResult)
     DamageActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
 }
 
-void APGPunchAttack::InitAnimation() 
+void APGPunchAttack::InitAnimation()
 {
-    auto PunchFinishedNotify = AnimUtils::FindNotifyByClass<UPGPunchFinishAnimNotify>(PunchAnimMontage);
-    if (PunchFinishedNotify)
+    for (auto OnePunchAnimMontage : PunchAnimMontages)
     {
-        PunchFinishedNotify->OnNotified.AddUObject(this, &APGPunchAttack::OnPunchFinished);
-    }
-    else
-    {
-        UE_LOG(PGPunchAttackLog, Error, TEXT("Equip Animation notify is forgotten to set"));
-        checkNoEntry();
+        auto PunchFinishedNotify = AnimUtils::FindNotifyByClass<UPGPunchFinishAnimNotify>(OnePunchAnimMontage);
+        if (PunchFinishedNotify)
+        {
+            PunchFinishedNotify->OnNotified.AddUObject(this, &APGPunchAttack::OnPunchFinished);
+        }
+        else
+        {
+            UE_LOG(PGPunchAttackLog, Error, TEXT("Equip Animation notify is forgotten to set"));
+            checkNoEntry();
+        }
     }
 }
 
-
 void APGPunchAttack::OnPunchFinished(USkeletalMeshComponent* MeshComp)
 {
+    HitCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    HitActors.Empty();
     ACharacter* Character = Cast<ACharacter>(GetOwner());
     if (!Character || Character->GetMesh() != MeshComp) return;
     PunchAnimInProgress = false;
@@ -140,5 +154,5 @@ void APGPunchAttack::OnPunchFinished(USkeletalMeshComponent* MeshComp)
 
 bool APGPunchAttack::CanPunch() const
 {
-    return !PunchAnimInProgress ;
+    return !PunchAnimInProgress;
 }

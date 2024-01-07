@@ -17,14 +17,16 @@ class PROJECTGAME_API UTestWeaponComponent : public UActorComponent
 
 public:
     UTestWeaponComponent();
-    void StartFire();
+    virtual void StartFire();
     void StopFire();
-    void NextWeapon();
+    virtual void NextWeapon();
     void FastNextWeapon();
     void Reload();
 
     bool GetCurrentWeaponUIDate(FWeaponUIData& UIData) const;
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
+
+    bool IsTakeWeapon() const { return IsGetWeapon; };
 
     bool InvntaryEquipWeapon = false;
 
@@ -41,7 +43,7 @@ public:
     UFUNCTION()
     TArray<ATestBaseWeapon*> GetWeapons() const { return Weapons; };
     UFUNCTION()
-    ATestBaseWeapon* GetCurrentWeapon() const { return CurrentWeapon;};
+    ATestBaseWeapon* GetCurrentWeapon() const { return CurrentWeapon; };
     UFUNCTION()
     void SetCurrentWeapon(ATestBaseWeapon* NewCurrentWeapon) { CurrentWeapon = NewCurrentWeapon; };
 
@@ -67,7 +69,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     UAnimMontage* EquipMontage;
 
-private:
     UPROPERTY()
     ATestBaseWeapon* CurrentWeapon = nullptr;
 
@@ -77,6 +78,15 @@ private:
     UPROPERTY()
     TArray<ATestBaseWeapon*> WeaponsInInventary;
 
+    bool CanFire() const;
+
+    bool CanEquip() const;
+
+    void EquipWeapon(int32 WeaponIndex);
+
+    int32 CurrentWeaponIndex = 0;
+
+private:
     UPROPERTY()
     UAnimMontage* CurrentReloadAnimMontage = nullptr;
 
@@ -84,30 +94,26 @@ private:
 
     bool ReloadAnimInProgress = false;
 
+    bool IsGetWeapon = false;
 
     UPROPERTY()
     ATestGameHUD* TestGameHUD;
 
-    int32 CurrentWeaponIndex = 0;
     int32 LastWeaponIndex = 1;
 
     void InitAnimation();
     void SpawnWeapons();
     void AttachWeaponToSoked(ATestBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SoketName);
-    void EquipWeapon(int32 WeaponIndex);
 
     void PlayAnimMontage(UAnimMontage* Animation);
 
     void OnEquipFinished(USkeletalMeshComponent* MeshComp);
     void OnReloadFinished(USkeletalMeshComponent* MeshComp);
-   
 
-    bool CanFire() const;
-    bool CanEquip() const;
     bool CanReload() const;
 
     void OnEmptyClip();
     void ChangeClip();
 
-    int32 ClampIndex(int32 value, int32 valueStep, int32 max, int32 min);
+    int32 ClampIndex(int32 value, int32 valueStep, int32 max, int32 min) const;
 };

@@ -3,7 +3,7 @@
 #include "AI/ProjectAICharacter.h"
 #include "AI/PGAIController.h"
 #include "ProjectUtils.h"
-#include "Components/TestWeaponComponent.h"
+#include "Components/PGAIWeaponComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BrainComponent.h"
 #include "Components/WidgetComponent.h"
@@ -16,10 +16,8 @@ AProjectAICharacter::AProjectAICharacter(const FObjectInitializer& ObjInit) : Su
     AIControllerClass = APGAIController::StaticClass();
 }*/
 
-AProjectAICharacter::AProjectAICharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
-// : Super(ObjInit.SetDefaultSubobjectClass<USTUAIWeaponComponent>("WeaponComponent"))
-// конструктор с параметром потому что
-// наследуеться от ASTUBaseCharacter, а но был создан с параметром что бы переопределить USTUCharacterMovementComponent
+AProjectAICharacter::AProjectAICharacter(const FObjectInitializer& ObjInit) 
+ : Super(ObjInit.SetDefaultSubobjectClass<UPGAIWeaponComponent>("WeaponComponent"))
 {
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     AIControllerClass = APGAIController::StaticClass();
@@ -71,14 +69,14 @@ void AProjectAICharacter::OnHealthChanged(float Health)
 
     // HealthComponent береться из STUBaseCharacter
     HealthBarWidget->SetHealthPercent(HealthComponentQ->GetHealthPercent());
-}
+}*/
 
 void AProjectAICharacter::OnDeath()
 {
     Super::OnDeath();
-    const auto STUController = Cast<AAIController>(Controller);
-    if (STUController && STUController->BrainComponent)
+    const auto PGController = Cast<AAIController>(Controller);
+    if (PGController && PGController->BrainComponent)
     {
-        STUController->BrainComponent->Cleanup();
+        PGController->BrainComponent->Cleanup();
     }
-}*/
+}

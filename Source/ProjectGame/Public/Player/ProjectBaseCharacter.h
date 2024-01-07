@@ -39,6 +39,9 @@ public:
     bool IsRunning() const;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
+    bool IsTakeWeapon() const ;
+
+    UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDerection() const;
 
     // Only called on the Server. Calls before Server's AcknowledgePossession.

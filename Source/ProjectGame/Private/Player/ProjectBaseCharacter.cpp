@@ -116,6 +116,13 @@ float AProjectBaseCharacter::GetMovementDerection() const
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 };
 
+bool AProjectBaseCharacter::IsTakeWeapon() const
+{
+    if (!WeaponComponent) return false;
+
+    return WeaponComponent->IsTakeWeapon();
+ }
+
 bool AProjectBaseCharacter::IsAlive() const
 {
     return GetHealth() > 0.0f;
