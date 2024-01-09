@@ -20,7 +20,8 @@ void UPGFireService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
     if (Controller)
     {
-        const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIWeaponComponent>(Controller->GetPawn());
+        const auto WeaponComponent = Controller->GetPawn()->GetComponentByClass<UPGAIWeaponComponent>();
+        //const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIWeaponComponent>(Controller->GetPawn());
         if (WeaponComponent)
         {
             HasAim ? WeaponComponent->StartFire() : WeaponComponent->StopFire();

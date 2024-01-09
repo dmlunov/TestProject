@@ -2,6 +2,7 @@
 // game
 #include "UI/Inventory/InventoryPanel.h"
 #include "Player/ProjectBaseCharacter.h"
+#include "Player/ProjectPlayerCharacter.h"
 #include "Components/TestInventoryComponent.h"
 #include "UI/Inventory/InventoryItemSlot.h"
 #include "UI/Inventory/ItemDragDropOperation.h"
@@ -9,24 +10,30 @@
 #include "Components/TextBlock.h"
 #include "Components/WrapBox.h"
 
+DEFINE_LOG_CATEGORY_STATIC(InventoryPanelLog, All, All);
+
 void UInventoryPanel::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
     BaseCharacter = Cast<AProjectBaseCharacter>(GetOwningPlayerPawn());
+  // auto  PlayerCharacter = Cast<AProjectPlayerCharacter>(GetOwningPlayerPawn());
     if (BaseCharacter)
     {
-        InventoryReference = BaseCharacter->GetInventoryComponent();
+        InventoryReference = BaseCharacter->GetComponentByClass<UTestInventoryComponent>();
+       // InventoryReference = BaseCharacter->GetInventoryComponent();
         if (InventoryReference)
         {
             InventoryReference->OnInventoryUpdate.AddUObject(this, &UInventoryPanel::RefreshInventory);
             SetInfoText();
+           
         }
-    }
+    } 
 }
 
 void UInventoryPanel::RefreshInventory()
 {
+    UE_LOG(InventoryPanelLog, Display, TEXT("Refresh Inventory"));
     if (InventoryReference && InventorySlotClass)
     {
         InventoryWrapBox->ClearChildren();

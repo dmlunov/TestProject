@@ -90,8 +90,8 @@ void UInventoryActionMessage::ActionWeapon()
     const FString WeaponName = ItemBeingHovered->TextData.Name.ToString();
 
     //UE_LOG(InventoryActionMessageLog, Display, TEXT("Select Weapon Name = %s"), *WeaponName);
-
-    UTestWeaponComponent* WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
+    UTestWeaponComponent* WeaponComponent = GetOwningPlayerPawn()->GetComponentByClass<UTestWeaponComponent>();
+   // UTestWeaponComponent* WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
     if (!WeaponComponent) return;
 
     TArray<ATestBaseWeapon*> WeapoinInInventary = WeaponComponent->GetWeaponsInInventary();

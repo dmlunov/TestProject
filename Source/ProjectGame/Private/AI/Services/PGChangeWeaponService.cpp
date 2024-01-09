@@ -17,7 +17,8 @@ void UPGChangeWeaponService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
     const auto Controller = OwnerComp.GetAIOwner();
     if (Controller)
     {
-        const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIWeaponComponent>(Controller->GetPawn());
+        const auto WeaponComponent = Controller->GetPawn()->GetComponentByClass<UPGAIWeaponComponent>();
+        //const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIWeaponComponent>(Controller->GetPawn());
         if (WeaponComponent && Probability > 0 && FMath::FRand() <= Probability)
         {
             WeaponComponent->NextWeapon();

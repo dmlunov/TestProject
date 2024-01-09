@@ -27,7 +27,8 @@ AActor* UPGAIPerceptionComponent::GetClosesEnemy() const
     AActor* BestPawn = nullptr;
     for (const auto PercieveActor : PercieveActors)
     {
-        const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(PercieveActor);
+        const auto HealthComponent = PercieveActor->GetComponentByClass<UHelthComponent>();
+        //const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(PercieveActor);
 
         const auto PercievPawn = Cast<APawn>(PercieveActor);
       //  const auto AreEnemies = PercievPawn && ProjectUtils::AreEnemies(Controller, PercievPawn->Controller);

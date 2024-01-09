@@ -52,14 +52,15 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "Character | Animation_1")
     UAnimMontage* DeathAnimMontage;
-
+    /*
     UFUNCTION()
     FORCEINLINE UTestInventoryComponent* GetInventoryComponent() const { return InventoryComponent; };
     UFUNCTION()
     FORCEINLINE UTestItemComponent* GetItemComponent() const { return ItemComponent; };
     UFUNCTION()
     FORCEINLINE UTestWeaponComponent* GetWeaponComponent() const { return WeaponComponent; };
-    UPROPERTY()
+    UPROPERTY()*/
+
     ATestGameHUD* TestGameHUD;
 
     virtual void OnDeath();

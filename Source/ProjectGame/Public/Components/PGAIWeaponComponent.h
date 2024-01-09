@@ -16,4 +16,7 @@ class PROJECTGAME_API UPGAIWeaponComponent : public UTestWeaponComponent
 public:
     virtual void StartFire() override;
     virtual void NextWeapon() override;
+
+protected:
+    virtual void BeginPlay() override;
 };

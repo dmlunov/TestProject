@@ -59,6 +59,8 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
     TScriptInterface<ITestBaseInterface> TargetInteractable;
 
+    
+
     float InteractionCheckFrequency;
 
     float InteractionCheckDistance;

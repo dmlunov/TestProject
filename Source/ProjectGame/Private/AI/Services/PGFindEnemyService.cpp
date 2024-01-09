@@ -21,7 +21,8 @@ void UPGFindEnemyService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nod
     if (Blackboard)
     {
         const auto Controller = OwnerComp.GetAIOwner();
-        const auto PerceptionComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIPerceptionComponent>(Controller);
+        const auto PerceptionComponent = Controller->GetComponentByClass<UPGAIPerceptionComponent>();
+        //const auto PerceptionComponent = ProjectUtils::GetProjectPlayerComponent<UPGAIPerceptionComponent>(Controller);
         if (PerceptionComponent)
         {
             Blackboard->SetValueAsObject(EnemyActorKey.SelectedKeyName, PerceptionComponent->GetClosesEnemy());

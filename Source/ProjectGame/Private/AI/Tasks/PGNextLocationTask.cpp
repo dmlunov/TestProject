@@ -29,7 +29,7 @@ EBTNodeResult::Type UPGNextLocationTask::ExecuteTask(UBehaviorTreeComponent& Own
     if (!SelfCenter)
     {
         auto CenterActor = Cast<AActor>(Blackboard->GetValueAsObject(CenterActorKey.SelectedKeyName));
-        if (!CenterActor) EBTNodeResult::Failed;
+        if (!CenterActor) return EBTNodeResult::Failed;
         Location = CenterActor->GetActorLocation();
     }
 

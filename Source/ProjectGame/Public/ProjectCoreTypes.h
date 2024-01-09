@@ -4,11 +4,16 @@
 #include "Engine/DataTable.h"
 #include "ProjectCoreTypes.generated.h"
 
+// weapon component
+
+class ATestBaseWeapon;
+
 // ProjectBaseCharacter
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AProjectBaseCharacter*, Character);
 
 // weapon
-DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmptySignature, ATestBaseWeapon*);
+//DECLARE_MULTICAST_DELEGATE(FOnClipEmptySignature);
 
 USTRUCT(BlueprintType)
 struct FAmmoData
@@ -25,9 +30,7 @@ struct FAmmoData
     bool Infinite;
 };
 
-// weapon component
 
-class ATestBaseWeapon;
 
 USTRUCT(BlueprintType)
 struct FWeaponData
@@ -83,6 +86,9 @@ struct FImpactData
 // HelthComponent
 DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float);
+
+//TestInventoryComponent
+DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdateSignature);
 
 // Item Data
 UENUM()

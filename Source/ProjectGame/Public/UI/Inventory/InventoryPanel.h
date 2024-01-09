@@ -29,7 +29,7 @@ public:
     UPROPERTY(meta = (BindWidget))
     UTextBlock* CapacityInfo;
     UPROPERTY()
-    AProjectBaseCharacter* BaseCharacter;
+   const AProjectBaseCharacter* BaseCharacter;
     UPROPERTY()
     UTestInventoryComponent* InventoryReference;
 

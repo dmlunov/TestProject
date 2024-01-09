@@ -32,11 +32,11 @@ float UTestPlayerHUDWidget::GetHealthPercent() const
     else
         return 0.0f;
 
-  //  const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
-  //  if (!HealthComponent) return 0.0f;
-    //UE_LOG(PlayerHUDWidgetLog, Display, TEXT("Health Percent = %f"), HealthComponent->GetHealthPercent());
+    //  const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
+    //  if (!HealthComponent) return 0.0f;
+    // UE_LOG(PlayerHUDWidgetLog, Display, TEXT("Health Percent = %f"), HealthComponent->GetHealthPercent());
 
-  //  return HealthComponent->GetHealthPercent();
+    //  return HealthComponent->GetHealthPercent();
 }
 
 float UTestPlayerHUDWidget::GetManaPercent() const
@@ -76,22 +76,29 @@ void UTestPlayerHUDWidget::SetStamina(float Stamina)
 
 bool UTestPlayerHUDWidget::GetCurrentWeaponUIDate(FWeaponUIData& UIData) const
 {
-    const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
+    if (!GetOwningPlayerPawn()) return false;
+    const auto WeaponComponent = GetOwningPlayerPawn()->GetComponentByClass<UTestWeaponComponent>();
+    // const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
     if (!WeaponComponent) return false;
     return WeaponComponent->GetCurrentWeaponUIDate(UIData);
 }
 
 bool UTestPlayerHUDWidget::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
 {
-    const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
+    if (!GetOwningPlayerPawn()) return false;
+    const auto WeaponComponent = GetOwningPlayerPawn()->GetComponentByClass<UTestWeaponComponent>();
+    // const auto WeaponComponent = ProjectUtils::GetProjectPlayerComponent<UTestWeaponComponent>(GetOwningPlayerPawn());
     if (!WeaponComponent) return false;
     return WeaponComponent->GetCurrentWeaponAmmoData(AmmoData);
 }
 
 bool UTestPlayerHUDWidget::IsPlayerAlive() const
 {
-    const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
-    return HealthComponent && !HealthComponent->IsDead();
+    if (!GetOwningPlayerPawn()) return false;
+
+    const auto HealthComponent = GetOwningPlayerPawn()->GetComponentByClass<UHelthComponent>();
+        // const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
+        return HealthComponent && !HealthComponent->IsDead();
 }
 
 bool UTestPlayerHUDWidget::IsPlayerSpectating() const

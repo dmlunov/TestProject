@@ -3,13 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectCoreTypes.h"
 #include "Components/ActorComponent.h"
 #include "TestInventoryComponent.generated.h"
 
 class UItemBase;
+class AProjectPlayerCharacter;
 class AProjectBaseCharacter;
+class AProjectAICharacter;
+class ATestPicupActor;
 
-DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdateSignature);
+//DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdateSignature);
 
 UENUM(BlueprintType)
 enum class EItemAssResult : uint8
@@ -75,7 +79,6 @@ class PROJECTGAME_API UTestInventoryComponent : public UActorComponent
     GENERATED_BODY()
 
 public:
-
     FOnInventoryUpdateSignature OnInventoryUpdate;
 
     UTestInventoryComponent();
@@ -109,8 +112,6 @@ public:
     UFUNCTION(Category = "Inventory")
     FORCEINLINE void SetWeightCapacity(const float NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
 
-
-
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Inventory")
     float InventoryTotalWeight;
@@ -122,7 +123,6 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Inventory")
     TArray<TObjectPtr<UItemBase>> InventoryContents;
 
-
     FItemAddResult HandleNonStackableItems(UItemBase* ItenIn);
     int32 HandleStackableItems(UItemBase* ItenIn, int32 RequestedAddAmount);
     int32 CalculateWeightAddAmount(UItemBase* ItenIn, int32 RequestedAddAmount);
@@ -132,10 +132,25 @@ protected:
 
     virtual void BeginPlay() override;
 
-    AProjectBaseCharacter* Character;
+    //AProjectPlayerCharacter* Character;
+    const AProjectBaseCharacter* Character;
+    AProjectAICharacter* CharacterAI;
 
-    void ChangeCurentWeapons(UItemBase* Item , bool IsInInvetary);
+    void ChangeCurentWeapons(UItemBase* Item, bool IsInInvetary);
 
+    void InitialAddItemInInventory();
+
+    UPROPERTY(EditDefaultsOnly, Category = "Item In Inventory")
+    TArray<TSubclassOf<ATestPicupActor>> InitiaItemInInventory;
+/*
+    UPROPERTY(EditDefaultsOnly, Category = "Item Initialization")
+    FName DesiredItemID;
+
+    UPROPERTY(EditAnywhere, Category = "Item Initialization")
+    UDataTable* ItemDataTable;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Item reference")
+    UItemBase* ItemReference;*/
 
 public:
 };

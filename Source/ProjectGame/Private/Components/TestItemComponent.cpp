@@ -179,12 +179,12 @@ void UTestItemComponent::Interact()
 {
 
     UWorld* World = GetOwner()->GetWorld();
-    // AProjectBaseCharacter* BaseCharacter = Cast<AProjectBaseCharacter>(GetOwner());
+     AProjectBaseCharacter* BaseCharacter = Cast<AProjectBaseCharacter>(GetOwner());
 
     World->GetTimerManager().ClearTimer(TimerHandle_Interaction);
     if (IsValid(TargetInteractable.GetObject()))
     {
-        TargetInteractable->Interact(Character);
+        TargetInteractable->Interact(BaseCharacter);
     }
 }
 
@@ -198,21 +198,23 @@ void UTestItemComponent::UpdateInteractionWidget() const
 
 void UTestItemComponent::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
 {
-    UTestInventoryComponent* PlayerInventory = Character->GetInventoryComponent();
+    AProjectBaseCharacter* BaseCharacter = Cast<AProjectBaseCharacter>(GetOwner());
+    UTestInventoryComponent* PlayerInventory = BaseCharacter->GetComponentByClass<UTestInventoryComponent>();
+   // UTestInventoryComponent* PlayerInventory = BaseCharacter->GetInventoryComponent();
 
     if (PlayerInventory->FindMatchingItem(ItemToDrop))
     {
 
         FActorSpawnParameters SpawnParams;
-        SpawnParams.Owner = Character;
+        SpawnParams.Owner = BaseCharacter;
         SpawnParams.bNoFail = true;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
         // FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
 
-        const FRotator SpawnRotation{Character->GetActorRotation()};
+        const FRotator SpawnRotation{BaseCharacter->GetActorRotation()};
         const FVector SpawnLocation{
-            Character->GetActorLocation() + (Character->GetActorForwardVector() * 100.0f) + FVector(0.0f, 0.0f, 50.0f)};
+            BaseCharacter->GetActorLocation() + (BaseCharacter->GetActorForwardVector() * 100.0f) + FVector(0.0f, 0.0f, 50.0f)};
         // const FTransform Transform {ItemToDrop->Transform};
         const FTransform ItemTransform{ItemToDrop->Transform};
         // UE_LOG(TestItemComponentLog, Display, TEXT("Transform Scale = %s"), *ItemTransform.GetScale3D().ToString());

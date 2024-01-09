@@ -3,6 +3,7 @@
 #include "Environment/TestPicupActor.h"
 #include "Items/ItemBase.h"
 #include "ProjectCoreTypes.h"
+#include "ProjectUtils.h"
 #include "CoreMinimal.h"
 #include "Player/ProjectBaseCharacter.h"
 #include "Components/TestItemComponent.h"
@@ -26,7 +27,7 @@ void ATestPicupActor::BeginPlay()
     InitializePickup(UItemBase::StaticClass(), ItemQuantity);
     // Interact(AProjectBaseCharacter * BaseCharacter);
 
-   // UE_LOG(TestPicupActorLog, Display, TEXT("PicapActor Create"));
+    // UE_LOG(TestPicupActorLog, Display, TEXT("PicapActor Create"));
 }
 
 void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
@@ -46,16 +47,16 @@ void ATestPicupActor::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
         ItemReference->AssetData = ItemData->ItemAssetData;
         ItemReference->Transform = PickupMesh->GetComponentTransform();
         ItemReference->ItemPhysicalMass = PickupMesh->GetMass();
- 
+
         ItemReference->NumericData.bIsStackble = ItemData->ItemNumericData.MaxStackSize > 1;
-       // ItemData->Transform = PickupMesh->GetComponentTransform();
+        // ItemData->Transform = PickupMesh->GetComponentTransform();
         InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
         // UE_LOG(TestPicupActorLog, Display, TEXT("Ouantity %s = %i"), *ItemReference->TextData.Name.ToString(), InQuantity);
 
         PickupMesh->SetStaticMesh(ItemData->ItemAssetData.StaticMesh);
 
-        //ItemData->IsCanChangeTrancform = true;
-        //ItemReference->IsCanChangeTrancform = true;
+        // ItemData->IsCanChangeTrancform = true;
+        // ItemReference->IsCanChangeTrancform = true;
 
         UpdateInteractableData();
     }
@@ -109,6 +110,7 @@ void ATestPicupActor::EndFocus()
 }
 void ATestPicupActor::Interact(AProjectBaseCharacter* BaseCharacter)
 {
+
     if (BaseCharacter)
     {
         TakePickup(BaseCharacter);
@@ -121,16 +123,21 @@ void ATestPicupActor::TakePickup(const AProjectBaseCharacter* TekerCharacter)
     {
         if (ItemReference)
         {
-            if (UTestInventoryComponent* PlayerInventory = TekerCharacter->GetInventoryComponent())
+            auto InventoryComponent = TekerCharacter->GetComponentByClass<UTestInventoryComponent>();
+            UE_LOG(TestPicupActorLog, Display, TEXT("InventoryComponent Name = %s"),
+                InventoryComponent ? *InventoryComponent->GetName() : *FString{"None"});
+
+            if (InventoryComponent)
             {
-                const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
+                const FItemAddResult AddResult = InventoryComponent->HandleAddItem(ItemReference);
 
                 switch (AddResult.OperationResult)
                 {
                     case EItemAssResult::IAR_NoItemAdded: break;
                     case EItemAssResult::IAR_PatialAmountItemAdded:
                         UpdateInteractableData();
-                        TekerCharacter->GetItemComponent()->UpdateInteractionWidget();
+                        TekerCharacter->GetComponentByClass<UTestItemComponent>()->UpdateInteractionWidget();
+                       // TekerCharacter->GetItemComponent()->UpdateInteractionWidget();
                         break;
                     case EItemAssResult::IAR_AllItemAdded: Destroy(); break;
                 }

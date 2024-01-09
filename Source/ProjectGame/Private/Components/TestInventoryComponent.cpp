@@ -3,8 +3,12 @@
 #include "Components/TestInventoryComponent.h"
 #include "Items/ItemBase.h"
 #include "Player/ProjectBaseCharacter.h"
+#include "Player/ProjectPlayerCharacter.h"
+#include "AI/ProjectAICharacter.h"
 #include "Components/TestWeaponComponent.h"
+#include "Components/TestItemComponent.h"
 #include "Weapon/TestBaseWeapon.h"
+#include "Environment/TestPicupActor.h"
 
 DEFINE_LOG_CATEGORY_STATIC(InventoryComponentLog, All, All);
 
@@ -17,7 +21,11 @@ void UTestInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    // Character = Cast<AProjectPlayerCharacter>(GetOwner());
     Character = Cast<AProjectBaseCharacter>(GetOwner());
+
+    CharacterAI = Cast<AProjectAICharacter>(GetOwner());
+     InitialAddItemInInventory();
 }
 
 UItemBase* UTestInventoryComponent::FindMatchingItem(UItemBase* ItemIn) const
@@ -268,8 +276,35 @@ void UTestInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAd
     InventoryContents.Add(NewItem);
     InventoryTotalWeight += NewItem->GetItemStackWeight();
     OnInventoryUpdate.Broadcast();
-
+    // UE_LOG(InventoryComponentLog, Display, TEXT("NewItem %s , Item %s"), *NewItem->GetName());
     ChangeCurentWeapons(NewItem, true);
+}
+
+void UTestInventoryComponent::InitialAddItemInInventory()
+{
+    if (InitiaItemInInventory.IsEmpty()) return;
+
+    for (auto classPicupActor : InitiaItemInInventory)
+    {
+        const FTransform SpawnTransform(FRotator::ZeroRotator, FVector{0.0, 0.0, 0.0});
+        ATestPicupActor* PicupActor = GetWorld()->SpawnActor<ATestPicupActor>(classPicupActor, SpawnTransform);
+        if (!PicupActor) continue;
+
+        UE_LOG(InventoryComponentLog, Display, TEXT("Initial Add Item In Inventory Name = %s "), *PicupActor->GetName());
+        UItemBase* item = PicupActor->GetItemData();
+        if (!item) continue;
+        UE_LOG(InventoryComponentLog, Display, TEXT("UItemBase Name = %s "), *item->GetName());
+
+        PicupActor->TakePickup(Character);
+        //OnInventoryUpdate.Broadcast();
+        //AddNewItem(item, 1);
+       // auto AddResult = HandleAddItem(item);
+        // PicupActor->UpdateInteractableData();
+        // Character->GetItemComponent()->UpdateInteractionWidget();
+        if (PicupActor) PicupActor->Destroy();
+    }
+   
+    UE_LOG(InventoryComponentLog, Display, TEXT("On Inventory Update"));
 }
 
 void UTestInventoryComponent::ChangeCurentWeapons(UItemBase* Item, bool IsInInvetary)
@@ -278,10 +313,10 @@ void UTestInventoryComponent::ChangeCurentWeapons(UItemBase* Item, bool IsInInve
     {
         const FString ItemName = Item->TextData.Name.ToString();
 
-        const TArray<ATestBaseWeapon*> Weapons = Character->GetWeaponComponent()->GetWeapons();
+        TArray<ATestBaseWeapon*> Weapons = Character->GetComponentByClass<UTestWeaponComponent>()->GetWeapons();
         TArray<ATestBaseWeapon*> NewWeapons;
-        TArray<ATestBaseWeapon*> WeaponsInInventary = Character->GetWeaponComponent()->GetWeaponsInInventary();
-        ATestBaseWeapon* CurrentWeapon = Character->GetWeaponComponent()->GetCurrentWeapon();
+        TArray<ATestBaseWeapon*> WeaponsInInventary = Character->GetComponentByClass<UTestWeaponComponent>()->GetWeaponsInInventary();
+        ATestBaseWeapon* CurrentWeapon = Character->GetComponentByClass<UTestWeaponComponent>()->GetCurrentWeapon();
 
         if (!Character || !GetWorld()) return;
 
@@ -295,19 +330,17 @@ void UTestInventoryComponent::ChangeCurentWeapons(UItemBase* Item, bool IsInInve
                 OneWeapon->SetActorHiddenInGame(true);
                 if (OneWeapon == CurrentWeapon)
                 {
-                    Character->GetWeaponComponent()->SetCurrentWeapon(nullptr);
+                    Character->GetComponentByClass<UTestWeaponComponent>()->SetCurrentWeapon(nullptr);
                     UE_LOG(InventoryComponentLog, Display, TEXT("Remove Current Weapon Name = %s "), *OneWeapon->GetName());
                 }
 
                 UE_LOG(InventoryComponentLog, Display, TEXT("Remove Weapon Name = %s "), *OneWeapon->GetName());
-
             }
         }
         // if (!NewWeapons.IsEmpty())
         // {
-        Character->GetWeaponComponent()->SetWeaponsInInventary(NewWeapons);
-        if (IsInInvetary) 
-        Character->GetWeaponComponent()->NextWeapon();
+        Character->GetComponentByClass<UTestWeaponComponent>()->SetWeaponsInInventary(NewWeapons);
+        if (IsInInvetary) Character->GetComponentByClass<UTestWeaponComponent>()->NextWeapon();
         //  }
     }
 }

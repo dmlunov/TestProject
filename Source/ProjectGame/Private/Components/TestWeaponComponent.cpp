@@ -267,9 +267,25 @@ void UTestWeaponComponent::Reload()
     ChangeClip();
 }
 
-void UTestWeaponComponent::OnEmptyClip()
+void UTestWeaponComponent::OnEmptyClip(ATestBaseWeapon* AmmoEmptyWeapon)
 {
-    ChangeClip();
+    if (!AmmoEmptyWeapon) return;
+    if (CurrentWeapon == AmmoEmptyWeapon)
+    {
+        ChangeClip();
+    }
+    else
+    {
+        for (const auto Weapon : Weapons)
+        {
+            if (Weapon == AmmoEmptyWeapon)
+            {
+                Weapon->ChangeClip();
+            }
+        }
+    }
+
+ 
 }
 
 void UTestWeaponComponent::ChangeClip()
@@ -315,3 +331,22 @@ bool UTestWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
     }
     return false;
 };
+
+bool UTestWeaponComponent::TryToAddAmmo(TSubclassOf<ATestBaseWeapon> WeaponType, int32 ClipsAmount)
+{
+
+    for (const auto Weapon : WeaponsInInventary)
+    {
+        if (Weapon && Weapon->IsA(WeaponType)) return Weapon->TryToAddAmmo(ClipsAmount);
+    }
+    return false;
+}
+bool UTestWeaponComponent::NeedAmmo(TSubclassOf<ATestBaseWeapon> WeaponType)
+{
+    for (const auto Weapon : WeaponsInInventary)
+    {
+        if (Weapon && Weapon->IsA(WeaponType)) return Weapon->IsAmmoFull();
+    }
+    return false;
+}
+

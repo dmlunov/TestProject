@@ -54,7 +54,9 @@ public class ProjectGame : ModuleRules
              "ProjectGame/Public/AI",
              "ProjectGame/Public/AI/Tasks",
              "ProjectGame/Public/Weapon/Components",
-              "ProjectGame/Public/AI/Services"
+              "ProjectGame/Public/AI/Services",
+              "ProjectGame/Public/AI/EQS",
+              "ProjectGame/Public/AI/Decorators"
         });
 
         // Uncomment if you are using Slate UI

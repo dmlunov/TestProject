@@ -37,10 +37,6 @@ public:
     UPROPERTY(EditAnywhere, Category = "Pickup | Item Initialization")
     UDataTable* ItemDataTable;
 
-
-
-
-
     UPROPERTY(EditDefaultsOnly, Category = "Pickup | Item Initialization")
     FName DesiredItemID;
 

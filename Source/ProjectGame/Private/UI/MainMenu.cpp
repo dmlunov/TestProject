@@ -35,7 +35,8 @@ bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& 
 
     if (BaseCharacter && ItemDragDrop->SourceItem)
     {
-        BaseCharacter->GetItemComponent()->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
+        BaseCharacter->GetComponentByClass<UTestItemComponent>()->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
+       // BaseCharacter->GetItemComponent()->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
         return true;
     }
     return false;

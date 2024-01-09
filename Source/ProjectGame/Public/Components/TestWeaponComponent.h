@@ -26,6 +26,11 @@ public:
     bool GetCurrentWeaponUIDate(FWeaponUIData& UIData) const;
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
 
+    bool TryToAddAmmo(TSubclassOf<ATestBaseWeapon> WeaponType, int32 ClipsAmount);
+    bool NeedAmmo(TSubclassOf<ATestBaseWeapon> WeaponType);
+
+
+    // если перс держит огнестрельное орижие то true если рукопашное то false
     bool IsTakeWeapon() const { return IsGetWeapon; };
 
     bool InvntaryEquipWeapon = false;
@@ -112,8 +117,10 @@ private:
 
     bool CanReload() const;
 
-    void OnEmptyClip();
+    void OnEmptyClip(ATestBaseWeapon* AmmoEmptyWeapon);
     void ChangeClip();
 
     int32 ClampIndex(int32 value, int32 valueStep, int32 max, int32 min) const;
+
+
 };
