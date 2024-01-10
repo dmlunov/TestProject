@@ -31,8 +31,8 @@ AActor* UPGAIPerceptionComponent::GetClosesEnemy() const
         //const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(PercieveActor);
 
         const auto PercievPawn = Cast<APawn>(PercieveActor);
-      //  const auto AreEnemies = PercievPawn && ProjectUtils::AreEnemies(Controller, PercievPawn->Controller);
-        if (HealthComponent && !HealthComponent->IsDead() ) //&& AreEnemies)  //
+        const auto AreEnemies = PercievPawn && ProjectUtils::AreEnemies(Controller, PercievPawn->Controller);
+        if (HealthComponent && !HealthComponent->IsDead() && AreEnemies)  //
         {
             const auto CurrentDistance = (PercieveActor->GetActorLocation() - Pawn->GetActorLocation()).Size();
             if (CurrentDistance < BestDistance)

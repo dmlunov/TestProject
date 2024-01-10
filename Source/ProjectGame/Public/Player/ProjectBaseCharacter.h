@@ -52,14 +52,15 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "Character | Animation_1")
     UAnimMontage* DeathAnimMontage;
-    /*
-    UFUNCTION()
-    FORCEINLINE UTestInventoryComponent* GetInventoryComponent() const { return InventoryComponent; };
-    UFUNCTION()
-    FORCEINLINE UTestItemComponent* GetItemComponent() const { return ItemComponent; };
-    UFUNCTION()
-    FORCEINLINE UTestWeaponComponent* GetWeaponComponent() const { return WeaponComponent; };
-    UPROPERTY()*/
+
+        UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamageVelocity = FVector2D(900.0f, 1200.0f);
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
+
+    UPROPERTY(EditDefaultsOnly, Category = "Material")
+    FName MaterialColorName = "Paint Color";
 
     ATestGameHUD* TestGameHUD;
 
@@ -70,6 +71,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character")
     virtual bool IsAlive() const;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI", meta = (ClampMin = "0", ClampMax = "10"))
+    int32 TeamID{0};
 
 protected:
     // Called when the game starts or when spawned
@@ -163,7 +167,16 @@ public:
     virtual void SetMana(float Mana);
     virtual void SetStamina(float Stamina);
 
-protected:
+
+
+    void SetPlayerColor(const FLinearColor& Color);
+
+    UFUNCTION()
+    void OnGroundLanded(const FHitResult& Hit);  // FHitResult структура в которой содержиться инфа об контакте двух обектов
+
+
+
+ protected:
     bool WantsToRun = false;
     bool IsMovingForward = false;
 };

@@ -6,6 +6,7 @@
 #include "TimerManager.h"
 #include "Player/ProjectPlayerCharacter.h"
 #include "Abilities/PGAttributeSet.h"
+#include "AI/ProjectAICharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(HealthComponentLog, All, All)
 
@@ -19,12 +20,17 @@ void UHelthComponent::BeginPlay()
 {
     Super::BeginPlay();
     Character = Cast<AProjectBaseCharacter>(GetOwner());
+    // auto CharacterAI = Cast<AProjectAICharacter>(GetOwner());
     // Character = Cast<AProjectPlayerCharacter>(GetOwner());
     if (Character)
     {
-        MaxHealth = Character->GetMaxHealth();
-        Health = Character->GetHealth();
+        if (Character->GetMaxHealth() && Character->GetHealth())
+        {
+            MaxHealth = Character->GetMaxHealth();
+            Health = Character->GetHealth();
+        }
     }
+
     check(MaxHealth > 0);
 
     SetHealth(MaxHealth);

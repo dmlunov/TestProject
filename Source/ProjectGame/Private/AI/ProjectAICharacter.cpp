@@ -19,7 +19,8 @@ AProjectAICharacter::AProjectAICharacter(const FObjectInitializer& ObjInit) : Su
 AProjectAICharacter::AProjectAICharacter(const FObjectInitializer& ObjInit) 
  : Super(ObjInit.SetDefaultSubobjectClass<UPGAIWeaponComponent>("WeaponComponent"))
 {
-    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+    //AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+    AutoPossessAI = EAutoPossessAI::Disabled;
     AIControllerClass = APGAIController::StaticClass();
 
     // AutoPossessAI = EAutoPossessAI::Disabled;

@@ -441,3 +441,9 @@ void APGPlayerState::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCou
         AbilitySystemComponent->CancelAbilities(&AbilityTagsToCancel, &AbilityTagsToIgnore);
     }
 }
+
+
+void APGPlayerState ::LogInfo()
+{
+    UE_LOG(PGPlayerStateLog, Display, TEXT("TeamID:%i, Kills:%i, Deaths:%i"), TeamID, KillsNum, DeathsNum);
+}

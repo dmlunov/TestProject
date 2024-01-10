@@ -24,6 +24,8 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
+
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UWidgetComponent* HealthWidgetComponent;

@@ -37,7 +37,21 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
+  //*********************** GAS
 
+    // bAbilitiesInitialized = false;
+    Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
+    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
+    bAlwaysRelevant = true;
+
+    AIControllerClass = ATestPlayerController::StaticClass();
+
+    DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
+    EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
+
+
+    //********************* component 
     WeaponComponent = CreateDefaultSubobject<UTestWeaponComponent>("WeaponComponent");
 
     HelthComponent = CreateDefaultSubobject<UHelthComponent>("HelthComponent");
@@ -56,24 +70,14 @@ AProjectBaseCharacter::AProjectBaseCharacter(const FObjectInitializer& ObjInit)
 
      GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     
-    //*********************** GAS
-
-    // bAbilitiesInitialized = false;
-    Attributes = CreateDefaultSubobject<UPGAttributeSet>("Attributes");
-    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
-    bAlwaysRelevant = true;
-
-    AIControllerClass = ATestPlayerController::StaticClass();
-
-    DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
-    EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
+  
 };
 
 // Called when the game starts or when spawned
 void AProjectBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
     check(HelthComponent);
     check(HealthTextComponent);
     check(GetCharacterMovement());
@@ -176,6 +180,17 @@ void AProjectBaseCharacter::OnHealthChanged(float Health)
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health0)));
    // UE_LOG(BaseCharacterLog, Display, TEXT("OnHealthChanged Health = %f, %s"), Health0, *GetName());
 };
+
+void AProjectBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+    const auto FallVelocityZ = -GetCharacterMovement()->Velocity.Z;
+    // UE_LOG(BaseCharacterLog, Display, TEXT("on landet: %f"), FallVelocityZ);
+
+    if (FallVelocityZ < LandedDamageVelocity.X) return;
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+    // UE_LOG(BaseCharacterLog, Display, TEXT("Final Damage: %f"), FinalDamage);
+    TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
+}
 
 // Server only
 void AProjectBaseCharacter::PossessedBy(AController* NewController)
@@ -381,3 +396,12 @@ void AProjectBaseCharacter::SetStamina(float Stamina)
 {
     if (Attributes) Attributes->SetStamina(Stamina);
 };
+
+
+void AProjectBaseCharacter::SetPlayerColor(const FLinearColor& Color)
+{
+    const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+    if (!MaterialInst) return;
+    MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
+
+}

@@ -11,7 +11,7 @@ APGAIController::APGAIController()
     PGAIPerceptionComponent = CreateDefaultSubobject<UPGAIPerceptionComponent>("PGAIPerceptionComponent");
     SetPerceptionComponent(*PGAIPerceptionComponent);
     // для AI SetPerceptionComponent , для других Actors SetupAttachment(GetRootComponent());
-    // RespawnComponent = CreateDefaultSubobject<USTURespawnComponent>("USTURespawnComponent");
+    // RespawnComponent = CreateDefaultSubobject<UPGRespawnComponent>("UPGRespawnComponent");
 
     bWantsPlayerState = true;
 }
