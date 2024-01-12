@@ -400,8 +400,10 @@ void AProjectBaseCharacter::SetStamina(float Stamina)
 
 void AProjectBaseCharacter::SetPlayerColor(const FLinearColor& Color)
 {
-    const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
-    if (!MaterialInst) return;
-    MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
-
+    const auto MaterialInst1 = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+    const auto MaterialInst2 = GetMesh()->CreateAndSetMaterialInstanceDynamic(1);
+    if (!MaterialInst1) return;
+    MaterialInst1->SetVectorParameterValue(MaterialColorName, Color);
+    if (!MaterialInst2) return;
+    MaterialInst2->SetVectorParameterValue(MaterialColorName, Color);
 }

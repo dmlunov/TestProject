@@ -12,7 +12,7 @@
 #include "Components/TestWeaponComponent.h"
 #include "EngineUtils.h"  //получение всех акторов определеного типа
 
-DEFINE_LOG_CATEGORY_STATIC(LogSTUGameModeBase, All, All);
+DEFINE_LOG_CATEGORY_STATIC(LogPGGameModeBase, All, All);
 
 constexpr static int32 MinRaundTimeForRespawn = 10;
 
@@ -66,7 +66,7 @@ void ATestGameModeBase::StartRound()
 }
 void ATestGameModeBase::GameTimerUpdate()
 {
-    // UE_LOG(LogSTUGameModeBase, Display, TEXT(" Round = %i/%i, Time = %i"), CurrentRound, GameData.RoundsNum, RoundCountDown);
+    // UE_LOG(LogPGGameModeBase, Display, TEXT(" Round = %i/%i, Time = %i"), CurrentRound, GameData.RoundsNum, RoundCountDown);
 
     /* const auto TimerRate = GetWorldTimerManager().GetTimerRate(GameRoundTimerHandle);
      //GetTimerRate функция возвращает частоту срабатывания таймера
@@ -122,7 +122,7 @@ void ATestGameModeBase::CreateTeamsInfo()
 
         // установка имен игракам если человек то "Player" , AI="Bot"
         PlayerState->SetPlayerName(Controller->IsPlayerController() ? "Player" : "Bot");
-        SetPlayerColor(Controller);
+       
         int32 AITeamID = Cast<AProjectBaseCharacter>(Controller->GetPawn())->TeamID;
         if (AITeamID != 0)
             TeamID = AITeamID;
@@ -130,7 +130,9 @@ void ATestGameModeBase::CreateTeamsInfo()
             TeamID = TeamID == 1 ? 2 : 1;
 
         PlayerState->SetTiamID(TeamID);
-        PlayerState->SetTeamColor(DetermineColorByTeamID(TeamID));
+        PlayerState->SetTeamColor(DetermineColorByTeamID(TeamID)); 
+
+        SetPlayerColor(Controller);
     }
 }
 FLinearColor ATestGameModeBase::DetermineColorByTeamID(int32 TeamID) const
@@ -139,8 +141,7 @@ FLinearColor ATestGameModeBase::DetermineColorByTeamID(int32 TeamID) const
     {
         return GameData.TeamColors[TeamID - 1];
     }
-    UE_LOG(
-        LogSTUGameModeBase, Display, TEXT("No Color for team id: 5i, set to default: %s"), TeamID, *GameData.DefoultTeamColor.ToString());
+    UE_LOG(LogPGGameModeBase, Display, TEXT("No Color for team id: %i, set to default: %s"), TeamID, *GameData.DefoultTeamColor.ToString());
 
     return GameData.DefoultTeamColor;
 }
@@ -205,7 +206,7 @@ void ATestGameModeBase::SetPlayerColor(AController* Controller)
 //
 // void ATestGameModeBase::GameOver()
 //{
-//     UE_LOG(LogSTUGameModeBase, Display, TEXT("=====Game Over======"));
+//     UE_LOG(LogPGGameModeBase, Display, TEXT("=====Game Over======"));
 //     LogPlayerInfo();
 //     for (auto Pawn : TActorRange<APawn>(GetWorld()))  // собираем все павнов в игре !!!
 //     {

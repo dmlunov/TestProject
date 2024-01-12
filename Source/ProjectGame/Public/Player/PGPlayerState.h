@@ -151,5 +151,4 @@ private:
     int32 KillsNum = 0;
     int32 DeathsNum = 0;
 
-
 };
