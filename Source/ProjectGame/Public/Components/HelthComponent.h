@@ -66,4 +66,7 @@ private:
 
    // UPROPERTY()
    // UPGAttributeSet* Attributes;
+
+     void Killed(AController* KillerController);
+
 };

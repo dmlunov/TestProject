@@ -85,7 +85,7 @@ void AProjectBaseCharacter::BeginPlay()
 
     TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 
-    OnHealthChanged(HelthComponent->GetHealth());
+    OnHealthChanged(HelthComponent->GetHealth(), 0.0f);
     HelthComponent->OnDeath.AddUObject(this, &AProjectBaseCharacter::OnDeath);
     HelthComponent->OnHealthChanged.AddUObject(this, &AProjectBaseCharacter::OnHealthChanged);
 };
@@ -174,7 +174,7 @@ void AProjectBaseCharacter::FinishDying()
     Destroy();
 }
 
-void AProjectBaseCharacter::OnHealthChanged(float Health)
+void AProjectBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
 {
     auto Health0 = FMath::Clamp(Health, 0.0f, GetMaxHealth());
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health0)));

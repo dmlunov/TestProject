@@ -17,7 +17,8 @@ public class ProjectGame : ModuleRules
             "InputCore",
             "EnhancedInput",
             "Niagara",
-            "PhysicsCore"
+            "PhysicsCore",
+            "UnrealEd"
         });
 
         // UI
@@ -39,7 +40,12 @@ public class ProjectGame : ModuleRules
             "NavigationSystem"
         });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { });
+
+
+        PrivateDependencyModuleNames.AddRange(new string[] { 
+            "OnlineSubsystem",
+            "OnlineSubsystemNull"
+        });
 
         PublicIncludePaths.AddRange(new string[] {
             "ProjectGame/Public/Player",
@@ -56,7 +62,9 @@ public class ProjectGame : ModuleRules
              "ProjectGame/Public/Weapon/Components",
               "ProjectGame/Public/AI/Services",
               "ProjectGame/Public/AI/EQS",
-              "ProjectGame/Public/AI/Decorators"
+              "ProjectGame/Public/AI/Decorators",
+              "ProjectGame/Public/Menu",
+              "ProjectGame/Public/Menu/UI"
         });
 
         // Uncomment if you are using Slate UI

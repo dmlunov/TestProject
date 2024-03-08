@@ -50,6 +50,8 @@ public:
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
     void SetRespawnCountdown(float RespawnTimeRemaining);
 
+
+
     /**
      * Attribute setters
      */
@@ -102,6 +104,9 @@ protected:
     virtual void NativeConstruct() override;
     AProjectBaseCharacter* Character;
 
+     virtual void NativeOnInitialized() override;
+
+
     UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
     UTextBlock* HealthText;
     UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
@@ -109,7 +114,20 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Attribute", meta = (BindWidget))
     UTextBlock* StaminaText;
 
+    /*UPROPERTY(meta = (BindWidgetAnim), Transient)
+    UWidgetAnimation* DamageAnimation;*/
+
+    UFUNCTION(BlueprintImplementableEvent,
+    Category = "UI")  // спецификатор BlueprintImplementableEvent позволит создать event в bliprint на основе этой функции
+    void OnTakeDamage();
+
 private:
     /* UTestWeaponComponent* GetWeaponComponent() const;
     UHelthComponent* GetHealthComponent() const;*/
+
+     //void UpdateHealthBar();
+
+    void OnHealthChanged(float Health, float HealthDelta);  //, float HealthDelta); 
+    void OnNewPawn(APawn* NewPawn);
+
 };

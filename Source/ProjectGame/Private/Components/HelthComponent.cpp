@@ -7,6 +7,7 @@
 #include "Player/ProjectPlayerCharacter.h"
 #include "Abilities/PGAttributeSet.h"
 #include "AI/ProjectAICharacter.h"
+#include "TestGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(HealthComponentLog, All, All)
 
@@ -104,9 +105,11 @@ void UHelthComponent::SetHealth(float NewHealth)
         // Health = Character->GetHealth();
         //  Character->GetAttributes()->SetHealth(Health + HealModifier);
     }
+    const auto NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+    const auto HealthDelta = NextHealth - Health;
+    Health = NextHealth;
 
-    Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
-    OnHealthChanged.Broadcast(Health);
+    OnHealthChanged.Broadcast(Health, HealthDelta);
 
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
 
@@ -120,4 +123,15 @@ void UHelthComponent::SetHealth(float NewHealth)
     }
     // if (Character) UE_LOG(HealthComponentLog, Display, TEXT("Set Health = %f %s"), Health, *Character->GetName());
     // UE_LOG(HealthComponentLog, Display, TEXT("HealthComponent set Attributes Helth = %f"), Health);
+}
+
+void UHelthComponent::Killed(AController* KillerController)
+{
+    if (!GetWorld()) return;
+    const auto GameMode = Cast<ATestGameModeBase>(GetWorld()->GetAuthGameMode());
+    if (!GameMode) return;
+
+    const auto Player = Cast<APawn>(GetOwner());
+    const auto VikimController = Player ? Player->Controller : nullptr;
+    GameMode->Killed(KillerController, VikimController);
 }

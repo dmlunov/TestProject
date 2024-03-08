@@ -60,9 +60,9 @@ void AProjectAICharacter::UpdateHealthWidgetVisibility()
     HealthWidgetComponent->SetVisibility(Distance < HealthVisibilityDistance, true);
 }
 
-void AProjectAICharacter::OnHealthChanged(float Health)
+void AProjectAICharacter::OnHealthChanged(float Health, float HealthDelta);
 {
-    Super::OnHealthChanged(Health);
+    Super::OnHealthChanged(Health, float HealthDelta);
 
     // GetUserWidgetObject() функция возвращает указатель на userwidget
     const auto HealthBarWidget = Cast<USTUHealthBarWidget>(HealthWidgetComponent->GetUserWidgetObject());

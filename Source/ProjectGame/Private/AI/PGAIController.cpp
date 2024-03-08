@@ -3,7 +3,7 @@
 #include "AI/PGAIController.h"
 #include "AI/ProjectAICharacter.h"
 #include "Components/PGAIPerceptionComponent.h"
-// #include "Components/STURespawnComponent.h"
+#include "Components/ProjectRespawnComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 APGAIController::APGAIController()
@@ -11,7 +11,7 @@ APGAIController::APGAIController()
     PGAIPerceptionComponent = CreateDefaultSubobject<UPGAIPerceptionComponent>("PGAIPerceptionComponent");
     SetPerceptionComponent(*PGAIPerceptionComponent);
     // для AI SetPerceptionComponent , для других Actors SetupAttachment(GetRootComponent());
-    // RespawnComponent = CreateDefaultSubobject<UPGRespawnComponent>("UPGRespawnComponent");
+    RespawnComponent = CreateDefaultSubobject<UProjectRespawnComponent>("ProjectRespawnComponent");
 
     bWantsPlayerState = true;
 }

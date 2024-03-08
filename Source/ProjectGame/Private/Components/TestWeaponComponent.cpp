@@ -243,7 +243,7 @@ void UTestWeaponComponent::OnReloadFinished(USkeletalMeshComponent* MeshComp)
 
 bool UTestWeaponComponent::CanFire() const
 {
-    return CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
+    return TestGameHUD && CurrentWeapon && !EquipAnimInProgress && !ReloadAnimInProgress && !TestGameHUD->bIsMenuVisible;
 }
 bool UTestWeaponComponent::CanEquip() const
 {

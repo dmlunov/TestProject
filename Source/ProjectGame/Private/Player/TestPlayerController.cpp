@@ -7,17 +7,68 @@
 #include "Player/PGPlayerState.h"
 #include "Components/PGAbilitySystemComponent.h"
 #include "Player/ProjectBaseCharacter.h"
-
+#include "Components/ProjectRespawnComponent.h"
+#include "TestGameModeBase.h"
+#include "ProjectCoreTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(PlayerControllerLog, All, All);
+
+
+ATestPlayerController::ATestPlayerController()
+{
+    RespawnComponent = CreateDefaultSubobject<UProjectRespawnComponent>("ProjectRespawnComponent");
+}
 
 void ATestPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+    if (GetWorld())
+    {
+        const auto GameMode = Cast<ATestGameModeBase>(GetWorld()->GetAuthGameMode());
+        if (GameMode)
+        {
+            GameMode->OnMatchStateChanged.AddUObject(this, &ATestPlayerController::OnMatchStateChanged);
+        }
+    }
+
    // TestGameHUD = Cast<ATestGameHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
    // PlayerHUDWidget = TestGameHUD->GetPlayerHUDWidget();
 }
 
+void ATestPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    // указатель на InputComponen так и называется
+    if (!InputComponent) return;
+
+    InputComponent->BindAction("PauseGame", IE_Pressed, this, &ATestPlayerController::OnPauseGame);
+    //InputComponent->BindAction("Mute", IE_Pressed, this, &ATestPlayerController::OnMuteSound);
+}
+
+void ATestPlayerController::OnPauseGame()
+{
+    if (!GetWorld() || !GetWorld()->GetAuthGameMode()) return;
+    GetWorld()->GetAuthGameMode()->SetPause(this);
+    // два пареметра: 1 - контролер; 2- специальный делегат определяющий можно ли поставить на паузу или нет. можно оставить по умолчанию
+}
+
+void ATestPlayerController::OnMatchStateChanged(ESTUMatchState State)
+
+{
+    if (State == ESTUMatchState::InProgress)
+    {
+        SetInputMode(FInputModeGameOnly());  // функция для указания типа инпута
+                                             // передаем FInputModeModeGameOnly() когда ESTUMatchState имеет тип ::InProgress
+        bShowMouseCursor = false;
+        // bShowMouseCursor переменная отвечающая за показ курсора
+    }
+    else
+    {
+        SetInputMode(FInputModeUIOnly());
+        // во всех остальных случаях передаем  FInputModeUIOnly()
+        bShowMouseCursor = true;
+    }
+}
 
 ATestGameHUD* ATestPlayerController::GetHUD() const
 {
@@ -26,8 +77,11 @@ ATestGameHUD* ATestPlayerController::GetHUD() const
     return TestGameHUD;
  }
 
+
+
 UTestPlayerHUDWidget* ATestPlayerController::GetPlayerHUDWidget() const
  {
+    if (!GetHUD()) return nullptr;
     return GetHUD()->GetPlayerHUDWidget();
 }
 

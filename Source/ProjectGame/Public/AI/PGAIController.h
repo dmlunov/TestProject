@@ -7,7 +7,7 @@
 #include "PGAIController.generated.h"
 
 class UPGAIPerceptionComponent;
-class UPGRespawnComponent;
+class UProjectRespawnComponent;
 /**
  * 
  */
@@ -29,8 +29,8 @@ protected:
     virtual void OnPossess(APawn* InPawn) override;
     virtual void Tick(float DeltaTime) override;
 
-   // UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-   // USTURespawnComponent* RespawnComponent;
+   UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UProjectRespawnComponent* RespawnComponent;
 
 private:
     AActor* GetFocusOnActor() const;

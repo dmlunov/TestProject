@@ -162,7 +162,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GASGameplayAbility|Character|Attributes")
     float GetMaxStamina() const;
 
-    virtual void OnHealthChanged(float Health);
+    virtual void OnHealthChanged (float Health, float HealthDelta);
     virtual void SetHealth(float Health);
     virtual void SetMana(float Mana);
     virtual void SetStamina(float Stamina);

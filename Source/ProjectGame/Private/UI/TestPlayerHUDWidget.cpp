@@ -7,6 +7,7 @@
 #include "Player/ProjectPlayerCharacter.h"
 #include "Player/ProjectBaseCharacter.h"
 #include "Components/TextBlock.h"
+#include "ProjectCoreTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(PlayerHUDWidgetLog, All, All);
 
@@ -22,6 +23,45 @@ void UTestPlayerHUDWidget::NativeConstruct()
         ManaText->SetText(FText::AsNumber(Character->GetMana()));
         StaminaText->SetText(FText::AsNumber(Character->GetStamina()));
     }
+}
+
+void UTestPlayerHUDWidget::NativeOnInitialized()
+{
+    Super::NativeOnInitialized();
+
+    APlayerController* Controller = GetOwningPlayer();
+
+    if (Controller)
+    {
+        GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &UTestPlayerHUDWidget::OnNewPawn);
+        OnNewPawn(GetOwningPlayerPawn());  // подписываемся на делегат вызова функции когда обновляеться павн
+    }
+}
+
+void UTestPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
+{
+    if (!NewPawn) return;
+
+    const auto HealthComponent = NewPawn->GetComponentByClass<UHelthComponent>();
+    if (HealthComponent && !HealthComponent->OnHealthChanged.IsBoundToObject(this))
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &UTestPlayerHUDWidget::OnHealthChanged);
+    }
+    // UpdateHealthBar();
+}
+
+void UTestPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)  //, float HealthDelta)
+{
+    if (HealthDelta < 0.0f)
+    {
+        //if (!IsAnimationPlaying(DamageAnimation))
+        //{
+        //    PlayAnimation(DamageAnimation);
+        //}
+        OnTakeDamage();
+    }
+
+    // UpdateHealthBar();
 }
 
 float UTestPlayerHUDWidget::GetHealthPercent() const
@@ -97,8 +137,8 @@ bool UTestPlayerHUDWidget::IsPlayerAlive() const
     if (!GetOwningPlayerPawn()) return false;
 
     const auto HealthComponent = GetOwningPlayerPawn()->GetComponentByClass<UHelthComponent>();
-        // const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
-        return HealthComponent && !HealthComponent->IsDead();
+    // const auto HealthComponent = ProjectUtils::GetProjectPlayerComponent<UHelthComponent>(GetOwningPlayerPawn());
+    return HealthComponent && !HealthComponent->IsDead();
 }
 
 bool UTestPlayerHUDWidget::IsPlayerSpectating() const

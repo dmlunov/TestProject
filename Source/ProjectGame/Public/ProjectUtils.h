@@ -1,6 +1,11 @@
 #pragma once
 #include "Player/PGPlayerState.h"
 
+#include "EditorLevelUtils.h"
+#include "Editor/EditorEngine.h"
+#include "Engine/LevelStreamingAlwaysLoaded.h"
+
+//#include "ProjectUtils.generated.h"
 
 class ProjectUtils
 {
@@ -25,5 +30,20 @@ public:
 
     // функция преобразования
     static FText TextFromInt(int32 Number) { return FText::FromString(FString::FromInt(Number)); }
+
+    
+   //// UFUNCTION()
+   // void static AddSublevelToEditorWorld(FStrinf SublevelPath, bool& bOutSuccess, FString& OutInfoMessage)
+   // {
+   //     0;
+   //   //  UWorld* World = GEditor->GetEditorWorldIdContext().World;
+
+   // }
+   //// UFUNCTION()
+   // void static RemoveSublevelFromEditorWorld(FStrinf SublevelPath, bool& bOutSuccess, FString& OutInfoMessage)
+   // {
+   //     0;
+   //     //
+   // }
 };
 

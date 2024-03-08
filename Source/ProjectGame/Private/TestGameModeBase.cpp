@@ -8,7 +8,7 @@
 #include "ProjectUtils.h"
 
 #include "AIController.h"
-// #include "Components/STURespawnComponent.h"
+#include "Components/ProjectRespawnComponent.h"
 #include "Components/TestWeaponComponent.h"
 #include "EngineUtils.h"  //получение всех акторов определеного типа
 
@@ -33,7 +33,7 @@ void ATestGameModeBase::StartPlay()
     CurrentRound = 1;
     StartRound();
 
-    // SetMatchState(ESTUMatchState::InProgress);
+     SetMatchState(ESTUMatchState::InProgress);
 }
 
 UClass* ATestGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
@@ -84,7 +84,7 @@ void ATestGameModeBase::GameTimerUpdate()
         }
         else
         {
-            0;  //  GameOver();
+              GameOver();
         }
     }
 }
@@ -158,105 +158,105 @@ void ATestGameModeBase::SetPlayerColor(AController* Controller)
     Character->SetPlayerColor(PlayerState->GetTeamColor());
 }
 
-// void ATestGameModeBase::Killed(AController* KillerController, AController* ViktimController)
-//{
-//     const auto KillerPlayerState = KillerController ? Cast<APGPlayerState>(KillerController->PlayerState) : nullptr;
-//     const auto ViktimPlayerState = ViktimController ? Cast<APGPlayerState>(ViktimController->PlayerState) : nullptr;
-//
-//     if (KillerPlayerState)
-//     {
-//         KillerPlayerState->AddKill();
-//     }
-//     if (ViktimPlayerState)
-//     {
-//         ViktimPlayerState->AddDeath();
-//     }
-//     StartRespawn(ViktimController);
-// }
-//
-// void ATestGameModeBase::LogPlayerInfo()
-//{
-//     if (!GetWorld()) return;
-//
-//     for (auto It = GetWorld()->GetControllerIterator(); It; ++It)
-//     {
-//         const auto Controller = It->Get();
-//         if (!Controller) continue;
-//         const auto PlayerState = Cast<APGPlayerState>(Controller->PlayerState);
-//         if (!PlayerState) continue;
-//
-//         PlayerState->LogInfo();
-//     }
-// }
-//
-// void ATestGameModeBase::StartRespawn(AController* Controller)
-//{
-//     // const auto RespawnAvailable = RoundCountDown > MinRaundTimeForRespawn + GameData.RespawnTime;
-//     // if (!RespawnAvailable) return;
-//     // const auto RespawnComponent = Controller->GetComponentByClass<UPGRespawnComponent>();
-//
-//     // if (!RespawnComponent) return;
-//     // RespawnComponent->Respawn(GameData.RespawnTime);
-// }
-//
-// void ATestGameModeBase::RespawnRequest(AController* Controller)
-//{
-//     ResetOnePlayer(Controller);
-// }
-//
-// void ATestGameModeBase::GameOver()
-//{
-//     UE_LOG(LogPGGameModeBase, Display, TEXT("=====Game Over======"));
-//     LogPlayerInfo();
-//     for (auto Pawn : TActorRange<APawn>(GetWorld()))  // собираем все павнов в игре !!!
-//     {
-//         if (Pawn)
-//         {
-//             Pawn->TurnOff();
-//             Pawn->DisableInput(nullptr);
-//         }
-//     }
-//     //
-//     SetMatchState(ESTUMatchState::GameOver);
-// }
-////
-// void ATestGameModeBase::SetMatchState(ESTUMatchState State)
-//{
-//     if (MatchState == State) return;
-//     MatchState = State;
-//     OnMatchStateChanged.Broadcast(MatchState);
-// }
-//
-// bool ATestGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
-//{
-//     const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
-//     if (PauseSet)
-//     {
-//         SetMatchState(ESTUMatchState::Pause);
-//     }
-//     return PauseSet;
-//     // возвращаем значение родительской фунции PC, CanUnpauseDelegate это похоже глобальные переменные
-// }
-//
-// bool ATestGameModeBase::ClearPause()
-//{
-//     const auto PauseCleared = Super::ClearPause();
-//     if (PauseCleared)
-//     {
-//         StopAllFire();
-//         SetMatchState(ESTUMatchState::InProgress);
-//     }
-//     return PauseCleared;
-// }
-//
-// void ATestGameModeBase::StopAllFire()
-//
-//{
-//     for (auto Pawn : TActorRange<APawn>(GetWorld()))
-//     {
-//         const auto WeaponComponent = Pawn->GetComponentByClass<UTestWeaponComponent>();
-//         if (!WeaponComponent) continue;
-//         WeaponComponent->StopFire();
-//         // WeaponComponent->Zoom(false);
-//     }
-// }
+ void ATestGameModeBase::Killed(AController* KillerController, AController* ViktimController)
+{
+     const auto KillerPlayerState = KillerController ? Cast<APGPlayerState>(KillerController->PlayerState) : nullptr;
+     const auto ViktimPlayerState = ViktimController ? Cast<APGPlayerState>(ViktimController->PlayerState) : nullptr;
+
+     if (KillerPlayerState)
+     {
+         KillerPlayerState->AddKill();
+     }
+     if (ViktimPlayerState)
+     {
+         ViktimPlayerState->AddDeath();
+     }
+     StartRespawn(ViktimController);
+ }
+
+ void ATestGameModeBase::LogPlayerInfo()
+{
+     if (!GetWorld()) return;
+
+     for (auto It = GetWorld()->GetControllerIterator(); It; ++It)
+     {
+         const auto Controller = It->Get();
+         if (!Controller) continue;
+         const auto PlayerState = Cast<APGPlayerState>(Controller->PlayerState);
+         if (!PlayerState) continue;
+
+         PlayerState->LogInfo();
+     }
+ }
+
+ void ATestGameModeBase::StartRespawn(AController* Controller)
+{
+      const auto RespawnAvailable = RoundCountDown > MinRaundTimeForRespawn + GameData.RespawnTime;
+      if (!RespawnAvailable) return;
+      const auto RespawnComponent = Controller->GetComponentByClass<UProjectRespawnComponent>();
+
+      if (!RespawnComponent) return;
+      RespawnComponent->Respawn(GameData.RespawnTime);
+ }
+
+ void ATestGameModeBase::RespawnRequest(AController* Controller)
+{
+     ResetOnePlayer(Controller);
+ }
+
+ void ATestGameModeBase::GameOver()
+{
+     UE_LOG(LogPGGameModeBase, Display, TEXT("=====Game Over======"));
+     LogPlayerInfo();
+     for (auto Pawn : TActorRange<APawn>(GetWorld()))  // собираем все павнов в игре !!!
+     {
+         if (Pawn)
+         {
+             Pawn->TurnOff();
+             Pawn->DisableInput(nullptr);
+         }
+     }
+     //
+     SetMatchState(ESTUMatchState::GameOver);
+ }
+
+ void ATestGameModeBase::SetMatchState(ESTUMatchState State)
+{
+   if (MatchState == State) return;
+     MatchState = State;
+     OnMatchStateChanged.Broadcast(MatchState);
+}
+
+ bool ATestGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
+{
+     const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+     if (PauseSet)
+     {
+         SetMatchState(ESTUMatchState::Pause);
+     }
+     return PauseSet;
+     // возвращаем значение родительской фунции PC, CanUnpauseDelegate это похоже глобальные переменные
+ }
+
+ bool ATestGameModeBase::ClearPause()
+{
+     const auto PauseCleared = Super::ClearPause();
+     if (PauseCleared)
+     {
+         StopAllFire();
+         SetMatchState(ESTUMatchState::InProgress);
+     }
+     return PauseCleared;
+ }
+
+ void ATestGameModeBase::StopAllFire()
+
+{
+     for (auto Pawn : TActorRange<APawn>(GetWorld()))
+     {
+         const auto WeaponComponent = Pawn->GetComponentByClass<UTestWeaponComponent>();
+         if (!WeaponComponent) continue;
+         WeaponComponent->StopFire();
+         // WeaponComponent->Zoom(false);
+     }
+ }

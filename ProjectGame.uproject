@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.3",
+	"EngineAssociation": "{C8A4D305-452C-55C8-F240-79874701E1F4}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -27,6 +27,10 @@
 		},
 		{
 			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "PixelStreaming",
 			"Enabled": true
 		}
 	],

@@ -192,7 +192,7 @@ void APGPlayerState::HealthChanged(const FOnAttributeChangeData& Data)
     //Health > GetMaxHealth() ? GetMaxHealth() : Health;
     AProjectBaseCharacter* CurentCharacter = Cast<AProjectBaseCharacter>(GetPawn());
 
-    if (CurentCharacter) CurentCharacter->OnHealthChanged(Health0);
+    if (CurentCharacter) CurentCharacter->OnHealthChanged(Health0, 0.0f);
 
     ATestPlayerController* PlayerController = Cast<ATestPlayerController>(GetOwner());
     if (PlayerController)

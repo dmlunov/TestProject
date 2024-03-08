@@ -18,6 +18,8 @@ class PROJECTGAME_API ATestGameModeBase : public AGameModeBase
 public:
     ATestGameModeBase();
 
+    FOnMatchStateChangedSignature OnMatchStateChanged;
+
     virtual void StartPlay() override;
 
    // virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
@@ -25,21 +27,22 @@ public:
    
    virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
-    //void Killed(AController* KillerController, AController* ViktimController);
+    void Killed(AController* KillerController, AController* ViktimController);
 
-    //FGameData GetGameData() const { return GameData; };
-    //int32 GetCurrentRoundNum() { return CurrentRound; };
-    //int32 GetRoundSecondRemaining() { return RoundCountDown; };
+    FGameData GetGameData() const { return GameData; };
+    int32 GetCurrentRoundNum() { return CurrentRound; };
+    int32 GetRoundSecondRemaining() { return RoundCountDown; };
 
-    //void RespawnRequest(AController* Controller);
-    ////
-    //FOnMatchStateChangedSignature OnMatchStateChanged;
+    void RespawnRequest(AController* Controller);
+    
 
-    //virtual bool SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate = FCanUnpause()) override;
+    virtual bool SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate = FCanUnpause()) override;
 
-    //virtual bool ClearPause() override;
+    virtual bool ClearPause() override;
 
 protected:
+
+
     UPROPERTY(EditDefaultsOnly, Category = "Game")
     TSubclassOf<AAIController> AIControllerClass;
 
@@ -73,13 +76,13 @@ private:
     void SetPlayerColor(AController* Controller);
 
 
-    //void LogPlayerInfo();
+    void LogPlayerInfo();
 
-    //void StartRespawn(AController* Controller);
+    void StartRespawn(AController* Controller);
 
-    //void GameOver();
-    ////
-    //void SetMatchState(ESTUMatchState);
+    void GameOver();
+    
+    void SetMatchState(ESTUMatchState);
 
-    //void StopAllFire();
+    void StopAllFire();
 };

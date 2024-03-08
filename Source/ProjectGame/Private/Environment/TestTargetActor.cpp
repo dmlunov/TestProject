@@ -32,8 +32,8 @@ void ATestTargetActor::BeginPlay()
     check(HealthTextComponent);
     check(StaticMeshComponent);
 
-    OnHealthChanged(HelthComponent->GetHealth());
-    
+    OnHealthChanged(HelthComponent->GetHealth(), 0.0f);
+
     HelthComponent->OnDeath.AddUObject(this, &ATestTargetActor::OnDeath);
     HelthComponent->OnHealthChanged.AddUObject(this, &ATestTargetActor::OnHealthChanged);
 
@@ -47,7 +47,7 @@ void ATestTargetActor::OnDeath()
     SetLifeSpan(1.0f);
 }
 
-void ATestTargetActor::OnHealthChanged(float Health)
+void ATestTargetActor::OnHealthChanged(float Health, float HealthDelta)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 
